@@ -1,12 +1,11 @@
 
 NOTE:
-**Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). I've added a windows_build.ps1 that can be used instead** :
+**Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). I've added a windows_build.ps1 that can be used instead to both builds and run:** :
 
 ```
 ./windows_build.ps1
 ```
-
-You'll need to get the aarch64-none-elf toolchain from [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads), the exact version is in `windows_build.ps1`(look for GCC_BIN_PATH). Once downloaded make sure to place it somewhere it won't get deleted and edit GCC_BIN_PATH accordingly.
+For some reason building it in this way makes it work. **You'll need to get the aarch64-none-elf toolchain from** [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads), the exact version is in `windows_build.ps1`(look for GCC_BIN_PATH). Once downloaded make sure to place it somewhere it won't get deleted and edit GCC_BIN_PATH accordingly.
 
 ## Getting the aarch64-elf bare-metal GNU Toolchain
 
