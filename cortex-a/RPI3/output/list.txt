@@ -1,4 +1,4 @@
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -58,7 +58,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   51 0060 0D000014 		b	.L10
   52              		.p2align 2,,3
   53              	.L7:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   54 0064 00000094 		bl	hal_video_put_pixel_area
@@ -118,7 +118,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  104 0052 00000000 		.align	3
  104      0000
  105              	.LC2:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  106 0058 5469636B 		.string	"Tick. (count: %d) \n"
@@ -178,7 +178,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  154              		.section	.rodata.str1.8
  155 006c 00000000 		.align	3
  156              	.LC3:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  157 0070 4D61696E 		.string	"Main Thread in Core 0\n"
@@ -238,7 +238,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  205              		.size	abs, .-abs
  206              		.align	2
  207 0234 1F2003D5 		.p2align 4,,15
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  207      1F2003D5 
@@ -281,24 +281,24 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  243              	tick_happened:
  244 0000 00000000 		.zero	4
  245              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 timer_handler
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:15     .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:23     .text:0000000000000010 thread_1
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:42     .text:0000000000000040 thread_2
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:112    .text:0000000000000110 thread_3
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:163    .text:00000000000001a0 kernel_main
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:203    .text:0000000000000230 abs
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:210    .text:0000000000000240 ms_to_us
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:219    .text:0000000000000250 secs_to_us
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:229    .text:0000000000000260 systick_diff_to_ms
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:243    .bss:0000000000000000 tick_happened
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:239    .bss:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 timer_handler
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:15     .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:23     .text:0000000000000010 thread_1
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:42     .text:0000000000000040 thread_2
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:112    .text:0000000000000110 thread_3
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:163    .text:00000000000001a0 kernel_main
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:203    .text:0000000000000230 abs
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:210    .text:0000000000000240 ms_to_us
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:219    .text:0000000000000250 secs_to_us
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:229    .text:0000000000000260 systick_diff_to_ms
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:243    .bss:0000000000000000 tick_happened
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:239    .bss:0000000000000000 $d
 
 UNDEFINED SYMBOLS
 hal_timer_delay_microsecs
@@ -310,7 +310,7 @@ system_init
 hal_cpu_thread_start
 hal_timer_start_poll
 hal_timer_start_int
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -370,7 +370,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   25      74656D20 
   25      5B4F4B5D 
   25      0A0D00
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   26 0113 00000000 		.align	3
@@ -430,7 +430,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   64 0048 73060071 		subs	w19, w19, #1
   65 004c A1FFFF54 		bne	.L5
   66 0050 F8FFFF17 		b	.L2
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
   67              	.L19:
@@ -490,7 +490,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  121 011c A1FFFF54 		bne	.L8
  122 0120 F4FFFF17 		b	.L4
  123              	.L3:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  124 0124 13000090 		adrp	x19, .LC4
@@ -550,7 +550,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  178              		.size	system_init, .-system_init
  179              		.align	2
  180              		.p2align 4,,15
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  181              		.global	wait_for_ten_secs
@@ -569,16 +569,16 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  194              		.size	wait_for_ten_secs, .-wait_for_ten_secs
  195              		.comm	info_buf,100,8
  196              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 system.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:5      .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:39     .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:43     .text:0000000000000000 system_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:5      .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:39     .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:43     .text:0000000000000000 system_init
                             *COM*:0000000000000064 info_buf
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:183    .text:00000000000001f0 wait_for_ten_secs
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:183    .text:00000000000001f0 wait_for_ten_secs
 
 UNDEFINED SYMBOLS
 hal_io_serial_init
@@ -594,7 +594,7 @@ hal_sd_card_init
 fat_init
 hal_timer_init
 kprintf
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              	# 1 "src/smartstart/SmartStart64.S"
@@ -654,7 +654,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   52              	
   53 0024 001380D2 		mov x0, #0x98							// Compiled for ARM8 CPU in AARCH64 and supports 4 cores
   54 0028 410D0058 		ldr x1, =RPi_CompileMode				// Address of RPi_CompileMode
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   55 002c 200000B9 		str w0, [x1]							// Store the compiler mode
@@ -714,7 +714,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  109              	
  110              	//"================================================================"
  111              	//  Disable coprocessor traps for all Cores
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  112              	//"================================================================"
@@ -774,7 +774,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  166              	
  167              	//"================================================================"
  168              	//  About to go to into C kernel clear BSS (Core0 only)
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  169              	//"================================================================"
@@ -834,7 +834,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  223 01ac 00000014 		b hang
  224              	.balign	4
  225 01b0 00000000 	.ltorg										/* Tell assembler ltorg data for code above can go here */
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  225      00000000 
@@ -894,7 +894,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  276 02dc 200080D2 		mov x0, #1
  277 02e0 C0035FD6 		ret
  278              	CoreExecuteFail:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  279 02e4 000080D2 		mov x0, #0
@@ -954,7 +954,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  330              	.global GPUaddrToARMaddr;
  331              	.type GPUaddrToARMaddr, %function
  332              	//"================================================================"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  333              	// GPUaddrToARMaddr -- AARCH64 Pi3 code
@@ -1014,7 +1014,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  387 0070 E2000036 		tbz	x2, 0, .TimerIrqNotPending	    // If timer IRQ pending not yet exit
  388 0074 02809652 		mov	w2, 46080						// W2 = 0xB400
  389 0078 0000020B 		add	w0, w0, w2						// Add Pi Base Addr + 0xB400
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  390 007c 020C00B9 		str	w2, [x0, 12]					// Store W2 to IRQPending1 clearing it
@@ -1074,7 +1074,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  438      1F2003D5 
  438      1F2003D5 
  438      1F2003D5 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  439 0884 1F2003D5 		vector	hang			/* FIQ */
@@ -1134,7 +1134,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  453              	
  454              		/* from lower EL, target EL minus 1 is AArch32 */
  455 0d84 1F2003D5 		vector	hang			/* Synchronous */
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  455      1F2003D5 
@@ -1186,7 +1186,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  486              	****************************************************************/
  487 0018 00000000 	RPi_TimerIrqAddr : .8byte 0;			// Timer Irq Address
  487      00000000 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
 DEFINED SYMBOLS
@@ -1246,14 +1246,14 @@ __EL2_stack_core3
 __EL1_stack_core3
 __EL0_stack_core3
 __bss_end__
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 12
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 12
 
 
 __bss_start__
 kernel_main
 synchronous_handler
 hal_synchronous_handler
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -1313,7 +1313,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00a8 E40F4729 		ldp	w4, w3, [sp, 56]
   56 00ac 640E0029 		stp	w4, w3, [x19]
   57 00b0 E2074829 		ldp	w2, w1, [sp, 64]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 00b4 62060129 		stp	w2, w1, [x19, 8]
@@ -1373,7 +1373,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  112              		.size	mailbox_tag_message.constprop.0, .-mailbox_tag_message.constprop.0
  113              		.align	2
  114              		.p2align 4,,15
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  115              		.global	memcpy
@@ -1433,7 +1433,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  160 002a 00000000 		.align	3
  160      0000
  161              	.LC3:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  162 0030 61726D31 		.string	"arm1176jzf-s"
@@ -1493,7 +1493,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  212 024c 437CA39B 		umull	x3, w2, w3
  213 0250 E4008052 		mov	w4, 7
  214 0254 20008052 		mov	w0, 1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  215 0258 A5004811 		add	w5, w5, 2097152
@@ -1553,7 +1553,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  267              		.type	gpio_input, %function
  268              	gpio_input:
  269 0300 1FD80071 		cmp	w0, 54
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  270 0304 A8010054 		bhi	.L84
@@ -1613,7 +1613,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  324 03a0 4120C01A 		lsl	w1, w2, w0
  325 03a4 E003022A 		mov	w0, w2
  326 03a8 617824B8 		str	w1, [x3, x4, lsl 2]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  327 03ac C0035FD6 		ret
@@ -1673,7 +1673,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  380 0448 C0035FD6 		ret
  381              		.size	gpio_edgeDetect, .-gpio_edgeDetect
  382              		.align	2
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  383 044c 1F2003D5 		.p2align 4,,15
@@ -1733,7 +1733,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  437 04f0 400840B9 		ldr	w0, [x2, 8]
  438 04f4 430440B9 		ldr	w3, [x2, 4]
  439 04f8 410840B9 		ldr	w1, [x2, 8]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  440 04fc 1F00016B 		cmp	w0, w1
@@ -1793,7 +1793,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  492 0598 220840B9 		ldr	w2, [x1, 8]
  493 059c 1F00026B 		cmp	w0, w2
  494 05a0 81FFFF54 		bne	.L118
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  495 05a4 E303032A 		uxtw	x3, w3
@@ -1853,7 +1853,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  547 0628 411840B9 		ldr	w1, [x2, 24]
  548 062c E1FFF737 		tbnz	x1, 30, .L131
  549 0630 410040B9 		ldr	w1, [x2]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
  550 0634 230C0012 		and	w3, w1, 15
@@ -1913,7 +1913,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  602 06e8 41FFFF54 		bne	.L140
  603 06ec 40000034 		cbz	w0, .L143
  604 06f0 E13B00B9 		str	w1, [sp, 56]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 12
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 12
 
 
  605              	.L143:
@@ -1973,7 +1973,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  659 07ac 0100B052 		mov	w1, -2147483648
  660 07b0 00008052 		mov	w0, 0
  661 07b4 5F00016B 		cmp	w2, w1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 13
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 13
 
 
  662 07b8 80000054 		beq	.L172
@@ -2033,7 +2033,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  716 0868 639B86D2 		mov	x3, 13531
  717 086c C3F6BAF2 		movk	x3, 0xd7b6, lsl 16
  718 0870 E00314AA 		mov	x0, x20
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 14
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 14
 
 
  719 0874 43D0DBF2 		movk	x3, 0xde82, lsl 32
@@ -2093,7 +2093,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  772 0934 F37BC2A8 		ldp	x19, x30, [sp], 32
  773 0938 C0035FD6 		ret
  774              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 15
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 15
 
 
  775              	.L176:
@@ -2153,7 +2153,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  829 09f0 C0035FD6 		ret
  830              		.p2align 2,,3
  831              	.L187:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 16
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 16
 
 
  832 09f4 33008052 		mov	w19, 1
@@ -2213,7 +2213,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  884 0aa0 A1008052 		mov	w1, 5
  885 0aa4 FFFF01A9 		stp	xzr, xzr, [sp, 24]
  886 0aa8 FF2B00B9 		str	wzr, [sp, 40]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 17
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 17
 
 
  887 0aac 55FDFF97 		bl	mailbox_tag_message.constprop.1
@@ -2273,7 +2273,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  937 0b40 450040B9 		ldr	w5, [x2, #:lo12:RPi_CoresReady]
  938 0b44 02000090 		adrp	x2, .LC4
  939 0b48 42000091 		add	x2, x2, :lo12:.LC4
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 18
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 18
 
 
  940 0b4c 00000014 		b	snprintf
@@ -2324,40 +2324,40 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  982      00000000 
  982      00000000 
  983              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 19
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 19
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 rpi-SmartStart.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:7      .text:0000000000000000 mailbox_tag_message.constprop.1
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:69     .text:00000000000000d0 mailbox_tag_message.constprop.0
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:117    .text:0000000000000170 memcpy
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:135    .text:00000000000001a0 strlen
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:151    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:168    .text:00000000000001d0 RPi_CpuIdString
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:198    .text:0000000000000220 gpio_setup
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:232    .text:0000000000000290 gpio_output
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:268    .text:0000000000000300 gpio_input
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:292    .text:0000000000000340 gpio_checkEvent
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:315    .text:0000000000000380 gpio_clearEvent
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:337    .text:00000000000003c0 gpio_edgeDetect
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:386    .text:0000000000000450 gpio_fixResistor
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:455    .text:0000000000000530 timer_getTickCount
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:474    .text:0000000000000560 timer_wait
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:505    .text:00000000000005c0 tick_difference
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:513    .text:00000000000005d0 mailbox_write
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:538    .text:0000000000000610 mailbox_read
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:564    .text:0000000000000660 mailbox_tag_message
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:689    .text:0000000000000800 TimerIrqSetup
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:757    .text:0000000000000900 set_Activity_LED
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:875    .text:0000000000000a80 ARM_setmaxspeed
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:920    .text:0000000000000b00 displaySmartStart
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:981    .bss:0000000000000004 console
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:965    .data:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:969    .data:0000000000000000 ActivityGPIOPort
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:972    .bss:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:976    .bss:0000000000000000 ModelCheckHasRun
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:7      .text:0000000000000000 mailbox_tag_message.constprop.1
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:69     .text:00000000000000d0 mailbox_tag_message.constprop.0
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:117    .text:0000000000000170 memcpy
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:135    .text:00000000000001a0 strlen
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:151    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:168    .text:00000000000001d0 RPi_CpuIdString
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:198    .text:0000000000000220 gpio_setup
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:232    .text:0000000000000290 gpio_output
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:268    .text:0000000000000300 gpio_input
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:292    .text:0000000000000340 gpio_checkEvent
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:315    .text:0000000000000380 gpio_clearEvent
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:337    .text:00000000000003c0 gpio_edgeDetect
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:386    .text:0000000000000450 gpio_fixResistor
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:455    .text:0000000000000530 timer_getTickCount
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:474    .text:0000000000000560 timer_wait
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:505    .text:00000000000005c0 tick_difference
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:513    .text:00000000000005d0 mailbox_write
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:538    .text:0000000000000610 mailbox_read
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:564    .text:0000000000000660 mailbox_tag_message
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:689    .text:0000000000000800 TimerIrqSetup
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:757    .text:0000000000000900 set_Activity_LED
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:875    .text:0000000000000a80 ARM_setmaxspeed
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:920    .text:0000000000000b00 displaySmartStart
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:981    .bss:0000000000000004 console
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:965    .data:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:969    .data:0000000000000000 ActivityGPIOPort
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:972    .bss:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:976    .bss:0000000000000000 ModelCheckHasRun
 
 UNDEFINED SYMBOLS
 ARMaddrToGPUaddr
@@ -2366,7 +2366,7 @@ RPi_CpuId
 setTimerIrqAddress
 RPi_CoresReady
 snprintf
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -2426,7 +2426,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55              		// End of user assembly
   56 005c 1F0001EB 		cmp	x0, x1
   57 0060 C8FFFF54 		bhi	.L10
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 0064 C0035FD6 		ret
@@ -2486,7 +2486,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  110 0108 230040B9 		ldr	w3, [x1]
  111 010c 1F00036B 		cmp	w0, w3
  112 0110 00010054 		beq	.L17
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  113 0114 200040B9 		ldr	w0, [x1]
@@ -2506,19 +2506,19 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  127 0140 C0035FD6 		ret
  128              		.size	delays_wait_msec_st, .-delays_wait_msec_st
  129              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 delays.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 delays_wait_cycles
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:28     .text:0000000000000020 delays_wait_microsecs
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:64     .text:0000000000000070 get_system_timer
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:85     .text:00000000000000b0 delays_wait_msec_st
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 delays_wait_cycles
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:28     .text:0000000000000020 delays_wait_microsecs
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:64     .text:0000000000000070 get_system_timer
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:85     .text:00000000000000b0 delays_wait_msec_st
 
 NO UNDEFINED SYMBOLS
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -2578,7 +2578,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00b8 E003012A 		mov	w0, w1
   56 00bc 675600B9 		str	w7, [x19, 84]
   57 00c0 625A00B9 		str	w2, [x19, 88]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 00c4 625E00B9 		str	w2, [x19, 92]
@@ -2619,18 +2619,18 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   93 0144 C0035FD6 		ret
   94              		.size	fb_init, .-fb_init
   95              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 fb.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 fb_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 fb_init
 
 UNDEFINED SYMBOLS
 mbox
 mbox_call
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -2683,17 +2683,17 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   48              		.size	mbox_call, .-mbox_call
   49              		.comm	mbox,144,16
   50              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mbox.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 mbox_call
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 mbox_call
                             *COM*:0000000000000090 mbox
 
 NO UNDEFINED SYMBOLS
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -2753,7 +2753,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00a4 C0035FD6 		ret
   56              	.L18:
   57 00a8 F71340F9 		ldr	x23, [sp, 32]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58              	.L7:
@@ -2813,7 +2813,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  112 0154 FE1340F9 		ldr	x30, [sp, 32]
  113 0158 F353C3A8 		ldp	x19, x20, [sp], 48
  114 015c C0035FD6 		ret
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  115              	.L22:
@@ -2873,7 +2873,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  153              	.LC6:
  154 0070 4552524F 		.string	"ERROR: failed to send EMMC command\n"
  154      523A2066 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  154      61696C65 
@@ -2933,7 +2933,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  204              	.L45:
  205 0240 210340B9 		ldr	w1, [x25]
  206 0244 20008052 		mov	w0, 1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  207 0248 3F00186A 		tst	w1, w24
@@ -2993,7 +2993,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  261 0314 3A009052 		mov	w26, 32769
  262 0318 DA2FA072 		movk	w26, 0x17e, lsl 16
  263 031c 04000014 		b	.L55
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  264              		.p2align 2,,3
@@ -3053,7 +3053,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  318              	.L93:
  319 03e0 F96B43A9 		ldp	x25, x26, [sp, 48]
  320              	.L40:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  321 03e4 F55B41A9 		ldp	x21, x22, [sp, 16]
@@ -3113,7 +3113,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  375 048c 420040B9 		ldr	w2, [x2]
  376 0490 2100032A 		orr	w1, w1, w3
  377 0494 F96B43A9 		ldp	x25, x26, [sp, 48]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  378 0498 0000022A 		orr	w0, w0, w2
@@ -3173,7 +3173,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  427      0000
  428              	.LC8:
  429 00b0 206E756D 		.string	" num "
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  429      2000
@@ -3233,7 +3233,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  479 05c8 94060051 		sub	w20, w20, #1
  480 05cc 9F060031 		cmn	w20, #1
  481 05d0 200D0054 		beq	.L108
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  482 05d4 00000094 		bl	delays_wait_microsecs
@@ -3293,7 +3293,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  536 0690 FA478852 		mov	w26, 16959
  537 0694 FA01A072 		movk	w26, 0xf, lsl 16
  538 0698 1F00146A 		tst	w0, w20
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
  539 069c A0000054 		beq	.L124
@@ -3353,7 +3353,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  593 0750 00000094 		bl	sd_cmd
  594 0754 200340F9 		ldr	x0, [x25, #:lo12:sd_err]
  595 0758 200400B5 		cbnz	x0, .L118
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 12
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 12
 
 
  596 075c 000340F9 		ldr	x0, [x24, #:lo12:sd_scr]
@@ -3413,7 +3413,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  650 0810 19000090 		adrp	x25, sd_err
  651 0814 410000B9 		str	w1, [x2]
  652 0818 CDFFFF17 		b	.L134
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 13
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 13
 
 
  653              	.L175:
@@ -3473,7 +3473,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  698      6F757420 
  698      77616974 
  699 012c 00000000 		.align	3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 14
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 14
 
 
  700              	.LC12:
@@ -3533,7 +3533,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  750 0940 94060051 		sub	w20, w20, #1
  751 0944 9F060031 		cmn	w20, #1
  752 0948 600D0054 		beq	.L183
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 15
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 15
 
 
  753 094c 00000094 		bl	delays_wait_microsecs
@@ -3593,7 +3593,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  807 0a0c 600240B9 		ldr	w0, [x19]
  808 0a10 FA478852 		mov	w26, 16959
  809 0a14 FA01A072 		movk	w26, 0xf, lsl 16
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 16
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 16
 
 
  810 0a18 1F00146A 		tst	w0, w20
@@ -3653,7 +3653,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  864 0acc E103172A 		mov	w1, w23
  865 0ad0 00000094 		bl	sd_cmd
  866 0ad4 200340F9 		ldr	x0, [x25, #:lo12:sd_err]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 17
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 17
 
 
  867 0ad8 000800B5 		cbnz	x0, .L193
@@ -3713,7 +3713,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  921 0b90 E26F40B9 		ldr	w2, [sp, 108]
  922 0b94 41008052 		mov	w1, 2
  923 0b98 010000B9 		str	w1, [x0]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 18
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 18
 
 
  924 0b9c 5F040071 		cmp	w2, 1
@@ -3773,7 +3773,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  978 0c54 F353C7A8 		ldp	x19, x20, [sp], 112
  979 0c58 C0035FD6 		ret
  980              	.L267:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 19
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 19
 
 
  981 0c5c 010680D2 		mov	x1, 48
@@ -3833,7 +3833,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1029      6C6B2064 
  1029      69766973 
  1029      6F722000 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 20
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 20
 
 
  1030              		.align	3
@@ -3893,7 +3893,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1075 0d64 410000B9 		str	w1, [x2]
  1076 0d68 00000094 		bl	delays_wait_microsecs
  1077 0d6c B3060071 		subs	w19, w21, #1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 21
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 21
 
 
  1078 0d70 E00A0054 		beq	.L292
@@ -3953,7 +3953,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1132 0e34 00000091 		add	x0, x0, :lo12:.LC4
  1133 0e38 00000094 		bl	kprintf_debug
  1134 0e3c F40316AA 		mov	x20, x22
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 22
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 22
 
 
  1135 0e40 E00240F9 		ldr	x0, [x23, #:lo12:sd_hv]
@@ -4013,7 +4013,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1189 0ef0 55008052 		mov	w21, 2
  1190 0ef4 BFFFFF17 		b	.L280
  1191              	.L278:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 23
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 23
 
 
  1192 0ef8 00000090 		adrp	x0, .LC13
@@ -4073,7 +4073,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1223      00
  1224 0259 00000000 		.align	3
  1224      000000
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 24
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 24
 
 
  1225              	.LC23:
@@ -4133,7 +4133,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1261 0f70 13E284D2 		mov	x19, 10000
  1262 0f74 B70200B9 		str	w23, [x21]
  1263 0f78 00000094 		bl	delays_wait_cycles
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 25
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 25
 
 
  1264 0f7c 00009052 		mov	w0, 32768
@@ -4193,7 +4193,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1318 1054 010000B9 		str	w1, [x0]
  1319 1058 04000014 		b	.L308
  1320              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 26
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 26
 
 
  1321              	.L395:
@@ -4253,7 +4253,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1375 1120 41358052 		mov	w1, 426
  1376 1124 4000A152 		mov	w0, 134348800
  1377 1128 00000094 		bl	sd_cmd
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 27
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 27
 
 
  1378 112c D50080D2 		mov	x21, 6
@@ -4313,7 +4313,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1432 11f8 2040A052 		mov	w0, 33619968
  1433 11fc 00000094 		bl	sd_cmd
  1434 1200 01008052 		mov	w1, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 28
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 28
 
 
  1435 1204 4060A052 		mov	w0, 50462720
@@ -4373,7 +4373,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1489 12b8 E03740F9 		ldr	x0, [sp, 104]
  1490 12bc 00000094 		bl	kprintf_debug
  1491 12c0 B5FFFF17 		b	.L314
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 29
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 29
 
 
  1492              	.L323:
@@ -4433,7 +4433,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1546 1380 02018052 		mov	w2, 8
  1547 1384 2200A072 		movk	w2, 0x1, lsl 16
  1548 1388 220000B9 		str	w2, [x1]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 30
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 30
 
 
  1549 138c 00028052 		mov	w0, 16
@@ -4493,7 +4493,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1603 144c 380080D2 		mov	x24, 1
  1604 1450 40FF5F37 		tbnz	x0, 11, .L407
  1605              	.L337:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 31
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 31
 
 
  1606 1454 20008052 		mov	w0, 1
@@ -4553,7 +4553,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1660 1510 E1079F9A 		cset	x1, ne
  1661 1514 000001AA 		orr	x0, x0, x1
  1662 1518 C00200F9 		str	x0, [x22, #:lo12:sd_scr]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 32
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 32
 
 
  1663 151c F96B43A9 		ldp	x25, x26, [sp, 48]
@@ -4594,31 +4594,31 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1698              		.comm	sd_ocr,8,8
  1699              		.comm	sd_scr,16,8
  1700              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 33
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 33
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 sd.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 sd_status
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:69     .text:00000000000000c0 sd_int
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:134    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:160    .text:00000000000001a0 sd_cmd
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 sd_status
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:69     .text:00000000000000c0 sd_int
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:134    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:160    .text:00000000000001a0 sd_cmd
                             *COM*:0000000000000008 sd_err
                             *COM*:0000000000000008 sd_rca
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:438    .text:0000000000000530 sd_readblock
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:438    .text:0000000000000530 sd_readblock
                             *COM*:0000000000000010 sd_scr
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:707    .text:00000000000008a0 sd_writeblock
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:1041   .text:0000000000000cf0 sd_clk
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:707    .text:00000000000008a0 sd_writeblock
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:1041   .text:0000000000000cf0 sd_clk
                             *COM*:0000000000000008 sd_hv
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:1244   .text:0000000000000f30 sd_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:1244   .text:0000000000000f30 sd_init
                             *COM*:0000000000000008 sd_ocr
 
 UNDEFINED SYMBOLS
 delays_wait_microsecs
 kprintf_debug
 delays_wait_cycles
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -4678,7 +4678,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00b8 00E4A7F2 		movk	x0, 0x3f20, lsl 16
   56 00bc 820482D2 		mov	x2, 4132
   57 00c0 02E4A7F2 		movk	x2, 0x3f20, lsl 16
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 00c4 E3FF8052 		mov	w3, 2047
@@ -4738,7 +4738,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  110 0168 1F2003D5 		.p2align 4,,15
  110      1F2003D5 
  111              		.global	uart0_puthex_32_bits
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  112              		.type	uart0_puthex_32_bits, %function
@@ -4798,7 +4798,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  165              		.align	2
  166 01fc 1F2003D5 		.p2align 4,,15
  167              		.global	uart0_nonblocking_getc
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  168              		.type	uart0_nonblocking_getc, %function
@@ -4858,7 +4858,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  222 0284 1F2003D5 		.p2align 4,,15
  222      1F2003D5 
  222      1F2003D5 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  223              		.global	uart0_puts
@@ -4918,7 +4918,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  275              	uart0_dump:
  276 0300 01000891 		add	x1, x0, 512
  277 0304 E50300AA 		mov	x5, x0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  278 0308 1F0001EB 		cmp	x0, x1
@@ -4978,7 +4978,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  332 03b0 1F2003D5 		nop
  333              	// 0 "" 2
  334              		// End of user assembly
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  335 03b4 010040B9 		ldr	w1, [x0]
@@ -5038,7 +5038,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  389 0440 C1FF2F37 		tbnz	x1, 5, .L53
  390 0444 620000B9 		str	w2, [x3]
  391              		.p2align 3,,7
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  392              	.L54:
@@ -5098,7 +5098,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  446 04c4 010040B9 		ldr	w1, [x0]
  447 04c8 C1FF2F37 		tbnz	x1, 5, .L62
  448 04cc 710000B9 		str	w17, [x3]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  449 04d0 29410091 		add	x9, x9, 16
@@ -5122,27 +5122,27 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  467 04fc C0035FD6 		ret
  468              		.size	uart0_dump, .-uart0_dump
  469              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 uart.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 uart0_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:79     .text:0000000000000110 uart0_puthex_64_bits
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:113    .text:0000000000000170 uart0_puthex_32_bits
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:147    .text:00000000000001d0 uart0_putc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:169    .text:0000000000000200 uart0_nonblocking_getc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:200    .text:0000000000000250 uart0_getc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:225    .text:0000000000000290 uart0_puts
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:267    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:275    .text:0000000000000300 uart0_dump
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 uart0_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:79     .text:0000000000000110 uart0_puthex_64_bits
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:113    .text:0000000000000170 uart0_puthex_32_bits
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:147    .text:00000000000001d0 uart0_putc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:169    .text:0000000000000200 uart0_nonblocking_getc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:200    .text:0000000000000250 uart0_getc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:225    .text:0000000000000290 uart0_puts
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:267    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:275    .text:0000000000000300 uart0_dump
 
 UNDEFINED SYMBOLS
 mbox
 mbox_call
 delays_wait_cycles
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -5202,7 +5202,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00ac 63464039 		ldrb	w3, [x19, 17]
   56 00b0 82578052 		mov	w2, 700
   57 00b4 654A4039 		ldrb	w5, [x19, 18]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 00b8 00000090 		adrp	x0, fat_table_buffer
@@ -5262,7 +5262,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  112 0178 131040B9 		ldr	w19, [x0, 16]
  113 017c 1500BE12 		mov	w21, 268435455
  114 0180 F77B02A9 		stp	x23, x30, [sp, 32]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  115 0184 F70301AA 		mov	x23, x1
@@ -5322,7 +5322,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  169 0244 1F2003D5 		.p2align 3,,7
  170              	.L18:
  171 0248 440740B9 		ldr	w4, [x26, 4]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  172 024c A30A0051 		sub	w3, w21, #2
@@ -5382,7 +5382,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  226 031c 03580039 		strb	w3, [x0, 22]
  227 0320 02600039 		strb	w2, [x0, 24]
  228 0324 01640039 		strb	w1, [x0, 25]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  229              	.L15:
@@ -5442,7 +5442,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  283 03c8 800B0034 		cbz	w0, .L36
  284 03cc 61270091 		add	x1, x27, 9
  285 03d0 F3E30191 		add	x19, sp, 120
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  286 03d4 F55B01A9 		stp	x21, x22, [sp, 16]
@@ -5502,7 +5502,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  340 0488 D6060011 		add	w22, w22, 1
  341 048c 73720091 		add	x19, x19, 28
  342 0490 DF02006B 		cmp	w22, w0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  343 0494 43FBFF54 		bcc	.L35
@@ -5562,7 +5562,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  397              		.align	2
  398 0558 1F2003D5 		.p2align 4,,15
  398      1F2003D5 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  399              		.global	cluster_to_sector
@@ -5622,7 +5622,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  452 05d0 9F00016B 		cmp	w4, w1
  453 05d4 4220C31A 		lsl	w2, w2, w3
  454 05d8 63200011 		add	w3, w3, 8
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  455 05dc 0000022A 		orr	w0, w0, w2
@@ -5637,31 +5637,31 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  464              		.comm	buffer,512,8
  465              		.comm	fat_table_buffer,358400,8
  466              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 fat.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 fat_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 fat_init
                             *COM*:0000000000000200 buffer
                             *COM*:0000000000000034 boot_sector
                             *COM*:0000000000057800 fat_table_buffer
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:105    .text:0000000000000160 fat_file_read
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:151    .text:0000000000000200 fat_read_files_in_dir
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:260    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:268    .text:0000000000000390 fat_file_open
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:401    .text:0000000000000560 cluster_to_sector
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:414    .text:0000000000000580 num_of_clusters_to_sectors
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:424    .text:0000000000000590 cluster_to_fat_table_offset
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:432    .text:00000000000005a0 num_of_sectors_to_bytes
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:442    .text:00000000000005b0 offset_read_n_bytes
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:105    .text:0000000000000160 fat_file_read
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:151    .text:0000000000000200 fat_read_files_in_dir
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:260    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:268    .text:0000000000000390 fat_file_open
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:401    .text:0000000000000560 cluster_to_sector
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:414    .text:0000000000000580 num_of_clusters_to_sectors
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:424    .text:0000000000000590 cluster_to_fat_table_offset
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:432    .text:00000000000005a0 num_of_sectors_to_bytes
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:442    .text:00000000000005b0 offset_read_n_bytes
 
 UNDEFINED SYMBOLS
 hal_sd_card_read_block
 memcpy
 strlen
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -5721,7 +5721,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 0090 41FFFF54 		bne	.L7
   56 0094 F5023291 		add	x21, x23, 3200
   57 0098 E1031BAA 		mov	x1, x27
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 009c E00315AA 		mov	x0, x21
@@ -5781,7 +5781,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  112 0174 820C80D2 		mov	x2, 100
  113 0178 630300B9 		str	w3, [x27]
  114 017c 74FF0129 		stp	w20, wzr, [x27, 12]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  115 0180 791300F9 		str	x25, [x27, 32]
@@ -5841,7 +5841,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  169 0258 E1031BAA 		mov	x1, x27
  170 025c 8300C0F2 		movk	x3, 0x4, lsl 32
  171 0260 A0823E91 		add	x0, x21, 4000
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  172 0264 820C80D2 		mov	x2, 100
@@ -5901,7 +5901,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  226 033c E1031BAA 		mov	x1, x27
  227 0340 820C80D2 		mov	x2, 100
  228 0344 630300B9 		str	w3, [x27]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  229 0348 741F00B9 		str	w20, [x27, 28]
@@ -5961,7 +5961,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  283 0420 820C80D2 		mov	x2, 100
  284 0424 780300B9 		str	w24, [x27]
  285 0428 730B00B9 		str	w19, [x27, 8]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  286 042c 630B00F9 		str	x3, [x27, 16]
@@ -6021,7 +6021,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  340 0504 4800C0F2 		movk	x8, 0x2, lsl 32
  341 0508 630B00F9 		str	x3, [x27, 16]
  342 050c 43008012 		mov	w3, 4294967293
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  343 0510 E002078B 		add	x0, x23, x7
@@ -6081,7 +6081,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  397 05e8 8500C0F2 		movk	x5, 0x4, lsl 32
  398 05ec 8300C0F2 		movk	x3, 0x4, lsl 32
  399 05f0 E1031BAA 		mov	x1, x27
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  400 05f4 A0421F91 		add	x0, x21, 2000
@@ -6141,7 +6141,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  454 06cc E67B7FB2 		mov	x6, 4294967294
  455 06d0 8700C0F2 		movk	x7, 0x4, lsl 32
  456 06d4 63008012 		mov	w3, -4
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  457 06d8 E1031BAA 		mov	x1, x27
@@ -6201,7 +6201,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  511 07b0 43008012 		mov	w3, 4294967293
  512 07b4 E1031BAA 		mov	x1, x27
  513 07b8 E0823E91 		add	x0, x23, 4000
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  514 07bc 820C80D2 		mov	x2, 100
@@ -6255,21 +6255,21 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  555      00000000 
  555      00000000 
  556              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 fonts.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 fonts_char_to_font
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:554    .bss:0000000000000068 char_font_map
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:32     .text:0000000000000040 fonts_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:545    .bss:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:549    .bss:0000000000000000 font
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 fonts_char_to_font
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:554    .bss:0000000000000068 char_font_map
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:32     .text:0000000000000040 fonts_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:545    .bss:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:549    .bss:0000000000000000 font
 
 UNDEFINED SYMBOLS
 memcpy
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -6329,7 +6329,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   48 0068 C0035FD6 		ret
   49              		.size	hal_cpu_svc_start, .-hal_cpu_svc_start
   50              		.align	2
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   51 006c 1F2003D5 		.p2align 4,,15
@@ -6342,19 +6342,19 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   58              		.size	hal_cpu_delay, .-hal_cpu_delay
   59              		.comm	svc_callback,8,8
   60              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 hal_cpu.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 hal_cpu_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:24     .text:0000000000000030 hal_cpu_ints_enable
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:31     .text:0000000000000040 hal_cpu_ints_disable
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:38     .text:0000000000000050 hal_cpu_thread_start
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:45     .text:0000000000000060 hal_cpu_svc_start
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 hal_cpu_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:24     .text:0000000000000030 hal_cpu_ints_enable
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:31     .text:0000000000000040 hal_cpu_ints_disable
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:38     .text:0000000000000050 hal_cpu_thread_start
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:45     .text:0000000000000060 hal_cpu_svc_start
                             *COM*:0000000000000008 svc_callback
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:54     .text:0000000000000070 hal_cpu_delay
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:54     .text:0000000000000070 hal_cpu_delay
 
 UNDEFINED SYMBOLS
 RPi_CpuIdString
@@ -6363,7 +6363,7 @@ EnableInterrupts
 DisableInterrupts
 CoreExecute
 delays_wait_microsecs
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              	# 1 "src/hal/hal_cpu.S"
@@ -6417,7 +6417,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   46 008c E0039FD6 		eret
   46      00000000 
   46      00000000 
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
 DEFINED SYMBOLS
@@ -6427,7 +6427,7 @@ DEFINED SYMBOLS
 
 UNDEFINED SYMBOLS
 svc_callback
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -6487,7 +6487,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   51 0070 F353C2A8 		ldp	x19, x20, [sp], 32
   52 0074 C0035FD6 		ret
   53              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   54              	.L26:
@@ -6547,7 +6547,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  107              		.global	hal_io_serial_getc
  108              		.type	hal_io_serial_getc, %function
  109              	hal_io_serial_getc:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  110 0110 60000034 		cbz	w0, .L34
@@ -6571,19 +6571,19 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  128 0130 00000014 		b	uart0_nonblocking_getc
  129              		.size	hal_io_serial_nonblocking_getc, .-hal_io_serial_nonblocking_getc
  130              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 hal_io.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 hal_io_serial_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:19     .text:0000000000000020 hal_io_serial_hex_dump_512_bytes
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:27     .text:0000000000000030 hal_io_serial_puthex_64_bits
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:35     .text:0000000000000040 hal_io_serial_puts
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:85     .text:00000000000000d0 hal_io_serial_putc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:109    .text:0000000000000110 hal_io_serial_getc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:121    .text:0000000000000120 hal_io_serial_nonblocking_getc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 hal_io_serial_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:19     .text:0000000000000020 hal_io_serial_hex_dump_512_bytes
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:27     .text:0000000000000030 hal_io_serial_puthex_64_bits
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:35     .text:0000000000000040 hal_io_serial_puts
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:85     .text:00000000000000d0 hal_io_serial_putc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:109    .text:0000000000000110 hal_io_serial_getc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:121    .text:0000000000000120 hal_io_serial_nonblocking_getc
 
 UNDEFINED SYMBOLS
 uart0_init
@@ -6592,7 +6592,7 @@ uart0_puthex_64_bits
 uart0_putc
 uart0_getc
 uart0_nonblocking_getc
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -6622,19 +6622,19 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   24 002c 00000014 		b	sd_readblock
   25              		.size	hal_sd_card_read_block, .-hal_sd_card_read_block
   26              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 hal_sd_card.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 hal_sd_card_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:20     .text:0000000000000020 hal_sd_card_read_block
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 hal_sd_card_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:20     .text:0000000000000020 hal_sd_card_read_block
 
 UNDEFINED SYMBOLS
 sd_init
 sd_readblock
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -6694,7 +6694,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   55 00b0 5F01136B 		cmp	w10, w19
   56 00b4 EB030A2A 		mov	w11, w10
   57 00b8 6D000054 		ble	.L11
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   58 00bc A500120B 		add	w5, w5, w18
@@ -6754,7 +6754,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  110              		.align	2
  111 015c 1F2003D5 		.p2align 4,,15
  112              		.global	hal_io_video_draw_image
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  113              		.type	hal_io_video_draw_image, %function
@@ -6814,7 +6814,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  167 021c 80008052 		mov	w0, 4
  168 0220 E00100B9 		str	w0, [x15, #:lo12:.LANCHOR0]
  169 0224 220500B9 		str	w2, [x9, 4]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  170 0228 C0035FD6 		ret
@@ -6874,7 +6874,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  224 02e4 29030054 		bls	.L61
  225 02e8 00140011 		add	w0, w0, 5
  226 02ec C1008052 		mov	w1, 6
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  227 02f0 82008052 		mov	w2, 4
@@ -6934,7 +6934,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  281 03b0 2000058B 		add	x0, x1, x5
  282 03b4 1F2003D5 		.p2align 3,,7
  283              	.L48:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  284 03b8 024400B8 		str	w2, [x0], 4
@@ -6994,7 +6994,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  336 0458 E003022A 		mov	w0, w2
  337 045c FE1300F9 		str	x30, [sp, 32]
  338 0460 00000094 		bl	fonts_char_to_font
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  339 0464 010040B9 		ldr	w1, [x0]
@@ -7054,7 +7054,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  393 052c A500100B 		add	w5, w5, w16
  394 0530 2100030B 		add	w1, w1, w3
  395 0534 1F01056B 		cmp	w8, w5
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  396 0538 E000427A 		ccmp	w7, w2, 0, eq
@@ -7114,7 +7114,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  449 05e8 217C0113 		asr	w1, w1, 1
  450 05ec 00C0811A 		csel	w0, w0, w1, gt
  451 05f0 7F00066B 		cmp	w3, w6
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  452 05f4 8000477A 		ccmp	w4, w7, 0, eq
@@ -7174,7 +7174,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  505 0690 4300040B 		add	w3, w2, w4
  506 0694 42040011 		add	w2, w2, 1
  507 0698 A17823B8 		str	w1, [x5, x3, lsl 2]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  508 069c 030840B9 		ldr	w3, [x0, 8]
@@ -7234,7 +7234,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  562              	.L123:
  563 0730 2000048B 		add	x0, x1, x4
  564 0734 1F2003D5 		.p2align 3,,7
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
  565              	.L124:
@@ -7281,36 +7281,36 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  602 0008 00000000 		.xword	.LC0
  602      00000000 
  603              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 12
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 12
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 hal_video.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:7      .text:0000000000000000 draw_character_raw
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:7      .text:0000000000000000 draw_character_raw
                             *COM*:0000000000000008 fb
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:96     .text:0000000000000130 hal_video_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:114    .text:0000000000000160 hal_io_video_draw_image
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:176    .text:0000000000000230 hal_video_putc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:303    .text:00000000000003f0 hal_video_puts
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:329    .text:0000000000000440 hal_video_putc_x_y
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:426    .text:0000000000000590 hal_video_line
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:488    .text:0000000000000660 hal_video_put_pixel_area
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:523    .text:00000000000006c0 hal_video_put_pixel
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:536    .text:00000000000006e0 hal_video_put_double_pixel
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:553    .text:0000000000000710 hal_video_clear
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:601    .data:0000000000000008 continue_msg
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:582    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:597    .data:0000000000000004 curr_y
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:593    .data:0000000000000000 curr_x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:589    .data:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:96     .text:0000000000000130 hal_video_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:114    .text:0000000000000160 hal_io_video_draw_image
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:176    .text:0000000000000230 hal_video_putc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:303    .text:00000000000003f0 hal_video_puts
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:329    .text:0000000000000440 hal_video_putc_x_y
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:426    .text:0000000000000590 hal_video_line
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:488    .text:0000000000000660 hal_video_put_pixel_area
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:523    .text:00000000000006c0 hal_video_put_pixel
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:536    .text:00000000000006e0 hal_video_put_double_pixel
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:553    .text:0000000000000710 hal_video_clear
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:601    .data:0000000000000008 continue_msg
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:582    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:597    .data:0000000000000004 curr_y
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:593    .data:0000000000000000 curr_x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:589    .data:0000000000000000 $d
 
 UNDEFINED SYMBOLS
 fb_init
 fonts_init
 fonts_char_to_font
 hal_io_serial_getc
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -7370,7 +7370,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   50      1F2003D5 
   50      1F2003D5 
   51              		.global	hal_timer_start_poll
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   52              		.type	hal_timer_start_poll, %function
@@ -7392,23 +7392,23 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   66 009c 00000014 		b	timer_getTickCount
   67              		.size	hal_timer_read_count, .-hal_timer_read_count
   68              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 hal_timer.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:8      .text:0000000000000000 hal_timer_init
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:15     .text:0000000000000010 hal_timer_delay_microsecs
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:36     .text:0000000000000050 hal_timer_start_int
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:53     .text:0000000000000080 hal_timer_start_poll
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:60     .text:0000000000000090 hal_timer_read_count
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:8      .text:0000000000000000 hal_timer_init
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:15     .text:0000000000000010 hal_timer_delay_microsecs
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:36     .text:0000000000000050 hal_timer_start_int
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:53     .text:0000000000000080 hal_timer_start_poll
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:60     .text:0000000000000090 hal_timer_read_count
 
 UNDEFINED SYMBOLS
 hal_cpu_ints_enable
 timer_getTickCount
 TimerIrqSetup
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -7468,7 +7468,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   54 0080 4966A6F2 		movk	x9, 0x3332, lsl 16
   55 0084 FF200071 		cmp	w7, 8
   56 0088 A61040A9 		ldp	x6, x4, [x5]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   57 008c 072787D2 		mov	x7, 14648
@@ -7528,7 +7528,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  111              	.L23:
  112 0150 3F03166B 		cmp	w25, w22
  113 0154 0D0D0054 		ble	.L66
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  114 0158 7F027CF2 		tst	x19, 16
@@ -7588,7 +7588,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  168              		.p2align 2,,3
  169              	.L34:
  170 0210 04008052 		mov	w4, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  171              	.L13:
@@ -7648,7 +7648,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  225 02cc 61058052 		mov	w1, 43
  226 02d0 00008052 		mov	w0, 0
  227 02d4 4110811A 		csel	w1, w2, w1, ne
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
  228 02d8 00000094 		bl	hal_io_serial_putc
@@ -7708,7 +7708,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  278 0360 678CCCF2 		movk	x7, 0x6463, lsl 32
  279 0364 A7CCECF2 		movk	x7, 0x6665, lsl 48
  280 0368 FE2700F9 		str	x30, [sp, 72]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 6
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 6
 
 
  281 036c E99F05A9 		stp	x9, x7, [sp, 88]
@@ -7768,7 +7768,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  335 042c 00048052 		mov	w0, 32
  336 0430 D3060051 		sub	w19, w22, #1
  337 0434 1813801A 		csel	w24, w24, w0, ne
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 7
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 7
 
 
  338              		.p2align 3,,7
@@ -7828,7 +7828,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  392 04e4 04008052 		mov	w4, 0
  393              	.L72:
  394 04e8 257C4093 		sxtw	x5, w1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 8
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 8
 
 
  395 04ec 210080D2 		mov	x1, 1
@@ -7888,7 +7888,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  449 05a4 02008012 		mov	w2, -1
  450 05a8 2010801A 		csel	w0, w1, w0, ne
  451 05ac 21008052 		mov	w1, 1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 9
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 9
 
 
  452 05b0 00000094 		bl	hal_video_putc
@@ -7948,7 +7948,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  504 065c AC1C0012 		and	w12, w5, 255
  505 0660 4C002836 		tbz	x12, 5, .L130
  506 0664 E118F8B7 		tbnz	x1, #63, .L218
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 10
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 10
 
 
  507              	.L130:
@@ -8008,7 +8008,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  561 0724 9F017CF2 		tst	x12, 16
  562 0728 07068052 		mov	w7, 48
  563 072c C5040051 		sub	w5, w6, #1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 11
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 11
 
 
  564 0730 E710841A 		csel	w7, w7, w4, ne
@@ -8068,7 +8068,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  618              	.L157:
  619 07e0 E5E30091 		add	x5, sp, 56
  620 07e4 8500058B 		add	x5, x4, x5
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 12
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 12
 
 
  621 07e8 A2FEFFB5 		cbnz	x2, .L222
@@ -8128,7 +8128,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  675 0898 010000F9 		str	x1, [x0]
  676 089c 84040051 		sub	w4, w4, #1
  677 08a0 9F00056B 		cmp	w4, w5
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 13
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 13
 
 
  678 08a4 C0F5FF54 		beq	.L148
@@ -8188,7 +8188,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  732 094c 07ECFF34 		cbz	w7, .L139
  733 0950 9F017DF2 		tst	x12, 8
  734 0954 07048052 		mov	w7, 32
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 14
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 14
 
 
  735 0958 69058052 		mov	w9, 43
@@ -8248,7 +8248,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  789 09fc E50301AA 		mov	x5, x1
  790 0a00 EF03062A 		mov	w15, w6
  791 0a04 5FAC0071 		cmp	w2, 43
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 15
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 15
 
 
  792 0a08 03008052 		mov	w3, 0
@@ -8308,7 +8308,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  846 0ab4 FF000071 		cmp	w7, 0
  847 0ab8 E4011D32 		orr	w4, w15, 8
  848 0abc EF01841A 		csel	w15, w15, w4, eq
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 16
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 16
 
 
  849 0ac0 7F000071 		cmp	w3, 0
@@ -8368,7 +8368,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  903 0b74 41210054 		bne	.L514
  904              	.L253:
  905 0b78 C2054039 		ldrb	w2, [x14, 1]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 17
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 17
 
 
  906 0b7c C5090091 		add	x5, x14, 2
@@ -8428,7 +8428,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  960 0c24 9F040031 		cmn	w4, #1
  961 0c28 210040F9 		ldr	x1, [x1]
  962 0c2c C02D0054 		beq	.L314
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 18
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 18
 
 
  963 0c30 04020034 		cbz	w4, .L360
@@ -8488,7 +8488,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1017 0cdc 55F07D92 		and	x21, x2, -8
  1018              	.L287:
  1019 0ce0 210040F9 		ldr	x1, [x1]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 19
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 19
 
 
  1020 0ce4 EE0305AA 		mov	x14, x5
@@ -8548,7 +8548,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1074 0d98 5F880171 		cmp	w2, 98
  1075 0d9c 29F0FF54 		bls	.L261
  1076 0da0 5F900171 		cmp	w2, 100
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 20
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 20
 
 
  1077 0da4 60F9FF54 		beq	.L269
@@ -8608,7 +8608,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1131 0e50 E10315AA 		mov	x1, x21
  1132 0e54 55F07D92 		and	x21, x2, -8
  1133              	.L284:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 21
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 21
 
 
  1134 0e58 210080B9 		ldrsw	x1, [x1]
@@ -8668,7 +8668,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1188 0f0c E5030F2A 		mov	w5, w15
  1189 0f10 B8FDFF97 		bl	cprint_int.constprop.0
  1190 0f14 B2FEFF17 		b	.L227
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 22
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 22
 
 
  1191              		.p2align 2,,3
@@ -8728,7 +8728,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1245 0fbc 02028052 		mov	w2, 16
  1246 0fc0 EF01022A 		orr	w15, w15, w2
  1247 0fc4 D609F837 		tbnz	w22, #31, .L300
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 23
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 23
 
 
  1248              		.p2align 3,,7
@@ -8788,7 +8788,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1302              	.L240:
  1303 1070 42C2368B 		add	x2, x18, x22, sxtw
  1304 1074 F603032A 		mov	w22, w3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 24
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 24
 
 
  1305 1078 54FFFF17 		b	.L239
@@ -8848,7 +8848,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1359 112c E4FFFF17 		b	.L297
  1360              	.L367:
  1361 1130 02028052 		mov	w2, 16
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 25
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 25
 
 
  1362 1134 B6F4FF36 		tbz	w22, #31, .L528
@@ -8908,7 +8908,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1416 11e0 C7FFFF17 		b	.L300
  1417              	.L314:
  1418 11e4 24004039 		ldrb	w4, [x1]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 26
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 26
 
 
  1419 11e8 44D4FF34 		cbz	w4, .L360
@@ -8968,7 +8968,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1473 1294 F603062A 		mov	w22, w6
  1474 1298 BFFFFF17 		b	.L294
  1475              	.L280:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 27
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 27
 
 
  1476 129c C2220011 		add	w2, w22, 8
@@ -9028,7 +9028,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1530              	.L525:
  1531 1358 EE0305AA 		mov	x14, x5
  1532 135c A5040091 		add	x5, x5, 1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 28
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 28
 
 
  1533 1360 E5FDFF17 		b	.L243
@@ -9088,7 +9088,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1585 1408 E633803D 		str	q6, [sp, 192]
  1586 140c E737803D 		str	q7, [sp, 208]
  1587 1410 E18B0EA9 		stp	x1, x2, [sp, 232]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 29
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 29
 
 
  1588 1414 E3930FA9 		stp	x3, x4, [sp, 248]
@@ -9148,7 +9148,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1642 14cc 27008052 		mov	w7, 1
  1643 14d0 F9FFFF17 		b	.L804
  1644              	.L538:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 30
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 30
 
 
  1645 14d4 42000032 		orr	w2, w2, 1
@@ -9208,7 +9208,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1699 1598 00004079 		ldrh	w0, [x0]
  1700 159c F30315AA 		mov	x19, x21
  1701              	.L603:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 31
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 31
 
 
  1702 15a0 7F040031 		cmn	w3, #1
@@ -9268,7 +9268,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1756 163c 20230054 		beq	.L620
  1757 1640 C3010034 		cbz	w3, .L660
  1758 1644 79040051 		sub	w25, w3, #1
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 32
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 32
 
 
  1759 1648 39070091 		add	x25, x25, 1
@@ -9328,7 +9328,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1813 16dc D6220091 		add	x22, x22, 8
  1814              	.L594:
  1815 16e0 F30315AA 		mov	x19, x21
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 33
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 33
 
 
  1816 16e4 000040F9 		ldr	x0, [x0]
@@ -9388,7 +9388,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1870 1784 400A0054 		beq	.L665
  1871 1788 E8050054 		bhi	.L640
  1872 178c 3F600171 		cmp	w1, 88
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 34
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 34
 
 
  1873 1790 00150054 		beq	.L641
@@ -9448,7 +9448,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1927 1840 05FFFF17 		b	.L534
  1928              		.p2align 2,,3
  1929              	.L640:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 35
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 35
 
 
  1930 1844 3FD40171 		cmp	w1, 117
@@ -9508,7 +9508,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  1984 18ec 9402012A 		orr	w20, w20, w1
  1985 18f0 20110054 		beq	.L821
  1986 18f4 1F100071 		cmp	w0, 4
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 36
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 36
 
 
  1987 18f8 80100054 		beq	.L667
@@ -9568,7 +9568,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2041 1998 E5FEFF17 		b	.L548
  2042              	.L811:
  2043 199c 3FC00171 		cmp	w1, 112
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 37
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 37
 
 
  2044 19a0 000B0054 		beq	.L663
@@ -9628,7 +9628,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2098 1a48 1F000014 		b	.L610
  2099              		.p2align 2,,3
  2100              	.L635:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 38
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 38
 
 
  2101 1a4c 000B8012 		mov	w0, -89
@@ -9688,7 +9688,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2155              		.p2align 2,,3
  2156              	.L607:
  2157 1aec E4220011 		add	w4, w23, 8
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 39
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 39
 
 
  2158 1af0 9F000071 		cmp	w4, 0
@@ -9748,7 +9748,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2212 1b88 7F000071 		cmp	w3, 0
  2213 1b8c CD010054 		ble	.L555
  2214 1b90 F703032A 		mov	w23, w3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 40
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 40
 
 
  2215 1b94 EDFEFF17 		b	.L776
@@ -9808,7 +9808,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2269 1c24 4AFFFF17 		b	.L778
  2270              		.p2align 2,,3
  2271              	.L590:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 41
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 41
 
 
  2272 1c28 E1220011 		add	w1, w23, 8
@@ -9868,7 +9868,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2326 1cc0 000A8052 		mov	w0, 80
  2327 1cc4 E303012A 		mov	w3, w1
  2328 1cc8 9402002A 		orr	w20, w20, w0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 42
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 42
 
 
  2329 1ccc A2FFFF17 		b	.L570
@@ -9928,7 +9928,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2381 1d74 E3930FA9 		stp	x3, x4, [sp, 248]
  2382 1d78 E59B10A9 		stp	x5, x6, [sp, 264]
  2383 1d7c E78F00F9 		str	x7, [sp, 280]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 43
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 43
 
 
  2384 1d80 F65B04A9 		stp	x22, x22, [sp, 64]
@@ -9988,7 +9988,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2438 1e38 FF000071 		cmp	w7, 0
  2439 1e3c 9402821A 		csel	w20, w20, w2, eq
  2440 1e40 DF000071 		cmp	w6, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 44
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 44
 
 
  2441 1e44 82021F32 		orr	w2, w20, 2
@@ -10048,7 +10048,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2495 1f04 63109F1A 		csel	w3, w3, wzr, ne
  2496 1f08 D8000014 		b	.L905
  2497              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 45
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 45
 
 
  2498              	.L940:
@@ -10108,7 +10108,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2552 1fac 7902198B 		add	x25, x19, x25
  2553 1fb0 04000014 		b	.L913
  2554              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 46
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 46
 
 
  2555              	.L915:
@@ -10168,7 +10168,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2609 2044 000040F9 		ldr	x0, [x0]
  2610 2048 4E000014 		b	.L878
  2611              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 47
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 47
 
 
  2612              	.L1089:
@@ -10228,7 +10228,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2666 20f4 C0F8FF54 		beq	.L861
  2667 20f8 3F880171 		cmp	w1, 98
  2668 20fc A9F2FF54 		bls	.L860
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 48
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 48
 
 
  2669 2100 3F900171 		cmp	w1, 100
@@ -10288,7 +10288,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2723 21a8 C1EEFF54 		bne	.L1084
  2724              	.L935:
  2725 21ac 94761B12 		and	w20, w20, -25
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 49
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 49
 
 
  2726 21b0 01028052 		mov	w1, 16
@@ -10348,7 +10348,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2780 225c F30315AA 		mov	x19, x21
  2781 2260 01028052 		mov	w1, 16
  2782 2264 000080D2 		mov	x0, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 50
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 50
 
 
  2783              	.L905:
@@ -10408,7 +10408,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2837 2304 400F0054 		beq	.L956
  2838 2308 3FE00171 		cmp	w1, 120
  2839 230c A1E3FF54 		bne	.L1084
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 51
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 51
 
 
  2840 2310 94761B12 		and	w20, w20, -25
@@ -10468,7 +10468,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2894 23b0 000A8052 		mov	w0, 80
  2895 23b4 9402002A 		orr	w20, w20, w0
  2896 23b8 57FBFF36 		tbz	w23, #31, .L1076
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 52
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 52
 
 
  2897 23bc 21000014 		b	.L899
@@ -10528,7 +10528,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  2951              		.p2align 2,,3
  2952              	.L955:
  2953 2454 80008052 		mov	w0, 4
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 53
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 53
 
 
  2954 2458 74FFFF17 		b	.L874
@@ -10588,7 +10588,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3008 24f0 97F1FF36 		tbz	w23, #31, .L1076
  3009 24f4 D3FFFF17 		b	.L899
  3010              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 54
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 54
 
 
  3011              	.L953:
@@ -10648,7 +10648,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3065 258c F9FEFF17 		b	.L1071
  3066              		.p2align 2,,3
  3067              	.L885:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 55
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 55
 
 
  3068 2590 E1220011 		add	w1, w23, 8
@@ -10708,7 +10708,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3122 2628 8BFEFF17 		b	.L916
  3123              	.L877:
  3124 262c E0830491 		add	x0, sp, 288
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 56
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 56
 
 
  3125 2630 00C0378B 		add	x0, x0, x23, sxtw
@@ -10768,7 +10768,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3178 26e4 E437803D 		str	q4, [sp, 208]
  3179 26e8 E53B803D 		str	q5, [sp, 224]
  3180 26ec E63F803D 		str	q6, [sp, 240]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 57
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 57
 
 
  3181 26f0 E743803D 		str	q7, [sp, 256]
@@ -10828,7 +10828,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3234 2790 F96B03A9 		stp	x25, x26, [sp, 48]
  3235 2794 F903132A 		mov	w25, w19
  3236 2798 E9430291 		add	x9, sp, 144
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 58
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 58
 
 
  3237 279c 66781E12 		and	w6, w3, -3
@@ -10888,7 +10888,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3291              	.L1137:
  3292 2864 FB000034 		cbz	w27, .L1139
  3293 2868 E10316AA 		mov	x1, x22
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 59
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 59
 
 
  3294 286c 00068052 		mov	w0, 48
@@ -10948,7 +10948,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3348 291c E10316AA 		mov	x1, x22
  3349 2920 A0023FD6 		blr	x21
  3350 2924 E0A30291 		add	x0, sp, 168
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 60
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 60
 
 
  3351 2928 7F020071 		cmp	w19, 0
@@ -11008,7 +11008,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3405 29dc 940A0051 		sub	w20, w20, #2
  3406 29e0 9CFFFF17 		b	.L1135
  3407              	.L1153:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 61
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 61
 
 
  3408 29e4 F46F40B9 		ldr	w20, [sp, 108]
@@ -11068,7 +11068,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3462 2a74 60024039 		ldrb	w0, [x19]
  3463 2a78 C0120034 		cbz	w0, .L1445
  3464              	.L1187:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 62
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 62
 
 
  3465 2a7c 73060091 		add	x19, x19, 1
@@ -11128,7 +11128,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3519 2b28 84000032 		orr	w4, w4, 1
  3520 2b2c FF000071 		cmp	w7, 0
  3521 2b30 9402841A 		csel	w20, w20, w4, eq
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 63
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 63
 
 
  3522 2b34 DF000071 		cmp	w6, 0
@@ -11188,7 +11188,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3576              	.L1258:
  3577 2bf4 BF040031 		cmn	w5, #1
  3578 2bf8 A5109F1A 		csel	w5, w5, wzr, ne
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 64
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 64
 
 
  3579 2bfc DA000014 		b	.L1268
@@ -11248,7 +11248,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3633              	.L1278:
  3634 2ca0 C0023FD6 		blr	x22
  3635 2ca4 9F0313EB 		cmp	x28, x19
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 65
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 65
 
 
  3636 2ca8 C0000054 		beq	.L1315
@@ -11308,7 +11308,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3690 2d44 A5109F1A 		csel	w5, w5, wzr, ne
  3691 2d48 F403062A 		mov	w20, w6
  3692 2d4c E10315AA 		mov	x1, x21
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 66
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 66
 
 
  3693 2d50 E00316AA 		mov	x0, x22
@@ -11368,7 +11368,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3747 2e0c 33010014 		b	.L1248
  3748              		.p2align 2,,3
  3749              	.L1448:
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 67
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 67
 
 
  3750 2e10 9807F837 		tbnz	w24, #31, .L1200
@@ -11428,7 +11428,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3804              	.L1460:
  3805 2ebc 60C00051 		sub	w0, w3, #48
  3806 2ec0 05008052 		mov	w5, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 68
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 68
 
 
  3807 2ec4 011C0012 		and	w1, w0, 255
@@ -11488,7 +11488,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3861 2f78 7FC00171 		cmp	w3, 112
  3862 2f7c 61E7FF54 		bne	.L1435
  3863 2f80 40008052 		mov	w0, 2
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 69
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 69
 
 
  3864 2f84 E8FFFF17 		b	.L1237
@@ -11548,7 +11548,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3918 3028 E12E0091 		add	x1, x23, 11
  3919 302c E00317AA 		mov	x0, x23
  3920 3030 37F07D92 		and	x23, x1, -8
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 70
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 70
 
 
  3921              	.L1263:
@@ -11608,7 +11608,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  3975 30dc 01230011 		add	w1, w24, 8
  3976 30e0 3F000071 		cmp	w1, 0
  3977 30e4 4D130054 		ble	.L1274
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 71
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 71
 
 
  3978 30e8 E23E0091 		add	x2, x23, 15
@@ -11668,7 +11668,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4032              	.L1219:
  4033 319c 7FD40171 		cmp	w3, 117
  4034 31a0 200D0054 		beq	.L1310
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 72
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 72
 
 
  4035 31a4 48020054 		bhi	.L1226
@@ -11728,7 +11728,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4089              	.L1255:
  4090 3250 01230011 		add	w1, w24, 8
  4091 3254 3F000071 		cmp	w1, 0
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 73
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 73
 
 
  4092 3258 AD020054 		ble	.L1257
@@ -11788,7 +11788,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4146 330c F803012A 		mov	w24, w1
  4147 3310 57F07D92 		and	x23, x2, -8
  4148 3314 E7FEFF17 		b	.L1246
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 74
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 74
 
 
  4149              	.L1238:
@@ -11848,7 +11848,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4203 33c4 2FFFFF17 		b	.L1239
  4204              	.L1250:
  4205 33c8 20C3388B 		add	x0, x25, x24, sxtw
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 75
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 75
 
 
  4206 33cc F803012A 		mov	w24, w1
@@ -11908,7 +11908,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4259 3470 EA2F43A9 		ldp	x10, x11, [sp, 48]
  4260 3474 FE0300F9 		str	x30, [sp]
  4261 3478 E82744A9 		ldp	x8, x9, [sp, 64]
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 76
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 76
 
 
  4262 347c EA2F01A9 		stp	x10, x11, [sp, 16]
@@ -11931,33 +11931,33 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  4279 34c0 C0035FD6 		ret
  4280              		.size	cprintf, .-cprintf
  4281              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 77
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 77
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 kprintf.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4      .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:7      .text:0000000000000000 buffer_add
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:24     .text:0000000000000030 local_putc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:33     .text:0000000000000040 debug_putc
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:41     .text:0000000000000050 cprint_int.constprop.1
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:250    .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:257    .text:0000000000000310 cprint_int.constprop.2
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:476    .text:00000000000005f0 cprint_int.constprop.0
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:756    .text:0000000000000990 vcprintf.constprop.2
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:1570   .text:00000000000013d0 kprintf
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:2363   .text:0000000000001d30 kprintf_debug
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:3152   .text:0000000000002680 snprintf
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:3203   .text:0000000000002730 atoi
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:3229   .text:0000000000002780 cprint_int
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:3441   .text:0000000000002a30 vcprintf
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4217   .text:00000000000033e0 vsnprintf
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:4250   .text:0000000000003450 cprintf
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4      .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:7      .text:0000000000000000 buffer_add
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:24     .text:0000000000000030 local_putc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:33     .text:0000000000000040 debug_putc
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:41     .text:0000000000000050 cprint_int.constprop.1
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:250    .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:257    .text:0000000000000310 cprint_int.constprop.2
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:476    .text:00000000000005f0 cprint_int.constprop.0
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:756    .text:0000000000000990 vcprintf.constprop.2
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:1570   .text:00000000000013d0 kprintf
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:2363   .text:0000000000001d30 kprintf_debug
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:3152   .text:0000000000002680 snprintf
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:3203   .text:0000000000002730 atoi
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:3229   .text:0000000000002780 cprint_int
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:3441   .text:0000000000002a30 vcprintf
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4217   .text:00000000000033e0 vsnprintf
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:4250   .text:0000000000003450 cprintf
 
 UNDEFINED SYMBOLS
 hal_video_putc
 hal_io_serial_putc
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 1
 
 
    1              		.arch armv8-a
@@ -12017,7 +12017,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
   51 005c 79520051 		sub	w25, w19, #20
   52 0060 FC031BAA 		mov	x28, x27
   53 0064 07000014 		b	.L5
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 2
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 2
 
 
   54              		.p2align 2,,3
@@ -12077,7 +12077,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  108 0120 F303002A 		mov	w19, w0
  109 0124 CDFFFF17 		b	.L10
  110              		.p2align 2,,3
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 3
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 3
 
 
  111              	.L8:
@@ -12137,7 +12137,7 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  165 01e0 94060091 		add	x20, x20, 1
  166 01e4 5F03146B 		cmp	w26, w20
  167 01e8 C8FDFF54 		bhi	.L20
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 4
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 4
 
 
  168              	.L11:
@@ -12185,14 +12185,14 @@ AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 1
  210 027c B3FFFF17 		b	.L2
  211              		.size	kprintf_hex_dump, .-kprintf_hex_dump
  212              		.ident	"GCC: (GNU Toolchain for the A-profile Architecture 9.2-2020.02 (arm-9.10)) 9.2.1 20191025"
-AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s 			page 5
+AARCH64 GAS  C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s 			page 5
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 kprintf_hex_dump.c
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:5      .rodata.str1.8:0000000000000000 $d
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:21     .text:0000000000000000 $x
-C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\ccAORuxx.s:25     .text:0000000000000000 kprintf_hex_dump
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:5      .rodata.str1.8:0000000000000000 $d
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:21     .text:0000000000000000 $x
+C:\Users\RAFAEL~1.ROM\AppData\Local\Temp\cccgCJIL.s:25     .text:0000000000000000 kprintf_hex_dump
 
 UNDEFINED SYMBOLS
 kprintf
