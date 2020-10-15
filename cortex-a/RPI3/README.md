@@ -20,7 +20,7 @@ docker run `
 ### Compiling this Lab on Linux/Mac
 ```bash
 docker run \
-       -v ./LAB_FOLDER:/src \
+       -v ./src:/src \
        rromanotero/aarch64 \
        bash -c "cd src && make"
 ```
