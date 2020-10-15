@@ -28,7 +28,7 @@ docker run \
 ## Running Labs in QEMU
 
 ```
-qemu-system-aarch64 -M raspi3 -kernel .\PATH\TO\KERNELt\kernel8.img -drive file=.\PATH\TO\SDCARD\sd_card.img,if=sd,format=raw -serial stdio -serial null
+qemu-system-aarch64 -M raspi3 -kernel .\output\kernel8.img -drive file=.\sd_card\sd_card.img,if=sd,format=raw -serial stdio -serial null
 ```
 ## Running Labs in a PI 3
 
