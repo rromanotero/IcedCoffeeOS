@@ -1,6 +1,6 @@
 
 NOTE:
-- Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). **I've added a windows_build.ps1 that can be used instead**:
+**Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). I've added a windows_build.ps1 that can be used instead** :
 
 ```
 ./windows_build.ps1
