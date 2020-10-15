@@ -12,7 +12,7 @@ For some reason building it in this way makes it work. **You'll need to get the 
 ##### ( Docker Windows requires the FULL PATH TO THE LAB FOLDER to bind mount it)
 ```bash
 docker run `
-       -v C:\...\LAB_FOLDER:/src `
+       -v C:\...\src:/src `
        rromanotero/aarch64 `
        bash -c "cd src && make"
 ```   
