@@ -12,7 +12,7 @@ For some reason building it in this way makes it work. **You'll need to get the 
 ##### ( Docker Windows requires the FULL PATH TO THE LAB FOLDER to bind mount it)
 ```bash
 docker run `
-       -v C:\...\src:/src `
+       -v C:\...\RPI3:/src `
        rromanotero/aarch64 `
        bash -c "cd src && make"
 ```   
@@ -20,7 +20,7 @@ docker run `
 ### Compiling this Lab on Linux/Mac
 ```bash
 docker run \
-       -v ./src:/src \
+       -v ./RPI3:/src \
        rromanotero/aarch64 \
        bash -c "cd src && make"
 ```
