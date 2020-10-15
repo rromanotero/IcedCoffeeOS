@@ -7,19 +7,10 @@ NOTE:
 ```
 For some reason building it in this way makes it work. **You'll need to get the aarch64-none-elf toolchain from** [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads), the exact version is in `windows_build.ps1`(look for GCC_BIN_PATH). Once downloaded make sure to place it somewhere it won't get deleted and edit GCC_BIN_PATH accordingly.
 
-## Getting the aarch64-elf bare-metal GNU Toolchain
-
-I've created an image with the aarch64-toolchain. All labs use it. To get it:
-
-```bash
-docker pull rromanotero/aarch64
-```
 
 ## Compiling this Lab on Windows
 ##### ( Docker Windows requires the FULL PATH TO THE LAB FOLDER to bind mount it)
 ```bash
-git clone https://github.com/rromanotero/os_labs.git
-cd os_labs
 docker run `
        -v C:\...\LAB_FOLDER:/src `
        rromanotero/aarch64 `
@@ -28,8 +19,6 @@ docker run `
 
 ### Compiling this Lab on Linux/Mac
 ```bash
-git clone https://github.com/rromanotero/os_labs.git
-cd os_labs
 docker run \
        -v ./LAB_FOLDER:/src \
        rromanotero/aarch64 \
