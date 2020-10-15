@@ -1,11 +1,14 @@
-This is based off [os_labs](https://github.com/rromanotero/os_labs/blob/master/README.md) and [MiniOS](https://github.com/rromanotero/minios)
-
-## Building and Running
 
 NOTE:
-- Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained above). Instead, **I've added a windows_build.ps1 that can be used instead**. See running with non-Dockerized toolchain.
+- Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). **I've added a windows_build.ps1 that can be used instead**:
 
-### Getting the aarch64-none-elf bare-metal GNU Toolchain
+```
+./windows_build.ps1
+```
+
+You'll need to get the aarch64-none-elf toolchain from [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads), the exact version is in `windows_build.ps1`(look for GCC_BIN_PATH). Once downloaded make sure to place it somewhere it won't get deleted and edit GCC_BIN_PATH accordingly.
+
+## Getting the aarch64-elf bare-metal GNU Toolchain
 
 I've created an image with the aarch64-toolchain. All labs use it. To get it:
 
@@ -13,7 +16,7 @@ I've created an image with the aarch64-toolchain. All labs use it. To get it:
 docker pull rromanotero/aarch64
 ```
 
-### Compiling this Lab on Windows
+## Compiling this Lab on Windows
 ##### ( Docker Windows requires the FULL PATH TO THE LAB FOLDER to bind mount it)
 ```bash
 git clone https://github.com/rromanotero/os_labs.git
