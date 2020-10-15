@@ -1,4 +1,4 @@
-list.txt 
+list.txt
 # Prerequisites
 *.d
 
@@ -6,7 +6,7 @@ list.txt
 *.o
 *.ko
 *.obj
-*.img
+*.elf
 *.lss
 *.dump
 
