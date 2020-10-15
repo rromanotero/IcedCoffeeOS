@@ -1,38 +1,54 @@
-# Multicore Demo
-#
+This is based off [os_labs](https://github.com/rromanotero/os_labs/blob/master/README.md) and [MiniOS](https://github.com/rromanotero/minios)
 
-This demo shows example code for:
-- Drawing a square on the screen
-- Moving the square with user input
-- Printing to the screen
-- Running Code in 4 CPU Threads
-- Measuring elapsed time by reading a timer's counter
-- Using a timer interrupt that *ticks* for periodic tasks
+## Building and Running
 
-The code is in main.c. Main begins executing and creates three CPU threads, each of which will do different tasks. One will print to the screen. A second one will work together with a timer interrupt to print the number of ticks. A third one will read user input and draw a square on the screen, and a last one... I've forgotten, you can check it out.If you've written multithreaded code before you'll understand immediately what is happening.
+NOTE:
+- Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained above). Instead, **I've added a windows_build.ps1 that can be used instead**. See running with non-Dockerized toolchain.
 
-Demoes here:
--   [Multicore Demo QEMU](https://www.youtube.com/watch?v=TbS2cbfCswM&feature=youtu.be)
--   [Multicore Demo PI](https://www.youtube.com/watch?v=hmBH0ercFr8&feature=youtu.be)
+### Getting the aarch64-none-elf bare-metal GNU Toolchain
 
-### Important
+I've created an image with the aarch64-toolchain. All labs use it. To get it:
 
-There is NO SCHEDULER in this demo, so **THREADS ARE NEVER PRE-EMPTED**. **Each of them owns a CPU and run code in it until the end of times**. Within the code I called them **CPU threads** (to make a distinction from threads). If you're understanding right you might've guessed that there can only be **4 CPU threads (once for each core)**. You can still work on a scheduler ... a multicore scheduler!
+```bash
+docker pull rromanotero/aarch64
+```
 
+### Compiling this Lab on Windows
+##### ( Docker Windows requires the FULL PATH TO THE LAB FOLDER to bind mount it)
+```bash
+git clone https://github.com/rromanotero/os_labs.git
+cd os_labs
+docker run `
+       -v C:\...\LAB_FOLDER:/src `
+       rromanotero/aarch64 `
+       bash -c "cd src && make"
+```   
 
-### No locks
+### Compiling this Lab on Linux/Mac
+```bash
+git clone https://github.com/rromanotero/os_labs.git
+cd os_labs
+docker run \
+       -v ./LAB_FOLDER:/src \
+       rromanotero/aarch64 \
+       bash -c "cd src && make"
+```
 
-If you have a look at the PI demo, above, you'll see output text is printed out of order (it also happens on QEMU, but less). So you'll have to be careful with race conditions! Remember read and write are atomic, so you do not need to synchronize that. **If you do need a lock, you'll have to write one yourself**. It's not difficult with hardware support.... maybe ask me how. 
+## Running Labs in QEMU
 
+All labs have been tested with [QEMU](https://www.qemu.org/download/).
 
+**The exact command for every lab is on its README**
 
-### Notes
-- In windows_build.ps1 edit **$GCC_BIN_PATH** (path to your gcc's bin folder) and **$QEMU_BIN_PATH**
-  (path to qemu in your computer) from **windows_build.ps1** to build and run everything
-- When built using specifically windows_build.ps1 it'll work both QEMU and the PI. However, for
-  some odd reason when built using the **Makefile**, it'll compile and run on QEMU
-  but **not on the PI** . Why? No idea. I guess Compilers can be mysterious.
-- I added a **nonblocking getc**, so you can poll and continue to do something else if no key's being pressed.
-- The **delays and ticks are precise on the PI**, but **not as much in QEMU** (since it's emulated, it goes slower on QEMU)
-- The **demo is part of the kernel**. I was not able to get software interrupts
-  (that's how system calls are made) to play well with the timer interrupts for this demo. it worked well on QEMU but the PI kept faulting and faulting. So no processes if you're using this demo!
+## Running Labs in a PI 3
+
+You'll need a Raspberry PI 3 MOdel A+, a [USB to UART converter](https://www.adafruit.com/product/954), [PuTTY](https://www.putty.org/), and the boot files from [Raspbian Buster Lite image](https://www.raspberrypi.org/downloads/raspbian/).
+
+1. Get an SDCard with [Raspbian Buster Lite](https://www.raspberrypi.org/downloads/raspbian/) installed on it (see [installation instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md))
+2. replace **kernel8.img in the boot partition of the SDCard** (you'll see it when reading the PI's SDCard from a laptop) with ./LAB_DIRECTORY/output/kernel8.img
+3. Insert back the SD Card onto the PI
+4. Depending on the USB to UART converter, drivers may need to be installed (if you're using the one from Adafruit, they also have a tutorial)
+5. Plug the PI's UART to yout laptop (via the converter) as per the [PI 3's pinout](https://pi4j.com/1.1/pins/model-a-plus.html), and access the PI from PuTTY:
+
+  <img src="https://github.com/rromanotero/os_labs/blob/master/images/lab_setup_a.jpg" width="240"/>
+  <img src="https://github.com/rromanotero/os_labs/blob/master/images/lab_setup_b.png" width="480"/>

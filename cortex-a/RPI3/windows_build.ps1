@@ -4,7 +4,7 @@
 #	 (edit path to GCC and QEMU here)
 #>
 
-$GCC_BIN_PATH = "C:\Users\a01169587\Downloads\gcc-arm-8.3-2019.03-i686-mingw32-aarch64-elf.tar\gcc-arm-8.3-2019.03-i686-mingw32-aarch64-elf\bin"
+$GCC_BIN_PATH = "C:\Program Files\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf.tar\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf\bin"
 $QEMU_BIN_PATH = "C:\Program Files\qemu"
 
 
@@ -51,9 +51,9 @@ Write-Host "SUCCESS"
 Write-Host "  C R E A T I N G    I M G,  L S S,  etc   "
 Write-Host "============================================"
 
-& "$GCC_BIN_PATH\aarch64-elf-objcopy" .\output\kernel8.elf -O binary .\output\kernel8.img
-& "$GCC_BIN_PATH\aarch64-elf-objdump" -D .\output\kernel8.elf | Out-File -filepath output/kernel8.lss -Encoding ASCII
-& "$GCC_BIN_PATH\aarch64-elf-objdump" -s .\output\kernel8.elf | Out-File -filepath output/kernel8.dump -Encoding ASCII
+& "$GCC_BIN_PATH\aarch64-none-elf-objcopy.exe" .\output\kernel8.elf -O binary .\output\kernel8.img
+& "$GCC_BIN_PATH\aarch64-none-elf-objdump.exe" -D .\output\kernel8.elf | Out-File -filepath output/kernel8.lss -Encoding ASCII
+& "$GCC_BIN_PATH\aarch64-none-elf-objdump.exe" -s .\output\kernel8.elf | Out-File -filepath output/kernel8.dump -Encoding ASCII
 
 if ($LASTEXITCODE -ne 0)
 {

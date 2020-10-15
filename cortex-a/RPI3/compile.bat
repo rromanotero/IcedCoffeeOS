@@ -9,7 +9,7 @@ set "linkerflags=-Wl,-gc-sections -Wl,--build-id=none -Wl,-Bdynamic -Wl,-Map,out
 set "outflags=-o output/kernel8.elf"
 set "libflags=-lc -lm -lgcc"
 @echo on
-%GCC_BIN_PATH%\aarch64-elf-gcc.exe ^
+%GCC_BIN_PATH%\aarch64-none-elf-gcc.exe ^
     %cpuflags% %asmflags% %linkerflags% -Wl,-T,linker.ld ^
     -I ./src ^
     -I ./src/drivers ^
