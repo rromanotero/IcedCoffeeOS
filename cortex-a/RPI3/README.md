@@ -39,10 +39,9 @@ docker run \
 
 ## Running Labs in QEMU
 
-All labs have been tested with [QEMU](https://www.qemu.org/download/).
-
-**The exact command for every lab is on its README**
-
+```
+qemu-system-aarch64 -M raspi3 -kernel .\PATH\TO\KERNELt\kernel8.img -drive file=.\PATH\TO\SDCARD\sd_card.img,if=sd,format=raw -serial stdio -serial null
+```
 ## Running Labs in a PI 3
 
 You'll need a Raspberry PI 3 MOdel A+, a [USB to UART converter](https://www.adafruit.com/product/954), [PuTTY](https://www.putty.org/), and the boot files from [Raspbian Buster Lite image](https://www.raspberrypi.org/downloads/raspbian/).
