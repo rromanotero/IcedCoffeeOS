@@ -1,3 +1,23 @@
+<#
+#   This file is part of IcedCoffeeOS
+#   (https://github.com/rromanotero/IcedCoffeeOS).
+#
+#   Copyright (c) 2020 Rafael Roman Otero.
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#>
 
 <#
 #	 Params
@@ -7,16 +27,22 @@
 $GCC_BIN_PATH = "C:\Program Files\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf.tar\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf\bin"
 $QEMU_BIN_PATH = "C:\Program Files\qemu"
 
+Clear-Host;
+
+$ErrorActionPreference = "Stop"
+
+<#
+#	 Copy all common modules to build temp folder
+#>
+if (!(Test-Path ".\build_temp" -PathType Container)) {
+    New-Item -ItemType Directory -Force -Path .\build_temp
+}
+Copy-item -Force -Recurse -Verbose ..\..\common -Destination .\build_temp
 
 
 <#
 #	 Build process
 #>
-
-Clear-Host;
-
-$ErrorActionPreference = "Stop"
-
 Write-Host "  C L E A N I N G "
 Write-Host "=================="
 

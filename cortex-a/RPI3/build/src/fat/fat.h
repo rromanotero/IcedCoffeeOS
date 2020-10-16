@@ -50,11 +50,8 @@ typedef struct FATDirectory{
     uint32_t num_of_files;
 }FATDirectory;
 
-
-
 uint32_t fat_init( void );
 uint32_t fat_read_files_in_dir( FATDirectory* dir, uint8_t* path );
 void fat_file_read( FATFile* file,  uint8_t* buffer );
 uint32_t fat_file_open( FATFile* file,  uint8_t* fname, uint8_t* ext );
-
 #endif

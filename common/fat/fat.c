@@ -1,8 +1,8 @@
 /**
-*   This file is part of os_labs
-*   (https://github.com/rromanotero/os_labs).
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
 *
-*   Copyright (c) 2019 Rafael Roman Otero.
+*   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -25,10 +25,9 @@
 //      Max filename 8 charactewrs
 //      Max file name a single cluster
 //      We don not suport zero-size files
-
+#include <stddef.h>
 #include "hal.h"
 #include "fat.h"
-#include "kprintf.h"
 
 #define FAT_BYTES_PER_FAT_ENTRY                     4
 #define FAT_END_OF_CHAIN_MARKER                     0x0FFFFFFF

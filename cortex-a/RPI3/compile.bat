@@ -1,3 +1,23 @@
+@REM
+@REM   This file is part of IcedCoffeeOS
+@REM   (https://github.com/rromanotero/IcedCoffeeOS).
+@REM
+@REM   Copyright (c) 2020 Rafael Roman Otero.
+@REM
+@REM   This program is free software: you can redistribute it and/or modify
+@REM   it under the terms of the GNU General Public License as published by
+@REM   the Free Software Foundation, either version 3 of the License, or
+@REM   (at your option) any later version.
+@REM
+@REM   This program is distributed in the hope that it will be useful,
+@REM   but WITHOUT ANY WARRANTY; without even the implied warranty of
+@REM   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+@REM   GNU General Public License for more details.
+@REM
+@REM   You should have received a copy of the GNU General Public License
+@REM   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@REM
+
 @Passed by caller
 set GCC_BIN_PATH=%1
 
@@ -19,7 +39,7 @@ set "libflags=-lc -lm -lgcc"
     -I ./src/drivers/mbox ^
     -I ./src/drivers/sd ^
     -I ./src/drivers/uart ^
-    -I ./src/fat ^
+    -I ./build_temp/common/fat ^
     -I ./src/hal ^
     -I ./src/kprintf ^
     -I ./src/smartstart ^
@@ -32,7 +52,7 @@ set "libflags=-lc -lm -lgcc"
     src/drivers/mbox/mbox.c ^
     src/drivers/sd/sd.c ^
     src/drivers/uart/uart.c ^
-    src/fat/fat.c ^
+    build_temp/common/fat/fat.c ^
     src/hal/fonts.c ^
     src/hal/hal_cpu.c ^
     src/hal/hal_cpu.S ^
