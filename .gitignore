@@ -1,5 +1,9 @@
 *sd_card*.img
-*list.txt*
+list.txt*
+
+# Build dirs
+build_temp\*
+build\*
 
 # Prerequisites
 *.d
