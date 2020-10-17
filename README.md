@@ -6,7 +6,7 @@ Currently supported platforms:
 - [Raspberry PI 3](https://github.com/rromanotero/IcedCoffeeOS/tree/main/cortex-a/RPI3)
 - [Adafruit's Feather RFM69](https://github.com/rromanotero/IcedCoffeeOS/tree/main/cortex-m/feather_rfm69)
 
-Current System Architecture
+Goal System Architecture
 
 <img src="https://github.com/rromanotero/IcedCoffeeOS/blob/master/images/architecture.png" width="640"/>
 
