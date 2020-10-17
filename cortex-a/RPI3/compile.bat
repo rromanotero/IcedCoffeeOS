@@ -40,6 +40,7 @@ set "libflags=-lc -lm -lgcc"
     -I ./src/drivers/sd ^
     -I ./src/drivers/uart ^
     -I ./build_temp/common/fat ^
+    -I ./build_temp/common/fonts ^
     -I ./src/hal ^
     -I ./build_temp/common/kprintf ^
     -I ./src/smartstart ^
@@ -53,7 +54,7 @@ set "libflags=-lc -lm -lgcc"
     src/drivers/sd/sd.c ^
     src/drivers/uart/uart.c ^
     build_temp/common/fat/fat.c ^
-    src/hal/fonts.c ^
+    build_temp/common/fonts/fonts.c ^
     src/hal/hal_cpu.c ^
     src/hal/hal_cpu.S ^
     src/hal/hal_io.c ^

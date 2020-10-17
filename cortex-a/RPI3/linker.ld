@@ -1,3 +1,51 @@
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++}
+{																			}
+{       Filename: rpi-smartstart.c											}
+{       Copyright(c): Leon de Boer(LdB) 2017								}
+{       Version: 2.02														}
+{																			}
+{***************[ THIS CODE IS FREEWARE UNDER CC Attribution]***************}
+{																            }
+{     This sourcecode is released for the purpose to promote programming    }
+{  on the Raspberry Pi. You may redistribute it and/or modify with the      }
+{  following disclaimer and condition.                                      }
+{																            }
+{      The SOURCE CODE is distributed "AS IS" WITHOUT WARRANTIES AS TO      }
+{   PERFORMANCE OF MERCHANTABILITY WHETHER EXPRESSED OR IMPLIED.            }
+{   Redistributions of source code must retain the copyright notices to     }
+{   maintain the author credit (attribution) .								}
+{																			}
+{***************************************************************************}
+{                                                                           }
+{      This code provides a 32bit or 64bit C wrapper around the assembler   }
+{  stub code. In AARCH32 that file is SmartStart32.S, while in AARCH64 the  }
+{  file is SmartStart64.S.													}
+{	   There file also provides access to the basic hardware of the PI.     }
+{  It is also the easy point to insert a couple of important very useful    }
+{  Macros that make C development much easier.		        				}
+{																            }
+{++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
    /* Specify the memory areas */
@@ -73,8 +121,8 @@ SECTIONS
         . = . + 16384;  /* EL2 stack size (start-up) */
         __EL2_stack_core0 = .;
         . = ALIGN(16);
-        __stack_end__ = .;  
-         
+        __stack_end__ = .;
+
     } > RAM
 
 .stack_core1 :
@@ -88,8 +136,8 @@ SECTIONS
         . = . + 4096;  /* EL2 stack size (start-up) */
         __EL2_stack_core1 = .;
         . = ALIGN(16);
-        __stack_end_core1__ = .;  
-         
+        __stack_end_core1__ = .;
+
     } > RAM
 
 .stack_core2 :
@@ -103,8 +151,8 @@ SECTIONS
         . = . + 4096;  /* EL2 stack size (start-up) */
         __EL2_stack_core2 = .;
         . = ALIGN(16);
-        __stack_end_core2__ = .;  
-         
+        __stack_end_core2__ = .;
+
     } > RAM
 
 .stack_core3 :
@@ -118,8 +166,8 @@ SECTIONS
         . = . + 4096;  /* EL2 stack size (start-up) */
         __EL2_stack_core3 = .;
         . = ALIGN(16);
-        __stack_end_core3__ = .;  
-         
+        __stack_end_core3__ = .;
+
     } > RAM
 
 .ARM.attributes 0 : { *(.ARM.attributes) }
@@ -143,9 +191,9 @@ SECTIONS
 
          /* same with debug frames */
         *(.debug_frame .debug_frame.*)
-       
+
         /* We really don't need comments from compiler either  */
-        *(.comment *.comment.*) 
+        *(.comment *.comment.*)
 
         /* We really don't need the symbols and string tables  */
         *(.symtab .symtab.*)
@@ -155,11 +203,11 @@ SECTIONS
         /* remove any standard library hang over bits */
           libc.a ( * )
           libm.a ( * )
-          libgcc.a ( * ) 
+          libgcc.a ( * )
         *(.note.GNU-stack)
-        *(.gnu_debuglink) 
+        *(.gnu_debuglink)
         *(.gnu.lto_*)
     }
 
-    
+
 }

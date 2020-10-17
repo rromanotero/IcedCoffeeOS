@@ -1,9 +1,9 @@
 
 /**
-*   This file is part of os_labs
-*   (https://github.com/rromanotero/os_labs).
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
 *
-*   Copyright (c) 2019 Rafael Roman Otero.
+*   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
