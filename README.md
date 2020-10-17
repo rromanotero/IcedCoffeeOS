@@ -8,7 +8,7 @@ Currently supported platforms:
 
 Current System Architecture
 
-<img src="https://github.com/rromanotero/IcedCoffeeOS/blob/master/images/architecture.png">
+<img src="https://github.com/rromanotero/IcedCoffeeOS/blob/master/images/architecture.png" width="240"/>
 
 
 # Building on other's work
