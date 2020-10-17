@@ -8,12 +8,12 @@ Currently supported platforms:
 
 Current System Architecture
 
-<img src="https://github.com/rromanotero/minios/IcedCoffeeOS/images/architecture.png">
+<img src="https://github.com/rromanotero/IcedCoffeeOS/images/architecture.png">
 
 
 # Building on other's work
- - (bztsrc/raspi3-tutorial)[https://github.com/bztsrc/raspi3-tutorial]
- - (LdB-ECM/Raspberry-Pi)[https://github.com/LdB-ECM/Raspberry-Pi]
- - (MiniOS)(https://github.com/rromanotero/minios)
- - (os_labs)(https://github.com/rromanotero/minios)
+ - [bztsrc/raspi3-tutorial](https://github.com/bztsrc/raspi3-tutorial)
+ - [LdB-ECM/Raspberry-Pi](https://github.com/LdB-ECM/Raspberry-Pi)
+ - [MiniOS](https://github.com/rromanotero/minios)
+ - [os_labs](https://github.com/rromanotero/minios)
  - and others
