@@ -41,7 +41,7 @@ set "libflags=-lc -lm -lgcc"
     -I ./src/drivers/uart ^
     -I ./build_temp/common/fat ^
     -I ./src/hal ^
-    -I ./src/kprintf ^
+    -I ./build_temp/common/kprintf ^
     -I ./src/smartstart ^
     src/main.c ^
     src/system.c ^
@@ -60,8 +60,8 @@ set "libflags=-lc -lm -lgcc"
     src/hal/hal_sd_card.c ^
     src/hal/hal_video.c ^
     src/hal/hal_timer.c ^
-    src/kprintf/kprintf.c ^
-    src/kprintf/kprintf_hex_dump.c ^
+    build_temp/common/kprintf/kprintf.c ^
+    build_temp/common/kprintf/kprintf_hex_dump.c ^
     %outflags% %libflags%
 @echo off
 if %errorlevel% EQU 1 (goto build_fail)
