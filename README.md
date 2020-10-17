@@ -1,6 +1,6 @@
 # IcedCoffee Operating System
 
-A Robot OS for Cortex-A and Cortex-M architectures
+A Function-based Robot OS for Cortex-A and Cortex-M architectures
 
 Currently supported platforms:
 - [Raspberry PI 3](https://github.com/rromanotero/IcedCoffeeOS/tree/main/cortex-a/RPI3)
@@ -8,7 +8,7 @@ Currently supported platforms:
 
 Current System Architecture
 
-<img src="https://github.com/rromanotero/IcedCoffeeOS/images/architecture.png">
+<img src="https://github.com/rromanotero/IcedCoffeeOS/blob/master/images/architecture.png">
 
 
 # Building on other's work
