@@ -23,13 +23,12 @@ CC=aarch64-elf-gcc
 LD=aarch64-elf-ld
 OBJCOPY=aarch64-elf-objcopy
 OBJDUMP=aarch64-elf-objdump
-ELF=kernel8.elf
-IMAGE=kernel8.img
 
-TARGET_EXEC ?= kernel8.img
-SRC_DIRS ?= ./src ./build_temp
-BUILD_DIR ?= ./build
-OUTPUT ?= ./output
+SRC_DIRS ?= src
+BUILD_DIR ?= build
+OUTPUT ?= output
+ELF=app.elf
+BINARY=app.bin
 
 SRCS := $(shell find $(SRC_DIRS) -name *.c -or -name *.S)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -37,15 +36,13 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS = $(INC_FLAGS) -mcpu=cortex-a53 -O0 -nostdlib -ffreestanding
-LDFLAGS = -L/gnu_toolchain/aarch64-elf/lib/ -lc -L/gnu_toolchain/lib/gcc/aarch64-elf/8.3.0/ -lgcc
+CFLAGS = $(INC_FLAGS) -mcpu=cortex-a53 -O0 -nostdlib -ffreestanding -fpic -fpie
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	cp -r ../common/* ./build_temp
-	$(LD) $(OBJS) $(LDFLAGS) -T linker.ld -o $(OUTPUT)/$(ELF)
-	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(IMAGE)
-	$(OBJDUMP) -D $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel8.lss
-	$(OBJDUMP) -s $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel8.dump
+	$(LD) $(OBJS) -T linker.ld -o $(OUTPUT)/$(ELF)
+	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(BINARY)
+	$(OBJDUMP) -D $(OUTPUT)/$(ELF) > $(OUTPUT)/app.lss
+	$(OBJDUMP) -s $(OUTPUT)/$(ELF) > $(OUTPUT)/app.dump
 
 # assembly
 $(BUILD_DIR)/%.S.o: %.S

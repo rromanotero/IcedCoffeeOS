@@ -11,17 +11,17 @@ For some reason building it in this way makes it work. **You'll need to get the 
 ##### ( Docker Windows requires the FULL PATH TO THE RPI3 FOLDER to bind mount it)
 ```bash
 docker run `
-       -v C:\...\RPI3:/src `
-       rromanotero/aarch64 `
-       bash -c "cd src && make"
+        -v  C:\Users\...\IcedCoffeeOS:/src `
+        rromanotero/aarch64 `
+        bash -c "cd src/kernel/RPI3 && make"
 ```   
 
 ### Compiling on Linux/Mac
 ```bash
 docker run \
-       -v ./RPI3:/src \
+       -v ./IcedCoffeeOS:/src \
        rromanotero/aarch64 \
-       bash -c "cd src && make"
+       bash -c "cd src/kernel/RPI3 && make"
 ```
 
 ## Running in QEMU

@@ -3,7 +3,7 @@ list.txt*
 
 # Build dirs
 build_temp\*
-build\*
+*\build
 
 # Prerequisites
 *.d
