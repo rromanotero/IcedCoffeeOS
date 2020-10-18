@@ -15,5 +15,5 @@ Currently supported platforms:
  - [bztsrc/raspi3-tutorial](https://github.com/bztsrc/raspi3-tutorial)
  - [LdB-ECM/Raspberry-Pi](https://github.com/LdB-ECM/Raspberry-Pi)
  - [MiniOS](https://github.com/rromanotero/minios)
- - [os_labs](https://github.com/rromanotero/minios)
+ - [os_labs](https://github.com/rromanotero/os_labs)
  - and others
