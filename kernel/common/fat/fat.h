@@ -22,6 +22,11 @@
 #ifndef FAT_H
 #define FAT_H
 
+#include "system.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #define FAT_SUCCESS                 0
 #define FAT_FILE_NOT_FOUND          1
 #define FAT_INVALID_MBR             2

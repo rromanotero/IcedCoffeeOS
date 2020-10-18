@@ -42,6 +42,8 @@ set "libflags=-lc -lm -lgcc"
     -I ./build_temp/common/fat ^
     -I ./build_temp/common/fonts ^
     -I ./src/hal ^
+    -I ./src/process ^
+    -I ./src/syscalls ^
     -I ./build_temp/common/kprintf ^
     -I ./src/smartstart ^
     src/main.c ^
@@ -61,6 +63,8 @@ set "libflags=-lc -lm -lgcc"
     src/hal/hal_storage.c ^
     src/hal/hal_video.c ^
     src/hal/hal_timer.c ^
+    src/process/proc.c ^
+    src/syscalls/syscalls.c ^
     build_temp/common/kprintf/kprintf.c ^
     build_temp/common/kprintf/kprintf_hex_dump.c ^
     %outflags% %libflags%
