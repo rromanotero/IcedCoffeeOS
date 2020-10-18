@@ -37,7 +37,7 @@ $ErrorActionPreference = "Stop"
 if (!(Test-Path ".\build_temp" -PathType Container)) {
     New-Item -ItemType Directory -Force -Path .\build_temp
 }
-Copy-item -Force -Recurse -Verbose ..\..\common -Destination .\build_temp
+Copy-item -Force -Recurse -Verbose ..\common -Destination .\build_temp
 
 
 <#

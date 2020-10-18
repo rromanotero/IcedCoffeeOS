@@ -4,7 +4,11 @@
 #include "proc.h"
 #include "kprintf.h"
 
-#define MEM_ALIGN 0x1000
+#define MEM_ALIGN 0x1000 // IDK why it has to be aligned to this (foud it experimentally)
+                         //for this to work
+                         //Looking all I was able to fins is that's the size of a page
+                         //in the PI's CPU, but not sure how that relates to this.
+
 static uint8_t* process_address_space = 0x80000+0x4000000; //Right at the end of the OS address space
 
 // maybe move this in some kind of util file
