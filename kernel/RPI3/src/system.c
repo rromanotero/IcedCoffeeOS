@@ -23,7 +23,6 @@
 #include <stddef.h>
 #include "hal.h"
 #include "fat.h"
-#include "syscalls.h"
 #include "kprintf.h"
 
 void wait_for_ten_secs(void);
@@ -104,12 +103,6 @@ void system_init(void){
             wait_for_ten_secs();
         }
     }
-
-    //Init Syscalls
-    syscalls_init();
-    hal_video_puts( "System Calls [OK]\n\r", 1, VIDEO_COLOR_GREEN );
-    kprintf_debug( "System Calls [OK]\n\r" );
-
 
     //Init Timers
     hal_timer_init();

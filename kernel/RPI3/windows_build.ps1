@@ -58,13 +58,6 @@ Write-Host "SUCCESS"
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 
-set "cpuflags=-Wall -O3 -march=armv8-a+simd -mtune=cortex-a53 -mstrict-align -fno-tree-loop-vectorize -fno-tree-slp-vectorize"
-set "asmflags=-nostdlib -nostartfiles -ffreestanding -fno-asynchronous-unwind-tables -fomit-frame-pointer -Wa,-a>output/list.txt"
-set "linkerflags=-Wl,-gc-sections -Wl,--build-id=none -Wl,-Bdynamic -Wl,-Map,output/kernel.map"
-set "outflags=-o output/kernel8.elf"
-set "libflags=-lc -lm -lgcc"
-
-
 .\compile.bat $GCC_BIN_PATH
 
 if ($LASTEXITCODE -ne 0)
