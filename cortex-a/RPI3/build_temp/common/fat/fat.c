@@ -107,10 +107,10 @@ BootSector boot_sector;
 
 
 uint32_t fat_init( void ){
-    // --- Is the SD Card FAT Formatted? ----
+    // --- Is the storage FAT Formatted? ----
 
     //Read in the Master Boot Record
-    hal_sd_card_read_block( buffer,
+    hal_storage_read_block( buffer,
                             FAT_MASTER_BOOT_RECORD,
                             1 );
 
@@ -125,7 +125,7 @@ uint32_t fat_init( void ){
 
     //Read in the Partition's  Boot Record
     boot_sector.address = offset_read_n_bytes(buffer, MBR_OFFSET_RELATIVE_SECTOR, 4);
-    hal_sd_card_read_block( buffer,
+    hal_storage_read_block( buffer,
                             boot_sector.address,
                             1 );
 
@@ -154,7 +154,7 @@ uint32_t fat_init( void ){
 
 
     //read fat fat_table
-    hal_sd_card_read_block( fat_table_buffer,
+    hal_storage_read_block( fat_table_buffer,
                             boot_sector.fat_table_region,
                             SYSTEM_MAX_FAT_TABLE_SIZE_IN_SECTORS );
 
@@ -171,7 +171,7 @@ void fat_file_read( FATFile* file,  uint8_t* buf ){
 
     do{
         //Read a whole block (cluster),
-        hal_sd_card_read_block( pbuf,
+        hal_storage_read_block( pbuf,
                                 cluster_to_sector(cluster),
                                 num_of_clusters_to_sectors(1)  );
 
@@ -256,7 +256,7 @@ uint32_t fat_read_files_in_dir( FATDirectory* dir, uint8_t* path ){
 
     do{
             //read in directory table
-            hal_sd_card_read_block(
+            hal_storage_read_block(
         						buffer,
         						cluster_to_sector(cluster),
         						1 ); //Single sector

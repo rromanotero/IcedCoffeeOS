@@ -23,9 +23,9 @@
 #include "sd.h"
 
 /*
-*  HAL IO Serial Init
+*  HAL Storage Init
 */
-uint32_t hal_sd_card_init( void ){
+uint32_t hal_storage_init( void ){
 	if( sd_init() == SD_OK )
 	    return HAL_SUCCESS;
      else
@@ -33,7 +33,7 @@ uint32_t hal_sd_card_init( void ){
 }
 
 /*
-*   Read a block from the SD Card
+*   Read a block from the Storage
 *
 * params
 *      buffer - buffer to read data to
@@ -42,6 +42,6 @@ uint32_t hal_sd_card_init( void ){
 *
 *  returns num of block read
 */
-uint32_t hal_sd_card_read_block( uint8_t* buffer, uint32_t lba,  uint32_t num_of_blocks ){
+uint32_t hal_storage_read_block( uint8_t* buffer, uint32_t lba,  uint32_t num_of_blocks ){
     return sd_readblock(lba, buffer, num_of_blocks);
 }

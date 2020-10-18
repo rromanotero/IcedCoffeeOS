@@ -82,7 +82,7 @@ void system_init(void){
 
     //Init SDCard
     hal_cpu_delay(1000);    //Give the SD Card 1 sec to be stable
-    if( hal_sd_card_init() == HAL_SUCCESS ){
+    if( hal_storage_init() == HAL_SUCCESS ){
         hal_video_puts( "SD Card Init [OK]\n\r", 1, INFO_COLOR );
         kprintf_debug( "SD Card Init [OK]\n\r" );
     }else{

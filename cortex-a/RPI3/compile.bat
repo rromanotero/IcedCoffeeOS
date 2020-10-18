@@ -58,7 +58,7 @@ set "libflags=-lc -lm -lgcc"
     src/hal/hal_cpu.c ^
     src/hal/hal_cpu.S ^
     src/hal/hal_io.c ^
-    src/hal/hal_sd_card.c ^
+    src/hal/hal_storage.c ^
     src/hal/hal_video.c ^
     src/hal/hal_timer.c ^
     build_temp/common/kprintf/kprintf.c ^

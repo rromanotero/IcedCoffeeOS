@@ -69,8 +69,8 @@ void hal_cpu_delay(uint32_t);
 ///
 ///  S D    C A R D
 ///
-uint32_t hal_sd_card_init(void);
-uint32_t hal_sd_card_read_block( uint8_t*, uint32_t,  uint32_t );
+uint32_t hal_storage_init(void);
+uint32_t hal_storage_read_block( uint8_t*, uint32_t,  uint32_t );
 
 
 ///
