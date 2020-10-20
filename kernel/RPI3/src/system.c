@@ -81,26 +81,14 @@ void system_init(void){
 
 
     //Init SDCard
-    hal_cpu_delay(1000);    //Give the SD Card 1 sec to be stable
+    hal_cpu_delay(2000);    //Give the SD Card 1 sec to be stable
     if( hal_storage_init() == HAL_SUCCESS ){
-        hal_video_puts( "SD Card Init [OK]\n\r", 1, INFO_COLOR );
-        kprintf_debug( "SD Card Init [OK]\n\r" );
+        hal_video_puts( "Storage Init [OK]\n\r", 1, INFO_COLOR );
+        kprintf_debug( "Storage Init [OK]\n\r" );
     }else{
         while(true){
-            hal_video_puts( "SD Card Init [FAILED]. Cannot continue.\n\r", 1, VIDEO_COLOR_RED );
-            kprintf_debug( "SD Card Init [FAILED]. Cannot continue.\n\r" );
-            wait_for_ten_secs();
-        }
-    }
-
-	//Init FIle System
-    if( fat_init() == FAT_SUCCESS ){
-        hal_video_puts( "File System [OK]\n\r", 1, INFO_COLOR );
-        kprintf_debug( "File System [OK]\n\r" );
-    }else{
-        while(true){
-            hal_video_puts( "File System [FAILED]. Cannot continue.\n\r", 1, VIDEO_COLOR_RED );
-            kprintf_debug( "File System [FAILED]\n\r" );
+            hal_video_puts( "Storage Init [FAILED]. Cannot continue.\n\r", 2, VIDEO_COLOR_RED );
+            kprintf_debug( "Storage Init [FAILED]. Cannot continue.\n\r" );
             wait_for_ten_secs();
         }
     }

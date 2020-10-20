@@ -8,10 +8,7 @@
  */
 #include <stddef.h>
 #include <stdbool.h>
-
-#include "fat.h"
 #include "hal.h"
-#include "proc.h"
 #include "syscalls.h"
 #include "kprintf.h"
 
@@ -67,15 +64,10 @@ void syscalls_entry_point(void){
 
     //attend syscall
     switch(syscall_num){
-        case SVCDummy:           *((uint32_t*)arg0) = arg1 + arg2 + arg3;                                           break;
-        case SVCPutc:            hal_video_putc( (uint8_t)arg0, (uint32_t)arg1, (VideoColor)arg2 );                 break;
-        case SVCPutPixel:        hal_video_put_pixel_area( (VideoArea*)arg0, (VideoColor)arg1 );                    break;
-        case SVCGetcNonBlocking: *((uint32_t*)arg0) = hal_io_serial_nonblocking_getc( SerialA, (uint8_t*)arg1 );    break;
-        case SVCGetc:            *((uint32_t*)arg0) = hal_io_serial_getc( SerialA );                                break;
-        case SVCLoadBinEntry:    *((uint32_t*)arg0) = proc_load_bin((uint8_t*)arg1, (MainFunc*)arg2);               break;
-        case SVCDirContent:      fat_read_files_in_dir((FATDirectory*)arg0, (uint8_t*)arg1);                        break;
-        case SVCOpenFile:        *((uint32_t*)arg0) = fat_file_open((FATFile*) arg1, (uint8_t*) arg2, (uint8_t*) arg3);  break;
-        case SVCReadFile:        fat_file_read((FATFile*) arg0, (uint8_t*) arg1);                                   break;
+        case SVCDummy:
+          *((uint32_t*)arg0) = arg1 + arg2 + arg3;
+           break;
+
         //Error
         default:
             break;
