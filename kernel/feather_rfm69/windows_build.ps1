@@ -21,11 +21,12 @@
 
 <#
 #	 Params
-#	 (edit path to GCC and QEMU here)
+#	 (edit path to ATPROGRAM here)
 #>
 
-$GCC_BIN_PATH = "C:\Program Files\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf.tar\gcc-arm-9.2-2019.12-mingw-w64-i686-aarch64-none-elf\bin"
-$QEMU_BIN_PATH = "C:\Program Files\qemu"
+$ATPROGRAM_BIN_PATH = "C:\Program Files (x86)\Atmel\Studio\7.0\atbackend"
+$GCC_BIN_PATH = "C:\gcc-arm-none-eabi-9-2020-q2-update-win32\bin"
+$ATMEL_PACKS_SAMD21_PATH = "C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\SAMD21_DFP\1.3.331"
 
 Clear-Host;
 
@@ -53,7 +54,7 @@ Write-Host "SUCCESS"
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 
-.\compile.bat $GCC_BIN_PATH
+.\compile.bat $GCC_BIN_PATH $ATMEL_PACKS_SAMD21_PATH 
 
 if ($LASTEXITCODE -ne 0)
 {
@@ -62,27 +63,7 @@ if ($LASTEXITCODE -ne 0)
 }
 Write-Host "SUCCESS"
 
-Write-Host "  C R E A T I N G    I M G,  L S S,  etc   "
-Write-Host "============================================"
+Write-Host "  FLASHING HEX  "
+Write-Host "================"
 
-& "$GCC_BIN_PATH\aarch64-none-elf-objcopy.exe" .\output\kernel8.elf -O binary .\output\kernel8.img
-& "$GCC_BIN_PATH\aarch64-none-elf-objdump.exe" -D .\output\kernel8.elf | Out-File -filepath output/kernel8.lss -Encoding ASCII
-& "$GCC_BIN_PATH\aarch64-none-elf-objdump.exe" -s .\output\kernel8.elf | Out-File -filepath output/kernel8.dump -Encoding ASCII
-
-if ($LASTEXITCODE -ne 0)
-{
-	Write-Host "CREATING IMG et al FAILED"
-	exit 1
-}
-Write-Host "SUCCESS"
-
-
-Write-Host "            R U N N I N G   "
-Write-Host "====================================="
-Write-Host "        PI'S  UART0          "
-Write-Host "= = = = = = = = = = = = = = "
-& "$QEMU_BIN_PATH\qemu-system-aarch64.exe" `
-			-M raspi3 `
-			-kernel output/kernel8.img  `
-			-drive file=.\sd_card\sd_card_many_files.img,if=sd,format=raw `
-			-serial stdio -serial null
+& "$ATPROGRAM_BIN_PATH\atprogram.exe" -t samice -i swd -s 28018294 -d atsamd21g18a -l output.log -cl 4Mhz program -c -f ".\output\feather_m0.hex" --verify
