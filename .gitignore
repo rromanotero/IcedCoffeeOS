@@ -1,5 +1,6 @@
 *sd_card*.img
 list.txt*
+samice_output.log
 
 # Build dirs
 build_temp\*
@@ -43,7 +44,6 @@ build_temp\*
 *.app
 *.i*86
 *.x86_64
-*.hex
 
 # Debug files
 *.dSYM/

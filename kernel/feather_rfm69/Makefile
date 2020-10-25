@@ -37,12 +37,12 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS = $(INC_FLAGS) -D__SAMD21G18A__ -mthumb -mcpu=cortex-m0plus -Os -nostdlib -ffreestanding
-#LDFLAGS = -L/gnu_toolchain/arm-none-eabi/lib -lm -L /gnu_toolchain/arm-none-eabi/lib -lc
+CFLAGS = $(INC_FLAGS) -D__SAMD21G18A__ -mthumb -mcpu=cortex-m0plus -Os -ffreestanding
+LDFLAGS = -L/gnu_toolchain/arm-none-eabi/lib -lm -L /gnu_toolchain/arm-none-eabi/lib -lc
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-#	cp -r ../common/* ./build_temp
-	$(LD) $(OBJS) -T linker.ld -o $(OUTPUT)/$(ELF)
+	cp -r ../common/* ./build_temp
+	$(CC) $(OBJS) $(LDFLAGS) -T linker.ld -o $(OUTPUT)/$(ELF) $(CFLAGS)
 	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(HEX)
 	$(OBJDUMP) -D $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel.lss
 	$(OBJDUMP) -s $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel.dump

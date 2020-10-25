@@ -22,7 +22,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "hal.h"
-#include "fat.h"
 #include "syscalls.h"
 #include "kprintf.h"
 

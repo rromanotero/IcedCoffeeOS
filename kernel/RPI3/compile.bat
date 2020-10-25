@@ -39,7 +39,6 @@ set "libflags=-lc -lm -lgcc"
     -I ./src/drivers/mbox ^
     -I ./src/drivers/sd ^
     -I ./src/drivers/uart ^
-    -I ./build_temp/common/fat ^
     -I ./build_temp/common/fonts ^
     -I ./src/hal ^
     -I ./src/loader ^
@@ -55,7 +54,6 @@ set "libflags=-lc -lm -lgcc"
     src/drivers/mbox/mbox.c ^
     src/drivers/sd/sd.c ^
     src/drivers/uart/uart.c ^
-    build_temp/common/fat/fat.c ^
     build_temp/common/fonts/fonts.c ^
     src/hal/hal_cpu.c ^
     src/hal/hal_cpu.S ^

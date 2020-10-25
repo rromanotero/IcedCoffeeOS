@@ -1,5 +1,5 @@
 NOTE:
-**Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (as explained below). I've added a windows_build.ps1 that can be used instead to both builds and run:** :
+**Currently the multicore example won't work on the physical PI when compiled with the toolchain on Docker (and the img file is 10 times larger than it should). So I've added a windows_build.ps1 that can be used instead to both builds and run:** :
 
 ```
 ./windows_build.ps1
@@ -8,7 +8,7 @@ For some reason building it in this way makes it work. **You'll need to get the 
 
 
 ## Compiling on Windows
-##### ( Docker Windows requires the FULL PATH TO THE RPI3 FOLDER to bind mount it)
+##### ( Docker Windows requires the FULL PATH TO IcedCoffeeOS to bind mount it)
 ```bash
 docker run `
         -v  C:\Users\...\IcedCoffeeOS:/src `

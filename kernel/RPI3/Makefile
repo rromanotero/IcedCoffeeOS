@@ -37,12 +37,12 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS = $(INC_FLAGS) -mcpu=cortex-a53 -O0 -nostdlib -ffreestanding
+CFLAGS = $(INC_FLAGS) -mcpu=cortex-a53 -Os -nostdlib -ffreestanding 
 LDFLAGS = -L/gnu_toolchain/aarch64-elf/lib/ -lc -L/gnu_toolchain/lib/gcc/aarch64-elf/8.3.0/ -lgcc
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	cp -r ../common/* ./build_temp
-	$(LD) $(OBJS) $(LDFLAGS) -T linker.ld -o $(OUTPUT)/$(ELF)
+	$(CC) $(OBJS) $(LDFLAGS) -T linker.ld -o $(OUTPUT)/$(ELF) $(CFLAGS)
 	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(IMAGE)
 	$(OBJDUMP) -D $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel8.lss
 	$(OBJDUMP) -s $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel8.dump
