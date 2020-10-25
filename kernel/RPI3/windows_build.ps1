@@ -46,24 +46,12 @@ Copy-item -Force -Recurse -Verbose ..\common -Destination .\build_temp
 Write-Host "  C L E A N I N G "
 Write-Host "=================="
 
-rm ./output/*.img
-rm ./output/*.elf
-rm ./output/*.lss
-rm ./output/*.dump
-rm ./output/*.map
-rm ./output/*.txt
+rm ./output/*
 
 Write-Host "SUCCESS"
 
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
-
-set "cpuflags=-Wall -O3 -march=armv8-a+simd -mtune=cortex-a53 -mstrict-align -fno-tree-loop-vectorize -fno-tree-slp-vectorize"
-set "asmflags=-nostdlib -nostartfiles -ffreestanding -fno-asynchronous-unwind-tables -fomit-frame-pointer -Wa,-a>output/list.txt"
-set "linkerflags=-Wl,-gc-sections -Wl,--build-id=none -Wl,-Bdynamic -Wl,-Map,output/kernel.map"
-set "outflags=-o output/kernel8.elf"
-set "libflags=-lc -lm -lgcc"
-
 
 .\compile.bat $GCC_BIN_PATH
 
