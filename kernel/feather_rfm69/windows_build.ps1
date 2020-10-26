@@ -69,6 +69,7 @@ Write-Host "============================================"
 & "$GCC_BIN_PATH\arm-none-eabi-objcopy.exe" .\output\kernel.elf -O ihex -R .eeprom -R .fuse -R .lock -R .signature .\output\kernel.hex
 & "$GCC_BIN_PATH\arm-none-eabi-objdump.exe" -D .\output\kernel.elf | Out-File -filepath output/kernel.lss -Encoding ASCII
 & "$GCC_BIN_PATH\arm-none-eabi-objdump.exe" -s .\output\kernel.elf | Out-File -filepath output/kernel.dump -Encoding ASCII
+& "$GCC_BIN_PATH\arm-none-eabi-size.exe" .\output\kernel.elf | Out-File -filepath output/kernel.size -Encoding ASCII
 
 if ($LASTEXITCODE -ne 0)
 {
@@ -77,7 +78,11 @@ if ($LASTEXITCODE -ne 0)
 }
 Write-Host "SUCCESS"
 
+Write-Host "  SIZE  "
+Write-Host "========"
+& "$GCC_BIN_PATH\arm-none-eabi-size.exe" .\output\kernel.elf
+
 Write-Host "  FLASHING HEX  "
 Write-Host "================"
 
-& "$ATPROGRAM_BIN_PATH\atprogram.exe" -t samice -i swd -s 28018294 -d atsamd21g18a -l output.log -cl 4Mhz program -c -f ".\output\kernel.hex" --verify
+& "$ATPROGRAM_BIN_PATH\atprogram.exe" -t samice -i swd -d atsamd21g18a -l output/output.log -cl 4Mhz program -c -f ".\output\kernel.hex" --verify

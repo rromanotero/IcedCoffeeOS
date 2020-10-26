@@ -1,0 +1,216 @@
+01 42 39 990: cal AvrDebugger::AvrDebugger() - constructor
+01 42 39 990: cal AvrDebugger::init()
+01 42 39 990: cal AvrDebugger::startServices()
+01 42 40 063: cal AvrDebugger::startNetwork()
+01 42 40 063: tcf Communication server listening on port 60931.
+01 42 40 412: tcf Opening channel 58 to 127.0.0.1:60932
+01 42 40 412: cal AvrDebugger::onChannelStart() - nClients = 1
+01 42 40 413: msg send(58):E Locator Hello ["Breakpoints","Device","Diagnostics","Disassembly","Expressions","FileSystem","LineNumbers","Locator","Memory","Message","Meta","Modules","Processes","Registers","ResourceInfo","RunControl","StackTrace","Stimuli","Stream","Symbols","Tool","Trace"]
+01 42 40 419: msg recv(58):E Locator Hello ["Locator"]
+01 42 40 419: cal AvrDebugger::onChannelOpen()
+01 42 40 426: msg recv(58):C 0 Tool getAttachedTools ""
+01 42 40 448: mplabcomm::library Starting library controll: session=0, list=0
+01 42 40 569: msg send(58):R 0  [{"ToolType":"com.atmel.avrdbg.tool.simulator","ConnectionType":"","ConnectionProperties":{}},{"ToolType":"com.atmel.avrdbg.tool.samice","ConnectionType":"com.atmel.avrdbg.connection.segger","ConnectionProperties":{"Type":"com.atmel.avrdbg.connection.segger","SerialNumber":"28018294","ProductName":"SAM-ICE"}}]
+01 42 40 631: msg recv(58):C 1 Tool getAttachedTools ""
+01 42 40 735: msg send(58):R 1  [{"ToolType":"com.atmel.avrdbg.tool.simulator","ConnectionType":"","ConnectionProperties":{}},{"ToolType":"com.atmel.avrdbg.tool.samice","ConnectionType":"com.atmel.avrdbg.connection.segger","ConnectionProperties":{"Type":"com.atmel.avrdbg.connection.segger","SerialNumber":"28018294","ProductName":"SAM-ICE"}}]
+01 42 40 747: msg recv(58):C 2 Tool setupTool "com.atmel.avrdbg.tool.samice" "com.atmel.avrdbg.connection.segger" {"SerialNumber":"28018294","Type":"com.atmel.avrdbg.connection.segger","ProductName":"SAM-ICE"}
+01 42 40 748: msg send(58):E Tool contextAdded [{"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"","JlinkDeviceOverride":"","JlinkDeviceOverrideName":""}]
+01 42 40 748: msg send(58):R 2  "AT_1"
+01 42 40 758: msg recv(58):C 3 Tool getContext "AT_1"
+01 42 40 758: msg send(58):R 3  {"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"","JlinkDeviceOverride":"","JlinkDeviceOverrideName":""}
+01 42 40 775: msg recv(58):C 4 Tool connect "AT_1"
+01 42 40 815: msg send(58):R 4
+01 42 40 822: msg recv(58):C 5 Tool getContext "AT_1"
+01 42 40 822: msg send(58):R 5  {"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"","MajorFirmwareVersion":"J-Link ARM V8 compiled Aug 26 2015 15:08:21","MinorFirmwareVersion":"","HardwareRevision":"8.0","DllVersion":"6.48a","JlinkDeviceOverride":"","JlinkDeviceOverrideName":""}
+01 42 40 854: msg recv(58):C 6 Tool setProperties "AT_1" {"DeviceName":"atsamd21g18a","InterfaceName":"swd","ProgFlashFromRam":true}
+01 42 40 859: hil Using device file C:/Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\SAMD21_DFP\1.3.395\samd21a\atdf\ATSAMD21G18A.atdf
+01 42 40 859: dbg AvrToolsDeviceFileReader::parseFiles(atsamd21g18a) - start processing xml file
+01 42 40 889: dbg AvrToolsDeviceFileReader::parseFiles(atsamd21g18a) - done
+01 42 40 889: msg send(58):E Device contextAdded [{"ID":"ArmDev_1","Name":"atsamd21g18a","Session":0,"MemoryIDs":[],"RunControlID":""}]
+01 42 40 890: msg send(58):E Tool contextChanged [{"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"ArmDev_1","InterfaceName":"SWD","InterfaceProperties":{"SwdClock":0},"MajorFirmwareVersion":"J-Link ARM V8 compiled Aug 26 2015 15:08:21","MinorFirmwareVersion":"","HardwareRevision":"8.0","DllVersion":"6.48a","JlinkDeviceOverride":"","JlinkDeviceOverrideName":""}]
+01 42 40 890: msg send(58):R 6
+01 42 40 900: msg recv(58):C 7 Tool setProperties "AT_1" {"InterfaceProperties":{"SwdClock":4000000}}
+01 42 40 900: arm ArmSwdInterface: Set Jlink Device = atsamd21g18a and ProjectFile = 
+01 42 40 997: sgr Device "ATSAMD21G18" selected.
+01 42 40 998: msg send(58):E Tool contextChanged [{"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"ArmDev_1","InterfaceName":"SWD","InterfaceProperties":{"SwdClock":4000000},"MajorFirmwareVersion":"J-Link ARM V8 compiled Aug 26 2015 15:08:21","MinorFirmwareVersion":"","HardwareRevision":"8.0","DllVersion":"6.48a","JlinkDeviceOverride":"0","JlinkDeviceOverrideName":"\"ARM7\""}]
+01 42 40 998: msg send(58):R 7
+01 42 41 039: msg recv(58):C 8 Tool getContext "AT_1"
+01 42 41 039: msg send(58):R 8  {"ID":"AT_1","Name":"com.atmel.avrdbg.tool.samice","DeviceId":"ArmDev_1","InterfaceName":"SWD","InterfaceProperties":{"SwdClock":4000000},"MajorFirmwareVersion":"J-Link ARM V8 compiled Aug 26 2015 15:08:21","MinorFirmwareVersion":"","HardwareRevision":"8.0","DllVersion":"6.48a","JlinkDeviceOverride":"0","JlinkDeviceOverrideName":"\"ARM7\""}
+01 42 41 054: msg recv(58):C 9 Device getContext "ArmDev_1"
+01 42 41 054: msg send(58):R 9  {"ID":"ArmDev_1","Name":"atsamd21g18a","Session":0,"MemoryIDs":[],"RunControlID":"","ProgFlashFromRam":true}
+01 42 41 073: msg recv(58):C 10 Device startSession "ArmDev_1" "ProgrammingSession"
+01 42 41 073: prg Connect to the device OCD
+01 42 41 074: sgr InitTarget()
+01 42 41 080: sgr Found SW-DP with ID 0x0BC11477
+01 42 41 082: sgr Scanning AP map to find all available APs
+01 42 41 085: sgr AP[1]: Stopped AP scan as end of AP map has been reached
+01 42 41 085: sgr AP[0]: AHB-AP (IDR: 0x04770031)
+01 42 41 085: sgr Iterating through AP map to find AHB-AP to use
+01 42 41 088: sgr AP[0]: Core found
+01 42 41 088: sgr AP[0]: AHB-AP ROM base: 0x41003000
+01 42 41 090: sgr CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+01 42 41 090: sgr Found Cortex-M0 r0p1, Little endian.
+01 42 41 193: sgr FPUnit: 4 code (BP) slots and 0 literal slots
+01 42 41 194: sgr CoreSight components:
+01 42 41 194: sgr ROMTbl[0] @ 41003000
+01 42 41 195: sgr ROMTbl[0][0]: E00FF000, CID: B105100D, PID: 000BB4C0 ROM Table
+01 42 41 195: sgr ROMTbl[1] @ E00FF000
+01 42 41 197: sgr ROMTbl[1][0]: E000E000, CID: B105E00D, PID: 000BB008 SCS
+01 42 41 198: sgr ROMTbl[1][1]: E0001000, CID: B105E00D, PID: 000BB00A DWT
+01 42 41 199: sgr ROMTbl[1][2]: E0002000, CID: B105E00D, PID: 000BB00B FPB
+01 42 41 199: sgr ROMTbl[0][1]: 41006000, CID: B105900D, PID: 001BB932 MTB-M0+
+01 42 41 200: sgr JLINKARM_Halt
+01 42 41 202: xml Segment definition is rw but size smaller than erase page for segment OTP4
+01 42 41 202: prg Starting debugging
+01 42 41 202: msg send(58):E RunControl contextAdded [{"ID":"armRC1","CanSuspend":true,"CanResume":262143,"CanCount":262143,"IsContainer":false,"HasState":true,"CanTerminate":true}]
+01 42 41 203: msg send(58):E Registers contextAdded [{"ID":"Reg_R0_1","Name":"R0","Size":4},{"ID":"Reg_R1_2","Name":"R1","Size":4},{"ID":"Reg_R2_3","Name":"R2","Size":4},{"ID":"Reg_R3_4","Name":"R3","Size":4},{"ID":"Reg_R4_5","Name":"R4","Size":4},{"ID":"Reg_R5_6","Name":"R5","Size":4},{"ID":"Reg_R6_7","Name":"R6","Size":4},{"ID":"Reg_R7_8","Name":"R7","Size":4},{"ID":"Reg_R8_9","Name":"R8","Size":4},{"ID":"Reg_R9_10","Name":"R9","Size":4},{"ID":"Reg_R10_11","Name":"R10","Size":4},{"ID":"Reg_R11_12","Name":"R11","Size":4},{"ID":"Reg_R12_13","Name":"R12","Size":4},{"ID":"Reg_SP_14","Name":"SP","Size":4},{"ID":"Reg_LR_15","Name":"LR","Size":4},{"ID":"Reg_PC_16","Name":"PC","Size":4},{"ID":"Reg_APSR_17","Name":"APSR","Size":4},{"ID":"Reg_MSP_18","Name":"MSP","Size":4},{"ID":"Reg_PSP_19","Name":"PSP","Size":4},{"ID":"Reg_XPSR_20","Name":"XPSR","Size":4},{"ID":"Reg_IPSR_21","Name":"IPSR","Size":4},{"ID":"Reg_EPSR_22","Name":"EPSR","Size":4},{"ID":"Reg_PRIMASK_23","Name":"PRIMASK","Size":1},{"ID":"Reg_FAULTMASK_24","Name":"FAULTMASK","Si...
+01 42 41 203: msg send(58):E Memory contextAdded [{"ID":"Mem_base_1","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295},{"ID":"Mem_fuses_2","BigEndian":false,"AddressSize":4,"Name":"fuses","StartBound":0,"EndBound":4294967295}]
+01 42 41 204: sgr JLINKARM_ReadMemU32 41002018 10010305 ...
+01 42 41 204: msg send(58):R 10  {"signature":268501765,"revision":3}
+01 42 41 286: msg recv(58):C 11 Device endSession "ArmDev_1"
+01 42 41 287: msg send(58):E RunControl contextRemoved ["armRC1"]
+01 42 41 425: msg send(58):E RunControl contextRemoved ["armRC1"]
+01 42 41 425: prg Finished debugging
+01 42 41 425: msg send(58):E Registers contextRemoved ["Reg_R0_1","Reg_R1_2","Reg_R2_3","Reg_R3_4","Reg_R4_5","Reg_R5_6","Reg_R6_7","Reg_R7_8","Reg_R8_9","Reg_R9_10","Reg_R10_11","Reg_R11_12","Reg_R12_13","Reg_SP_14","Reg_LR_15","Reg_PC_16","Reg_APSR_17","Reg_MSP_18","Reg_PSP_19","Reg_XPSR_20","Reg_IPSR_21","Reg_EPSR_22","Reg_PRIMASK_23","Reg_FAULTMASK_24","Reg_BASEPRI_25","Reg_CONTROL_26"]
+01 42 41 425: sgr Disconnect from target
+01 42 41 426: sgr InitTarget()
+01 42 41 432: sgr Found SW-DP with ID 0x0BC11477
+01 42 41 434: sgr AP map detection skipped. Manually configured AP map found.
+01 42 41 434: sgr AP[0]: AHB-AP (IDR: Not set)
+01 42 41 438: sgr AP[0]: Core found
+01 42 41 438: sgr AP[0]: AHB-AP ROM base: 0x41003000
+01 42 41 440: sgr CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+01 42 41 440: sgr Found Cortex-M0 r0p1, Little endian.
+01 42 41 542: sgr FPUnit: 4 code (BP) slots and 0 literal slots
+01 42 41 542: sgr CoreSight components:
+01 42 41 542: sgr ROMTbl[0] @ 41003000
+01 42 41 544: sgr ROMTbl[0][0]: E00FF000, CID: B105100D, PID: 000BB4C0 ROM Table
+01 42 41 544: sgr ROMTbl[1] @ E00FF000
+01 42 41 545: sgr ROMTbl[1][0]: E000E000, CID: B105E00D, PID: 000BB008 SCS
+01 42 41 547: sgr ROMTbl[1][1]: E0001000, CID: B105E00D, PID: 000BB00A DWT
+01 42 41 548: sgr ROMTbl[1][2]: E0002000, CID: B105E00D, PID: 000BB00B FPB
+01 42 41 549: sgr ROMTbl[0][1]: 41006000, CID: B105900D, PID: 001BB932 MTB-M0+
+01 42 41 614: msg send(58):E Memory contextRemoved ["Mem_base_1","Mem_fuses_2"]
+01 42 41 614: msg send(58):R 11
+01 42 41 669: msg recv(58):C 12 Device erase "ArmDev_1" {"EraseKey":"","Type":0}
+01 42 41 722: sgr Device "ATSAMD21G18" selected.
+01 42 41 723: sgr JLink>r0
+01 42 41 730: sgr JLink>r1
+01 42 41 739: sgr JLink>r0
+01 42 41 745: sgr JLink>tck0  returns 0
+01 42 41 751: sgr JLink>r1
+01 42 41 756: sgr JLink>c
+01 42 41 771: prg SAMD - chip erase
+01 42 41 783: arm Device did not enter reset extensions, falling back to JLinkEraseChip
+01 42 41 783: sgr JLINKARM_Halt
+01 42 41 784: sgr InitTarget()
+01 42 41 812: sgr Found SW-DP with ID 0x0BC11477
+01 42 41 821: sgr Scanning AP map to find all available APs
+01 42 41 831: sgr AP[1]: Stopped AP scan as end of AP map has been reached
+01 42 41 831: sgr AP[0]: AHB-AP (IDR: 0x04770031)
+01 42 41 831: sgr Iterating through AP map to find AHB-AP to use
+01 42 41 847: sgr AP[0]: Core found
+01 42 41 847: sgr AP[0]: AHB-AP ROM base: 0x41003000
+01 42 41 855: sgr CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+01 42 41 855: sgr Found Cortex-M0 r0p1, Little endian.
+01 42 41 974: sgr FPUnit: 4 code (BP) slots and 0 literal slots
+01 42 41 999: sgr CoreSight components:
+01 42 41 999: sgr ROMTbl[0] @ 41003000
+01 42 42 025: sgr ROMTbl[0][0]: E00FF000, CID: B105100D, PID: 000BB4C0 ROM Table
+01 42 42 025: sgr ROMTbl[1] @ E00FF000
+01 42 42 052: sgr ROMTbl[1][0]: E000E000, CID: B105E00D, PID: 000BB008 SCS
+01 42 42 069: sgr ROMTbl[1][1]: E0001000, CID: B105E00D, PID: 000BB00A DWT
+01 42 42 087: sgr ROMTbl[1][2]: E0002000, CID: B105E00D, PID: 000BB00B FPB
+01 42 42 105: sgr ROMTbl[0][1]: 41006000, CID: B105900D, PID: 001BB932 MTB-M0+
+01 42 44 098: sgr J-Link: Flash download: Total time needed: 1.915s (Prepare: 0.801s, Compare: 0.000s, Erase: 1.022s, Program: 0.000s, Verify: 0.000s, Restore: 0.090s)
+01 42 45 022: sgr J-Link: Flash download: Total time needed: 0.918s (Prepare: 0.802s, Compare: 0.000s, Erase: 0.025s, Program: 0.000s, Verify: 0.000s, Restore: 0.090s)
+01 42 45 025: msg send(58):R 12
+01 42 45 071: msg recv(58):C 13 Device startSession "ArmDev_1" "ProgrammingSession"
+01 42 45 071: prg Connect to the device OCD
+01 42 45 079: sgr Device "ATSAMD21G18" selected.
+01 42 45 080: sgr InitTarget()
+01 42 45 087: sgr Found SW-DP with ID 0x0BC11477
+01 42 45 089: sgr AP map detection skipped. Manually configured AP map found.
+01 42 45 089: sgr AP[0]: AHB-AP (IDR: Not set)
+01 42 45 094: sgr AP[0]: Core found
+01 42 45 094: sgr AP[0]: AHB-AP ROM base: 0x41003000
+01 42 45 095: sgr CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+01 42 45 096: sgr Found Cortex-M0 r0p1, Little endian.
+01 42 45 199: sgr FPUnit: 4 code (BP) slots and 0 literal slots
+01 42 45 199: sgr CoreSight components:
+01 42 45 199: sgr ROMTbl[0] @ 41003000
+01 42 45 200: sgr ROMTbl[0][0]: E00FF000, CID: B105100D, PID: 000BB4C0 ROM Table
+01 42 45 200: sgr ROMTbl[1] @ E00FF000
+01 42 45 201: sgr ROMTbl[1][0]: E000E000, CID: B105E00D, PID: 000BB008 SCS
+01 42 45 204: sgr ROMTbl[1][1]: E0001000, CID: B105E00D, PID: 000BB00A DWT
+01 42 45 205: sgr ROMTbl[1][2]: E0002000, CID: B105E00D, PID: 000BB00B FPB
+01 42 45 205: sgr ROMTbl[0][1]: 41006000, CID: B105900D, PID: 001BB932 MTB-M0+
+01 42 45 205: sgr JLINKARM_Halt
+01 42 45 205: xml Segment definition is rw but size smaller than erase page for segment OTP4
+01 42 45 205: prg Starting debugging
+01 42 45 205: msg send(58):E RunControl contextAdded [{"ID":"armRC2","CanSuspend":true,"CanResume":262143,"CanCount":262143,"IsContainer":false,"HasState":true,"CanTerminate":true}]
+01 42 45 207: msg send(58):E Registers contextAdded [{"ID":"Reg_R0_27","Name":"R0","Size":4},{"ID":"Reg_R1_28","Name":"R1","Size":4},{"ID":"Reg_R2_29","Name":"R2","Size":4},{"ID":"Reg_R3_30","Name":"R3","Size":4},{"ID":"Reg_R4_31","Name":"R4","Size":4},{"ID":"Reg_R5_32","Name":"R5","Size":4},{"ID":"Reg_R6_33","Name":"R6","Size":4},{"ID":"Reg_R7_34","Name":"R7","Size":4},{"ID":"Reg_R8_35","Name":"R8","Size":4},{"ID":"Reg_R9_36","Name":"R9","Size":4},{"ID":"Reg_R10_37","Name":"R10","Size":4},{"ID":"Reg_R11_38","Name":"R11","Size":4},{"ID":"Reg_R12_39","Name":"R12","Size":4},{"ID":"Reg_SP_40","Name":"SP","Size":4},{"ID":"Reg_LR_41","Name":"LR","Size":4},{"ID":"Reg_PC_42","Name":"PC","Size":4},{"ID":"Reg_APSR_43","Name":"APSR","Size":4},{"ID":"Reg_MSP_44","Name":"MSP","Size":4},{"ID":"Reg_PSP_45","Name":"PSP","Size":4},{"ID":"Reg_XPSR_46","Name":"XPSR","Size":4},{"ID":"Reg_IPSR_47","Name":"IPSR","Size":4},{"ID":"Reg_EPSR_48","Name":"EPSR","Size":4},{"ID":"Reg_PRIMASK_49","Name":"PRIMASK","Size":1},{"ID":"Reg_FAULTMASK_50","Name":"FAULT...
+01 42 45 207: msg send(58):E Memory contextAdded [{"ID":"Mem_base_3","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295},{"ID":"Mem_fuses_4","BigEndian":false,"AddressSize":4,"Name":"fuses","StartBound":0,"EndBound":4294967295}]
+01 42 45 208: sgr JLINKARM_ReadMemU32 41002018 10010305 ...
+01 42 45 208: msg send(58):R 13  {"signature":268501765,"revision":3}
+01 42 45 244: msg recv(58):C 14 Device getContext "ArmDev_1"
+01 42 45 244: msg send(58):R 14  {"ID":"ArmDev_1","Name":"atsamd21g18a","Session":2,"MemoryIDs":["Mem_base_3","Mem_fuses_4"],"RunControlID":"armRC2","ProgFlashFromRam":true}
+01 42 45 261: msg recv(58):C 15 Modules add "C:\\Users\\rafael.romanotero\\Desktop\\IcedCoffeeOS\\kernel\\feather_rfm69\\output\\kernel.hex" 0
+01 42 45 267: msg send(58):R 15  {"ID":"Module_1","Path":"C:\\Users\\rafael.romanotero\\Desktop\\IcedCoffeeOS\\kernel\\feather_rfm69\\output\\kernel.hex","Mode":0}
+01 42 45 274: msg recv(58):C 16 Modules getContext "Module_1"
+01 42 45 275: msg send(58):R 16  {"ID":"Module_1","Path":"C:\\Users\\rafael.romanotero\\Desktop\\IcedCoffeeOS\\kernel\\feather_rfm69\\output\\kernel.hex","Mode":0}
+01 42 45 290: msg recv(58):C 17 Modules getBinaryContentInfo "Module_1"
+01 42 45 290: msg send(58):R 17  [{"AddressSpaceName":"","AddressSpaceOffset":8192,"Size":24048,"NativeSegmentName":"0x2000","NativeSegmentOffset":8192}]
+01 42 45 306: msg recv(58):C 18 Device getContext "ArmDev_1"
+01 42 45 306: msg send(58):R 18  {"ID":"ArmDev_1","Name":"atsamd21g18a","Session":2,"MemoryIDs":["Mem_base_3","Mem_fuses_4"],"RunControlID":"armRC2","ProgFlashFromRam":true}
+01 42 45 322: msg recv(58):C 19 Memory getContext "Mem_base_3"
+01 42 45 322: msg send(58):R 19  {"ID":"Mem_base_3","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295}
+01 42 45 336: msg recv(58):C 20 Memory getContext "Mem_base_3"
+01 42 45 337: msg send(58):R 20  {"ID":"Mem_base_3","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295}
+01 42 45 353: msg recv(58):C 21 Memory getContext "Mem_base_3"
+01 42 45 353: msg send(58):R 21  {"ID":"Mem_base_3","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295}
+01 42 45 368: msg recv(58):C 22 Memory getContext "Mem_base_3"
+01 42 45 368: msg send(58):R 22  {"ID":"Mem_base_3","BigEndian":false,"AddressSize":4,"Name":"base","StartBound":0,"EndBound":4294967295}
+01 42 45 385: msg recv(58):C 23 Modules writeToMemory "Module_1" "Mem_base_3" 8192 24048 2
+01 42 45 385: sgr JLINKARM_BeginDownload
+01 42 45 385: sgr JLINKARM_WriteMem 0x00002000 24048 - e0 25 00 ...
+01 42 45 386: msg send(58):E Memory memoryChanged "Mem_base_3" [{"addr":8192,"size":24048}]
+01 42 45 386: msg send(58):R 23
+01 42 45 401: msg recv(58):C 24 Modules verifyMemory "Module_1" "Mem_base_3" 8192 24048
+01 42 45 401: sgr JLINKARM_EndDownload
+01 42 45 684: sgr J-Link: Flash download: Bank 0 @ 0x00000000: 1 range affected (24064 bytes)
+01 42 45 684: sgr J-Link: Flash download: Total time needed: 0.282s (Prepare: 0.063s, Compare: 0.012s, Erase: 0.000s, Program: 0.178s, Verify: 0.000s, Restore: 0.026s)
+01 42 45 853: msg send(58):R 24  []
+01 42 45 868: tcf Channel(58) was terminated: Connection Reset by Peer.
+01 42 45 868: tcf Closing TCF channel (58)
+01 42 45 868: cal AvrDebugger::onChannelClose()
+01 42 45 869: svc Unregistering orphan AT_1 refcount 1
+01 42 45 869: svc Disconnecting tool AT_1 refcount 2
+01 42 45 893: prg Finished debugging
+01 42 45 894: sgr Disconnect from target
+01 42 45 895: sgr InitTarget()
+01 42 45 902: sgr Found SW-DP with ID 0x0BC11477
+01 42 45 906: sgr AP map detection skipped. Manually configured AP map found.
+01 42 45 906: sgr AP[0]: AHB-AP (IDR: Not set)
+01 42 45 910: sgr AP[0]: Core found
+01 42 45 910: sgr AP[0]: AHB-AP ROM base: 0x41003000
+01 42 45 913: sgr CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+01 42 45 913: sgr Found Cortex-M0 r0p1, Little endian.
+01 42 46 015: sgr FPUnit: 4 code (BP) slots and 0 literal slots
+01 42 46 016: sgr CoreSight components:
+01 42 46 016: sgr ROMTbl[0] @ 41003000
+01 42 46 017: sgr ROMTbl[0][0]: E00FF000, CID: B105100D, PID: 000BB4C0 ROM Table
+01 42 46 017: sgr ROMTbl[1] @ E00FF000
+01 42 46 019: sgr ROMTbl[1][0]: E000E000, CID: B105E00D, PID: 000BB008 SCS
+01 42 46 020: sgr ROMTbl[1][1]: E0001000, CID: B105E00D, PID: 000BB00A DWT
+01 42 46 021: sgr ROMTbl[1][2]: E0002000, CID: B105E00D, PID: 000BB00B FPB
+01 42 46 022: sgr ROMTbl[0][1]: 41006000, CID: B105900D, PID: 001BB932 MTB-M0+
+01 42 46 139: svc Unregistering orphan Module_1 refcount 1
+01 42 46 139: cal closing backend since last client has disconnected
+01 42 46 139: tcf TCF channel (58) was closed.
+01 42 46 156: cal AvrDebugger::stopNetwork()
+01 42 46 156: cal AvrDebugger::stopServices()
+01 42 46 158: cal AvrDebugger::uninit()
+01 42 46 158: cal AvrDebugger::~AvrDebugger() - destructor
+01 42 46 159: mplabcomm::library Unloading access link: list=0, session=0
+Data: 0
