@@ -34,6 +34,7 @@
 #include <compiler.h>
 #include <hpl_gpio.h>
 #include <utils_assert.h>
+
 /**
  * \brief Set direction on port with mask
  */

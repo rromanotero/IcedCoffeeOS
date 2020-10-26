@@ -1,3 +1,7 @@
+The Feather M0 is powered by the ATSAMD21G18A. This project is currently configured to run at 48Mhz. I based it off an example on [start.atmel.com](start.atmel.com)
+
+NOTE:
+**Currently the project won't work on the physical PI when compiled with the toolchain on Docker. So I've added a windows_build.ps1 that can be used instead to both builds and run:** :
 
 
 ## Compiling on Windows
@@ -20,7 +24,7 @@ docker run \
 ## Flashing the Feather M0 board (atprogram + Atmel SAM ICE)
 
 ```bash
-& "PATH_TO_AT_PROGRAM\atprogram.exe" -t samice -i swd -d atsamd21g18a -l output/samice_output.log -cl 4Mhz program -c -f ".\output\feather_m0.hex" --verify
+& "PATH_TO_AT_PROGRAM\atprogram.exe" -t samice -i swd -d atsamd21g18a -l output/samice_output.log -cl 4Mhz program -c -f ".\output\kernel.elf" --verify
 ```
 
 First install Atmel Studio and find `atprogram.exe`. For example, in my cmputer this is at `C:\Program Files (x86)\Atmel\Studio\7.0\atbackend`

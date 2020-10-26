@@ -124,7 +124,7 @@ extern int _lseek(int file, int ptr, int dir)
  */
 extern void _exit(int status)
 {
-	//printf("Exiting with status %d.\n", status);
+	printf("Exiting with status %d.\n", status);
 
 	for (;;)
 		;
