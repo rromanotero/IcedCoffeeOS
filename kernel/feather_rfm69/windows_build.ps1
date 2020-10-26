@@ -26,7 +26,6 @@
 
 $ATPROGRAM_BIN_PATH = "C:\Program Files (x86)\Atmel\Studio\7.0\atbackend"
 $GCC_BIN_PATH = "C:\gcc-arm-none-eabi-9-2020-q2-update-win32\bin"
-$ATMEL_PACKS_SAMD21_PATH = "C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\SAMD21_DFP\1.3.331"
 
 Clear-Host;
 
@@ -54,7 +53,7 @@ Write-Host "SUCCESS"
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 
-.\compile.bat $GCC_BIN_PATH $ATMEL_PACKS_SAMD21_PATH 
+.\compile.bat $GCC_BIN_PATH
 
 if ($LASTEXITCODE -ne 0)
 {
@@ -63,7 +62,22 @@ if ($LASTEXITCODE -ne 0)
 }
 Write-Host "SUCCESS"
 
+Write-Host "  C R E A T I N G    H E X,  L S S,  etc   "
+Write-Host "============================================"
+
+& "$GCC_BIN_PATH\arm-none-eabi-objcopy.exe" .\output\kernel.elf -O binary .\output\kernel.bin
+& "$GCC_BIN_PATH\arm-none-eabi-objcopy.exe" .\output\kernel.elf -O ihex -R .eeprom -R .fuse -R .lock -R .signature .\output\kernel.hex
+& "$GCC_BIN_PATH\arm-none-eabi-objdump.exe" -D .\output\kernel.elf | Out-File -filepath output/kernel.lss -Encoding ASCII
+& "$GCC_BIN_PATH\arm-none-eabi-objdump.exe" -s .\output\kernel.elf | Out-File -filepath output/kernel.dump -Encoding ASCII
+
+if ($LASTEXITCODE -ne 0)
+{
+	Write-Host "CREATING IMG et al FAILED"
+	exit 1
+}
+Write-Host "SUCCESS"
+
 Write-Host "  FLASHING HEX  "
 Write-Host "================"
 
-& "$ATPROGRAM_BIN_PATH\atprogram.exe" -t samice -i swd -s 28018294 -d atsamd21g18a -l output.log -cl 4Mhz program -c -f ".\output\feather_m0.hex" --verify
+& "$ATPROGRAM_BIN_PATH\atprogram.exe" -t samice -i swd -s 28018294 -d atsamd21g18a -l output.log -cl 4Mhz program -c -f ".\output\kernel.hex" --verify

@@ -25,6 +25,7 @@ OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
 ELF=kernel.elf
 HEX=kernel.hex
+BIN=kernel.bin
 
 TARGET_EXEC ?= kernel.hex
 SRC_DIRS ?= ./src
@@ -41,9 +42,11 @@ CFLAGS = $(INC_FLAGS) -D__SAMD21G18A__ -mthumb -mcpu=cortex-m0plus -Os -ffreesta
 LDFLAGS = -L/gnu_toolchain/arm-none-eabi/lib -lm -L /gnu_toolchain/arm-none-eabi/lib -lc
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	mkdir -p ./build_temp
 	cp -r ../common/* ./build_temp
 	$(CC) $(OBJS) $(LDFLAGS) -T linker.ld -o $(OUTPUT)/$(ELF) $(CFLAGS)
-	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(HEX)
+	$(OBJCOPY) -O ihex -R .eeprom -R .fuse -R .lock -R .signature $(OUTPUT)/$(ELF) $(OUTPUT)/$(HEX)
+	$(OBJCOPY) -O binary $(OUTPUT)/$(ELF) $(OUTPUT)/$(BIN)
 	$(OBJDUMP) -D $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel.lss
 	$(OBJDUMP) -s $(OUTPUT)/$(ELF) > $(OUTPUT)/kernel.dump
 

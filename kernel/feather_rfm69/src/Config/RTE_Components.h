@@ -39,7 +39,7 @@
  *
  * \acme_license_stop
  *
- * Project: feather_m0
+ * Project: SmartPlugwithJDCloud_CORRECT_ONE
  * Target:  ATSAMD21G18A 
  *
  **/
