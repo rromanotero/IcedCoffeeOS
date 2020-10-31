@@ -4,7 +4,7 @@ samice_output.log
 
 # Build dirs
 build_temp\*
-*\build
+
 
 # Prerequisites
 *.d
