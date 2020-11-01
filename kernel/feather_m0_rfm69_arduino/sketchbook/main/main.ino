@@ -23,7 +23,6 @@
 #include <stdint.h>
 #include "hal.h"
 
-
 void ARDUINO_MAIN() {
   hal_io_pio_start();
 
@@ -32,9 +31,9 @@ void ARDUINO_MAIN() {
 
   while(true){
     hal_io_pio_write(&led_pin, true);
-    hal_cpu_delay(1000);
+    hal_cpu_delay(2000);
     hal_io_pio_write(&led_pin, false);
-    hal_cpu_delay(1000);
+    hal_cpu_delay(2000);
   }
 
   //Exit so we don't
