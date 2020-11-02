@@ -24,16 +24,23 @@
 #include "hal.h"
 
 void ARDUINO_MAIN() {
-  hal_io_pio_start();
 
   tPioPin led_pin;
   hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
 
+  tSerialPort serial_usb;
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+
+  while(!hal_io_serial_is_ready(&serial_usb));
+
   while(true){
     hal_io_pio_write(&led_pin, true);
-    hal_cpu_delay(2000);
+    hal_cpu_delay(1000);
+
     hal_io_pio_write(&led_pin, false);
-    hal_cpu_delay(2000);
+    hal_cpu_delay(1000);
+
+    hal_io_serial_puts(&serial_usb, "Feather M0\n\r");
   }
 
   //Exit so we don't
@@ -47,14 +54,6 @@ void ARDUINO_MAIN() {
 //////////////////////////////////////////////////////////////
 //============================================================
 
-/**
-*	PIO Start
-*
-*	Starts Parallel IO
-*/
-void hal_io_pio_start(void){
-	// It does not do anything. Just for consistency
-}
 
 /**
 *	PIO Create
@@ -192,62 +191,83 @@ uint32_t hal_io_adc_channel_read(tAdcChannel* adc_chan){
 //============================================================
 
 
-/*
-*  HAL IO Serial Init
-*/
-uint32_t hal_io_serial_init( void ){
-	//uart0_init();
-	return HAL_SUCCESS;
-}
 
 /**
-*	Serial Start (Poll)
+*  Creates a Serial Port of type 'io_type' (poll or interrupt)
+*  that maps to the physical serial port with ID 'id'.
 *
-*	Starts a specified serial interface. By default 8-bit, no parity, 1 stop bit.
-*
-*	@param serial_id Serial interface Id: SerialA, SerialB, ...
-*	@param baudrate baud rate
+*   The serial port is init at 'baudrate' bps
 */
-void hal_io_serial_start_poll( tSerialId serial_id, uint32_t baudrate ){
+uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoType io_type, uint32_t baudrate ){
 
-}
+  if( io_type == IoPoll ){
 
-/**
-*	Serial Start (with Interrupt)
-*
-*	Starts a specified serial interface (8-bit, no parity, 1 stop bit)
-*	and registers a callback that will be called when data is received
-*
-*	@param serial_id Serial interface Id: SerialA, SerialB, ...
-*	@param baudrate baud rate
-*	@param callback the callback
-*/
-void hal_io_serial_start_int( tSerialId serial_id, uint32_t baudrate, void (*callback) (uint32_t) ){
+    switch( id ){
+  		case SerialA:
+        serial_port->internal_rep = 1;  //Serial 1
+        break;
+  		default:
+        return HAL_IO_SERIAL_PORT_NOT_FOUND;
+  	}
 
+    serial_port->id = SerialA;
+    serial_port->baudrate = baudrate;
+    serial_port->io_type = IoPoll;
+
+    //Begin Serial Port
+    Serial.begin(baudrate);
+  }
+  else{
+    return HAL_IO_TYPE_NOT_FOUND;
+  }
+
+  return HAL_SUCCESS;
 }
 
 /**
 *	Serial putc
 *
-*	Writes a character to the specified Serial interface. Returns
-*	until writing has successfully completed.
+*	Writes a string to the specified Serial port
 *
-*	@param serial_id Serial interface Id: SerialA, SerialB, ...
-*	@param c the character to be sent
 */
-void hal_io_serial_putc( tSerialId serial_id, uint8_t c ){
+bool hal_io_serial_is_ready( tSerialPort* serial_port ){
+  switch(serial_port->internal_rep){
+    case 1:
+        return Serial; //Serial1
+    default: break;
+  }
+}
 
+/**
+*	Serial putc
+*
+*	Writes a string to the specified Serial port
+*
+*/
+void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
+  while(*str)
+		hal_io_serial_putc( serial_port, *str++);
+}
+
+/**
+*	Serial putc
+*
+*	Writes a character to the specified Serial port
+*
+*/
+void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
+  switch(serial_port->internal_rep){
+    case 1:  Serial.write(c); break; //Serial1
+    default: break;
+  }
 }
 
 /**
 *	Serial getc
 *
-*	Reads a character from the specified Serial Interface. This
-*	function will not return until a character is available.
-*
-*	@return the read character
+*	Reads a character from the specified Serial port
 */
-uint8_t hal_io_serial_getc( tSerialId serial_id ){
+uint8_t hal_io_serial_getc( tSerialPort* serial_port ){
 
 }
 
@@ -257,7 +277,7 @@ uint8_t hal_io_serial_getc( tSerialId serial_id ){
 *
 *  Hex Dumps 512 bytes starting from ptr_to_first_byte
 */
-void hal_io_serial_hex_dump_512_bytes( uint32_t serial_id, uint8_t* ptr_to_first_byte){
+void hal_io_serial_hex_dump_512_bytes( tSerialPort* serial_port, uint8_t* ptr_to_first_byte){
 	//uart0_dump(ptr_to_first_byte);
 }
 
@@ -265,9 +285,9 @@ void hal_io_serial_hex_dump_512_bytes( uint32_t serial_id, uint8_t* ptr_to_first
 /*
 *  HAL IO Put Hex Dump 64-bits
 *
-*  Writes a 64-bit hex value to serial_id
+*  Writes a 64-bit hex value to id
 */
-void hal_io_serial_puthex_64_bits( uint32_t serial_id, uint64_t value){
+void hal_io_serial_puthex_64_bits( tSerialPort* serial_port, uint64_t value){
 	//uart0_puthex_64_bits(value);
 }
 
