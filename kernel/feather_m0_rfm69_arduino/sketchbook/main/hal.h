@@ -1,19 +1,30 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <RHReliableDatagram.h>
+#include <RH_RF69.h>
+#include <SPI.h>
 
 #define ARDUINO_MAIN  loop
 void setup() {} /* Don't need it*/
 
-#define HAL_SUCCESS  0
-#define HAL_FAILED  1
+#define HAL_SUCCESS  									1
+#define HAL_IO_TYPE_NOT_FOUND						101
+#define HAL_IO_PIO_PORT_NOT_FOUND     	102
+#define HAL_IO_PIO_PIN_NOT_FOUND      	102
+#define HAL_IO_SERIAL_PORT_NOT_FOUND		103
+#define HAL_RADIO_INIT_FAILED						104
+#define HAL_RADIO_TRANSCEIVER_NOT_FOUND	105
+#define HAL_RADIO_READ_FAILED						106
 
 #define HAL_IO_SERIAL_CHAR_NOT_READY       0
 #define HAL_IO_SERIAL_CHAR_READY           1
 
-#define HAL_IO_TYPE_NOT_FOUND					100
-#define HAL_IO_PIO_PORT_NOT_FOUND     101
-#define HAL_IO_PIO_PIN_NOT_FOUND      102
-#define HAL_IO_SERIAL_PORT_NOT_FOUND	103
+#define HAL_RADIO_TX_POWER_MIN        0
+#define HAL_RADIO_TX_POWER_MAX        31
+#define HAL_RADIO_MAX_MESSAGE_LEN     RH_RF69_MAX_MESSAGE_LEN
+#define HAL_RADIO_ADDRESS_MIN  				0
+#define HAL_RADIO_ADDRESS_MAX  				255
+#define HAL_RADIO_DEFAULT_ADDRESS    	0    //Default address of this node (my address)
 
 typedef uint32_t tPwmType;		/**< PWM Pin Type */
 typedef uint32_t tFaultOrigin;	/**< Fault Origin type */
@@ -22,7 +33,25 @@ typedef enum tIoType			 { IoPoll = 0, IoInterrupt  };
 typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
 typedef enum tPioDir		   { PioOutput = 0, PioInput } ;
 typedef enum tSerialId     { SerialA = 0, SerialB, SerialC, SerialD  };
+typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
+
+typedef struct{
+    uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];
+    uint32_t from;
+		uint32_t to;
+    uint32_t id;
+		uint32_t len;
+    uint32_t rssi;
+}tRadioMessage;
+
+typedef struct{
+	tRadioId		id;
+	tIoType			io_type;
+	uint32_t		internal_rep;
+	RH_RF69*		internal_custom_ptr_driver;
+	RHReliableDatagram*	 internal_custom_ptr_manager;
+}tRadioTransceiver;
 
 typedef struct{
 	uint32_t		pin_number;
@@ -34,7 +63,7 @@ typedef struct{
 	tSerialId		id;
 	tIoType			io_type;
 	uint32_t		baudrate;
-	uint32_t		internal_rep; /* How the pin is represented internally (this is hardware specific) */
+	Serial_*	internal_custom_ptr_driver;
 }tSerialPort;
 
 typedef struct{

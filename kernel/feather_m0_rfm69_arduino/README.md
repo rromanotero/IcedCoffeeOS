@@ -54,6 +54,8 @@ Port Type              Board Name          FQBN                              Cor
 COM8 Serial Port (USB) Adafruit Feather M0 adafruit:samd:adafruit_feather_m0 adafruit:samd
 ```
 
+Lastly, there some libraries that need manual installations. Copy the contents of `./sketchbook/libraries` (in this repo) to your local `sketchbook/libraries` directory (i.e. where the Arduino CLI will look for libraries when compiling).
+
 ### Building and Flashing
 
 Edit the path `ARDUINO_CLI_PATH` to reflect where you have installed Arduino CLI. Then:

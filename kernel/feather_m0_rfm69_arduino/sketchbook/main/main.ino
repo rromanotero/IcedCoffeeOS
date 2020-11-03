@@ -25,28 +25,75 @@
 
 void ARDUINO_MAIN() {
 
-  tPioPin led_pin;
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
-
   tSerialPort serial_usb;
   hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
   while(true){
-    hal_io_pio_write(&led_pin, true);
-    hal_cpu_delay(1000);
+    uint8_t received = hal_io_serial_getc(&serial_usb);
+    hal_io_serial_putc(&serial_usb, received);
 
-    hal_io_pio_write(&led_pin, false);
-    hal_cpu_delay(1000);
-
-    hal_io_serial_puts(&serial_usb, "Feather M0\n\r");
+    if(received=='\r')   //Putty when hitting enter
+      hal_io_serial_putc(&serial_usb, '\n');
   }
 
   //Exit so we don't
   //loop over and over
   exit(0);
 }
+
+//============================================================
+//////////////////////////////////////////////////////////////
+//////////                HAL RADIO                     //////
+//////////////////////////////////////////////////////////////
+//============================================================
+
+uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
+  transceiver->internal_custom_ptr_manager->sendto( message->payload, strlen((const char*)message->payload), message->to );
+}
+
+uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message ){
+  uint8_t len = RH_RF69_MAX_MESSAGE_LEN;
+  uint8_t from;
+  uint8_t id;
+
+  if( transceiver->internal_custom_ptr_manager->recvfrom( message->payload, &len, &from, NULL, &id ) ){
+    message->len = strlen( (const char*)message->payload );
+    message->from = from;
+    message->id = id;
+    message->rssi = abs( transceiver->internal_custom_ptr_driver->lastRssi() );
+    return HAL_SUCCESS;
+  }else{
+    return HAL_RADIO_READ_FAILED;
+  }
+}
+
+uint32_t hal_radio_available(tRadioTransceiver* transceiver){
+  return  transceiver->internal_custom_ptr_manager->available();
+}
+
+uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId id, uint32_t address, uint32_t tx_power ){
+  RH_RF69 driver(8, 3); // Adafruit Feather M0 with RFM95
+  RHReliableDatagram manager(driver, address);
+
+  if(!manager.init())
+    return HAL_RADIO_INIT_FAILED;
+
+  if(!driver.setFrequency(915.0))
+    return HAL_RADIO_INIT_FAILED;
+
+  driver.setTxPower(tx_power);
+
+  transceiver->id = id;
+  transceiver->io_type = IoPoll;
+  transceiver->internal_rep = 0; //Not used here
+  transceiver->internal_custom_ptr_driver = &driver;
+  transceiver->internal_custom_ptr_manager = &manager;
+
+  return HAL_SUCCESS;
+}
+
 
 //============================================================
 //////////////////////////////////////////////////////////////
@@ -138,17 +185,6 @@ bool hal_io_pio_read(tPioPin* pio_pin){
 //============================================================
 
 /**
-*
-*	ADM Start
-*
-*	Starts the ADC, but does NOT stipulate any specific ADC channels to enable.
-*
-*/
-void hal_io_adc_channel_start(){
-
-}
-
-/**
 *	ADC Channel Enable
 *
 *	Begins ADC conversion on given ADC channel
@@ -204,18 +240,19 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 
     switch( id ){
   		case SerialA:
-        serial_port->internal_rep = 1;  //Serial 1
+        //Begin Serial Port
+        Serial.begin(baudrate);
+
+        serial_port->id = SerialA;
+        serial_port->baudrate = baudrate;
+        serial_port->io_type = IoPoll;
+        serial_port->internal_custom_ptr_driver = &Serial;  //Serial 1
         break;
+
   		default:
         return HAL_IO_SERIAL_PORT_NOT_FOUND;
   	}
 
-    serial_port->id = SerialA;
-    serial_port->baudrate = baudrate;
-    serial_port->io_type = IoPoll;
-
-    //Begin Serial Port
-    Serial.begin(baudrate);
   }
   else{
     return HAL_IO_TYPE_NOT_FOUND;
@@ -225,17 +262,11 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 }
 
 /**
-*	Serial putc
-*
-*	Writes a string to the specified Serial port
+*	Serial is ready
 *
 */
 bool hal_io_serial_is_ready( tSerialPort* serial_port ){
-  switch(serial_port->internal_rep){
-    case 1:
-        return Serial; //Serial1
-    default: break;
-  }
+  return serial_port->internal_custom_ptr_driver;
 }
 
 /**
@@ -256,10 +287,7 @@ void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
 *
 */
 void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
-  switch(serial_port->internal_rep){
-    case 1:  Serial.write(c); break; //Serial1
-    default: break;
-  }
+    serial_port->internal_custom_ptr_driver->write(c);
 }
 
 /**
@@ -269,6 +297,10 @@ void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
 */
 uint8_t hal_io_serial_getc( tSerialPort* serial_port ){
 
+  //wait for a character
+  while(!serial_port->internal_custom_ptr_driver->available());
+
+  return serial_port->internal_custom_ptr_driver->read();
 }
 
 
