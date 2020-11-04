@@ -19,8 +19,6 @@
 *
 **/
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "hal.h"
 
 #define RECEIVER_ADDRESS  0
@@ -34,8 +32,7 @@ void ARDUINO_MAIN() {
   hal_radio_create_transceiver(&radio, RadioA, TRANSMITTER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
 
   tRadioMessage message = {
-    .id = 1,
-    .to = RECEIVER_ADDRESS,
+    .address = RECEIVER_ADDRESS,
     .len = 5
   }
 

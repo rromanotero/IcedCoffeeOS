@@ -1,3 +1,6 @@
+#ifndef HAL_H
+#define HAL_H
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <RHReliableDatagram.h>
@@ -38,8 +41,7 @@ typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];
-    uint32_t from;
-		uint32_t to;
+    uint32_t address;
     uint32_t id;
 		uint32_t len;
     uint32_t rssi;
@@ -48,22 +50,21 @@ typedef struct{
 typedef struct{
 	tRadioId		id;
 	tIoType			io_type;
-	uint32_t		internal_rep;
-	RH_RF69*		internal_custom_ptr_driver;
-	RHReliableDatagram*	 internal_custom_ptr_manager;
+	RH_RF69*		internal_driver;
+	RHReliableDatagram*	 internal_manager;
 }tRadioTransceiver;
 
 typedef struct{
 	uint32_t		pin_number;
 	tPioPort		pio_port;
-	uint32_t		internal_rep; /* How the pin is represented internally (this is hardware specific) */
+	uint32_t		internal_pin; /* How the pin is represented internally (this is hardware specific) */
 }tPioPin;
 
 typedef struct{
 	tSerialId		id;
 	tIoType			io_type;
 	uint32_t		baudrate;
-	Serial_*	internal_custom_ptr_driver;
+	Serial_*	internal_driver;
 }tSerialPort;
 
 typedef struct{
@@ -91,3 +92,5 @@ typedef struct{
     uint32_t speed_mhz;
     uint32_t num_cores;
 }CPUInfo;
+
+#endif

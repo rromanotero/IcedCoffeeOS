@@ -19,11 +19,12 @@
 *
 **/
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "hal.h"
 
 void ARDUINO_MAIN() {
+
+  tPioPin led_pin;
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
 
   tSerialPort serial_usb;
   hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
@@ -33,6 +34,8 @@ void ARDUINO_MAIN() {
   while(true){
     uint8_t received = hal_io_serial_getc(&serial_usb);
     hal_io_serial_putc(&serial_usb, received);
+
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
 
     if(received=='\r')   //Putty when hitting enter
       hal_io_serial_putc(&serial_usb, '\n');

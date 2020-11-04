@@ -19,8 +19,6 @@
 *
 **/
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "hal.h"
 
 void ARDUINO_MAIN() {

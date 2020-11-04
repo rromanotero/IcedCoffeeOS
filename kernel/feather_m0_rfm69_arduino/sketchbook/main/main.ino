@@ -19,9 +19,10 @@
 *
 **/
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "hal.h"
+
+#define RECEIVER_ADDRESS  0
+#define TRANSMITTER_ADDRESS  1
 
 void ARDUINO_MAIN() {
 
@@ -30,12 +31,23 @@ void ARDUINO_MAIN() {
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
-  while(true){
-    uint8_t received = hal_io_serial_getc(&serial_usb);
-    hal_io_serial_putc(&serial_usb, received);
+  tRadioTransceiver radio;
+  tRadioMessage message;
+  hal_radio_create_transceiver(&radio, RadioA, RECEIVER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
 
-    if(received=='\r')   //Putty when hitting enter
-      hal_io_serial_putc(&serial_usb, '\n');
+  while(true){
+
+    if( hal_radio_available(&radio) ){
+
+      //read
+      hal_radio_read(&radio, &message);
+
+      //Send over serial
+      for(int i=0; i<message.len; i++)
+        hal_io_serial_putc(&serial_usb, message.payload[i]);
+
+      hal_io_serial_puts(&serial_usb, "\n\r");
+    }
   }
 
   //Exit so we don't
@@ -50,19 +62,17 @@ void ARDUINO_MAIN() {
 //============================================================
 
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
-  transceiver->internal_custom_ptr_manager->sendto( message->payload, strlen((const char*)message->payload), message->to );
+  transceiver->internal_manager->sendtoWait( message->payload, strlen((const char*)message->payload), message->address );
 }
 
 uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message ){
   uint8_t len = RH_RF69_MAX_MESSAGE_LEN;
-  uint8_t from;
-  uint8_t id;
+  uint8_t address;
 
-  if( transceiver->internal_custom_ptr_manager->recvfrom( message->payload, &len, &from, NULL, &id ) ){
+  if( transceiver->internal_manager->recvfromAck( message->payload, &len, &address ) ){
     message->len = strlen( (const char*)message->payload );
-    message->from = from;
-    message->id = id;
-    message->rssi = abs( transceiver->internal_custom_ptr_driver->lastRssi() );
+    message->address = address;
+    message->rssi = abs( transceiver->internal_driver->lastRssi() );
     return HAL_SUCCESS;
   }else{
     return HAL_RADIO_READ_FAILED;
@@ -70,12 +80,14 @@ uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message )
 }
 
 uint32_t hal_radio_available(tRadioTransceiver* transceiver){
-  return  transceiver->internal_custom_ptr_manager->available();
+  return  transceiver->internal_manager->available();
 }
 
 uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId id, uint32_t address, uint32_t tx_power ){
-  RH_RF69 driver(8, 3); // Adafruit Feather M0 with RFM95
-  RHReliableDatagram manager(driver, address);
+
+  //These two must be STATIC!
+  static RH_RF69 driver(8, 3);
+  static RHReliableDatagram manager(driver, address);
 
   if(!manager.init())
     return HAL_RADIO_INIT_FAILED;
@@ -87,9 +99,8 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 
   transceiver->id = id;
   transceiver->io_type = IoPoll;
-  transceiver->internal_rep = 0; //Not used here
-  transceiver->internal_custom_ptr_driver = &driver;
-  transceiver->internal_custom_ptr_manager = &manager;
+  transceiver->internal_driver = &driver;
+  transceiver->internal_manager = &manager;
 
   return HAL_SUCCESS;
 }
@@ -107,7 +118,7 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 *
 *  Creates a PIO pin
 *
-*	 Given a tPioPin* p, it populates p->internal_rep so when
+*	 Given a tPioPin* p, it populates p->internal_pin so when
 *  pio_write or pio_read  are called, they know which pin to pass
 *  to the drivers.
 */
@@ -121,27 +132,27 @@ uint32_t hal_io_pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin
 	switch (pio_port)
 	{
 		case PioA:
-      if(pin_number == 2) pio_pin->internal_rep = 4;
-      else if(pin_number == 4) pio_pin->internal_rep = 9;
-      else if(pin_number == 5) pio_pin->internal_rep = 10;
-      else if(pin_number == 8) pio_pin->internal_rep = 13;
-      else if(pin_number == 10) pio_pin->internal_rep = 15;
-      else if(pin_number == 11) pio_pin->internal_rep = 16;
-      else if(pin_number == 12) pio_pin->internal_rep = 21;
-      else if(pin_number == 16) pio_pin->internal_rep = 25;
-      else if(pin_number == 17) pio_pin->internal_rep = 26;
-      else if(pin_number == 18) pio_pin->internal_rep = 27;
-      else if(pin_number == 19) pio_pin->internal_rep = 28;
-      else if(pin_number == 20) pio_pin->internal_rep = 29;
-      else if(pin_number == 22) pio_pin->internal_rep = 31;
-      else if(pin_number == 23) pio_pin->internal_rep = 32;
+      if(pin_number == 2) pio_pin->internal_pin = 4;
+      else if(pin_number == 4) pio_pin->internal_pin = 9;
+      else if(pin_number == 5) pio_pin->internal_pin = 10;
+      else if(pin_number == 8) pio_pin->internal_pin = 13;
+      else if(pin_number == 10) pio_pin->internal_pin = 15;
+      else if(pin_number == 11) pio_pin->internal_pin = 16;
+      else if(pin_number == 12) pio_pin->internal_pin = 21;
+      else if(pin_number == 16) pio_pin->internal_pin = 25;
+      else if(pin_number == 17) pio_pin->internal_pin = 26;
+      else if(pin_number == 18) pio_pin->internal_pin = 27;
+      else if(pin_number == 19) pio_pin->internal_pin = 28;
+      else if(pin_number == 20) pio_pin->internal_pin = 29;
+      else if(pin_number == 22) pio_pin->internal_pin = 31;
+      else if(pin_number == 23) pio_pin->internal_pin = 32;
       else status = HAL_IO_PIO_PIN_NOT_FOUND;
 
 			break;
 		case PioB:
-      if(pin_number == 2) pio_pin->internal_rep = 47;
-      else if(pin_number == 8) pio_pin->internal_rep = 7;
-      else if(pin_number == 9) pio_pin->internal_rep = 8;
+      if(pin_number == 2) pio_pin->internal_pin = 47;
+      else if(pin_number == 8) pio_pin->internal_pin = 7;
+      else if(pin_number == 9) pio_pin->internal_pin = 8;
       else status = HAL_IO_PIO_PIN_NOT_FOUND;
 
       break;
@@ -151,8 +162,8 @@ uint32_t hal_io_pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin
 
   //set pin direction
   switch(dir){
-		case PioOutput:	  pinMode(pio_pin->internal_rep, OUTPUT); break;
-		case PioInput:	  pinMode(pio_pin->internal_rep, INPUT);  break;
+		case PioOutput:	  pinMode(pio_pin->internal_pin, OUTPUT); break;
+		case PioInput:	  pinMode(pio_pin->internal_pin, INPUT);  break;
 	}
 
   return status;
@@ -165,7 +176,7 @@ uint32_t hal_io_pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin
 *	Writes a state/level to a PIO pin
 */
 void hal_io_pio_write(tPioPin* pio_pin, bool state){
-  digitalWrite( pio_pin->internal_rep, state? HIGH : LOW );
+  digitalWrite( pio_pin->internal_pin, state? HIGH : LOW );
 }
 
 /**
@@ -174,8 +185,7 @@ void hal_io_pio_write(tPioPin* pio_pin, bool state){
 *	Reads a PIO pin state/level
 */
 bool hal_io_pio_read(tPioPin* pio_pin){
-	//bool state = ioport_get_pin_level(pio_pin->internal_rep);
-	//return state;
+	return digitalRead(pio_pin->internal_pin);
 }
 
 //============================================================
@@ -246,7 +256,7 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
         serial_port->id = SerialA;
         serial_port->baudrate = baudrate;
         serial_port->io_type = IoPoll;
-        serial_port->internal_custom_ptr_driver = &Serial;  //Serial 1
+        serial_port->internal_driver = &Serial;  //Serial 1
         break;
 
   		default:
@@ -266,7 +276,7 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 *
 */
 bool hal_io_serial_is_ready( tSerialPort* serial_port ){
-  return serial_port->internal_custom_ptr_driver;
+  return serial_port->internal_driver;
 }
 
 /**
@@ -287,7 +297,7 @@ void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
 *
 */
 void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
-    serial_port->internal_custom_ptr_driver->write(c);
+    serial_port->internal_driver->write(c);
 }
 
 /**
@@ -298,9 +308,9 @@ void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
 uint8_t hal_io_serial_getc( tSerialPort* serial_port ){
 
   //wait for a character
-  while(!serial_port->internal_custom_ptr_driver->available());
+  while(!serial_port->internal_driver->available());
 
-  return serial_port->internal_custom_ptr_driver->read();
+  return serial_port->internal_driver->read();
 }
 
 
