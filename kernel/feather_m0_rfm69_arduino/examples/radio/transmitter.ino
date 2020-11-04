@@ -18,26 +18,38 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
-
 #include "hal.h"
 
 #define RECEIVER_ADDRESS  0
 #define TRANSMITTER_ADDRESS  1
 
+tRadioMessage message;  //Must be static
+
 void ARDUINO_MAIN() {
 
+  tPioPin led_pin;
   tRadioTransceiver radio;
-  tRadioMessage message;
 
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
   hal_radio_create_transceiver(&radio, RadioA, TRANSMITTER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
 
-  tRadioMessage message = {
-    .address = RECEIVER_ADDRESS,
-    .len = 5
-  }
+  message.address = RECEIVER_ADDRESS;
+  message.len = 10;
+  message.payload[0] = 'h';
+  message.payload[1] = 'e';
+  message.payload[2] = 'y';
+  message.payload[3] = ' ';
+  message.payload[4] = 't';
+  message.payload[5] = 'h';
+  message.payload[6] = 'e';
+  message.payload[7] = 'r';
+  message.payload[8] = 'e';
+  message.payload[9] = '!';
 
   while(true){
-    hal_io_radio_write(&radio, &message);
+    hal_radio_write(&radio, &message);
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+
     hal_cpu_delay(1000);
   }
 

@@ -18,35 +18,40 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
-
 #include "hal.h"
 
 #define RECEIVER_ADDRESS  0
 #define TRANSMITTER_ADDRESS  1
 
+tRadioMessage message; //Do not place in the stack
+
 void ARDUINO_MAIN() {
 
+  tPioPin led_pin;
   tSerialPort serial_usb;
+  tRadioTransceiver radio;
+
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
   hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+  hal_radio_create_transceiver(&radio, RadioA, RECEIVER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
-  tRadioTransceiver radio;
-  tRadioMessage message;
-  hal_radio_create_transceiver(&radio, RadioA, RECEIVER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
-
   while(true){
-
     if( hal_radio_available(&radio) ){
-
-      //read
       hal_radio_read(&radio, &message);
 
-      //Send over serial
+      //print message
       for(int i=0; i<message.len; i++)
         hal_io_serial_putc(&serial_usb, message.payload[i]);
 
-      hal_io_serial_puts(&serial_usb, "\n\r");
+      //print RSSI too
+      char buf[20];
+      sprintf(buf, " RSSI = %d \n\r", message.rssi);
+      hal_io_serial_puts(&serial_usb, buf);
+
+      //Blink
+      hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     }
   }
 
@@ -62,16 +67,19 @@ void ARDUINO_MAIN() {
 //============================================================
 
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
-  transceiver->internal_manager->sendtoWait( message->payload, strlen((const char*)message->payload), message->address );
+  if (!transceiver->internal_manager->sendtoWait(message->payload, sizeof(message->payload), message->address))
+        return HAL_RADIO_SEND_FAILED;
+
+  return HAL_SUCCESS;
 }
 
 uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message ){
-  uint8_t len = RH_RF69_MAX_MESSAGE_LEN;
-  uint8_t address;
+  uint8_t len = sizeof(message->payload);
+  uint8_t from;
 
-  if( transceiver->internal_manager->recvfromAck( message->payload, &len, &address ) ){
+  if( transceiver->internal_manager->recvfromAck( message->payload, &len, &from ) ){
     message->len = strlen( (const char*)message->payload );
-    message->address = address;
+    message->address = from;
     message->rssi = abs( transceiver->internal_driver->lastRssi() );
     return HAL_SUCCESS;
   }else{
@@ -80,27 +88,48 @@ uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message )
 }
 
 uint32_t hal_radio_available(tRadioTransceiver* transceiver){
-  return  transceiver->internal_manager->available();
+  return transceiver->internal_manager->available();
 }
 
 uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId id, uint32_t address, uint32_t tx_power ){
+  #define RFM69_CS      8
+  #define RFM69_INT     3
+  #define RFM69_RST     4
 
-  //These two must be STATIC!
-  static RH_RF69 driver(8, 3);
-  static RHReliableDatagram manager(driver, address);
+  // Make sure these two are STATIC!
+  static RH_RF69 rf69(RFM69_CS, RFM69_INT);
+  static RHReliableDatagram rf69_manager(rf69, address);
 
-  if(!manager.init())
+  pinMode(RFM69_RST, OUTPUT);
+  digitalWrite(RFM69_RST, LOW);
+
+  // manual reset
+  digitalWrite(RFM69_RST, HIGH);
+  delay(10);
+  digitalWrite(RFM69_RST, LOW);
+  delay(10);
+
+  if (!rf69_manager.init())
     return HAL_RADIO_INIT_FAILED;
 
-  if(!driver.setFrequency(915.0))
+  // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
+  // No encryption
+  if (!rf69.setFrequency(915.0))
     return HAL_RADIO_INIT_FAILED;
 
-  driver.setTxPower(tx_power);
+  // If you are using a high power RF69 eg RFM69HW, you *must* set a Tx power with the
+  // ishighpowermodule flag set like this:
+  rf69.setTxPower(HAL_RADIO_TX_POWER_MIN, true);  // range from 14-20 for power, 2nd arg must be true for 69HCW
+
+  // The encryption key has to be the same as the one in the server
+  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  rf69.setEncryptionKey(key);
 
   transceiver->id = id;
   transceiver->io_type = IoPoll;
-  transceiver->internal_driver = &driver;
-  transceiver->internal_manager = &manager;
+  transceiver->internal_driver = &rf69;
+  transceiver->internal_manager = &rf69_manager;
 
   return HAL_SUCCESS;
 }
