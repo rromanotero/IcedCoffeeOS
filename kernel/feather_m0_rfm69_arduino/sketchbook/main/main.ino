@@ -20,39 +20,24 @@
 **/
 #include "hal.h"
 
-#define RECEIVER_ADDRESS  0
-#define TRANSMITTER_ADDRESS  1
-
-tRadioMessage message; //Do not place in the stack
-
 void ARDUINO_MAIN() {
 
   tPioPin led_pin;
-  tSerialPort serial_usb;
-  tRadioTransceiver radio;
-
   hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
-  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
-  hal_radio_create_transceiver(&radio, RadioA, RECEIVER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
+
+  tSerialPort serial_usb;
+  hal_io_serial_create_port(&serial_usb, SerialB, IoPoll, 115200);
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
   while(true){
-    if( hal_radio_available(&radio) ){
-      hal_radio_read(&radio, &message);
+    uint8_t received = hal_io_serial_getc(&serial_usb);
+    hal_io_serial_putc(&serial_usb, received);
 
-      //print message
-      for(int i=0; i<message.len; i++)
-        hal_io_serial_putc(&serial_usb, message.payload[i]);
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
 
-      //print RSSI too
-      char buf[20];
-      sprintf(buf, " RSSI = %d \n\r", message.rssi);
-      hal_io_serial_puts(&serial_usb, buf);
-
-      //Blink
-      hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    }
+    if(received=='\r')   //Putty when hitting enter
+      hal_io_serial_putc(&serial_usb, '\n');
   }
 
   //Exit so we don't
@@ -279,14 +264,22 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 
     switch( id ){
   		case SerialA:
-        //Begin Serial Port
         Serial.begin(baudrate);
 
         serial_port->id = SerialA;
         serial_port->baudrate = baudrate;
         serial_port->io_type = IoPoll;
-        serial_port->internal_driver = &Serial;  //Serial 1
+        serial_port->internal_driver_a = &Serial;  //Serial
         break;
+
+      case SerialB:
+          Serial1.begin(baudrate);
+
+          serial_port->id = SerialB;
+          serial_port->baudrate = baudrate;
+          serial_port->io_type = IoPoll;
+          serial_port->internal_driver_b = &Serial1;  //Serial 1
+          break;
 
   		default:
         return HAL_IO_SERIAL_PORT_NOT_FOUND;
@@ -305,7 +298,13 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 *
 */
 bool hal_io_serial_is_ready( tSerialPort* serial_port ){
-  return serial_port->internal_driver;
+  switch( serial_port->id ){
+    case SerialA: return serial_port->internal_driver_a;
+    case SerialB: return serial_port->internal_driver_b;
+    default:
+      //Can't happen since it was us who init  serial_port->id
+      break;
+    }
 }
 
 /**
@@ -326,7 +325,13 @@ void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
 *
 */
 void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
-    serial_port->internal_driver->write(c);
+  switch( serial_port->id ){
+    case SerialA: serial_port->internal_driver_a->write(c); break;
+    case SerialB: serial_port->internal_driver_b->write(c); break;
+    default:
+      //Can't happen since it was us who init  serial_port->id
+      break;
+  }
 }
 
 /**
@@ -335,11 +340,17 @@ void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
 *	Reads a character from the specified Serial port
 */
 uint8_t hal_io_serial_getc( tSerialPort* serial_port ){
-
-  //wait for a character
-  while(!serial_port->internal_driver->available());
-
-  return serial_port->internal_driver->read();
+  switch( serial_port->id ){
+    case SerialA:
+      while(!serial_port->internal_driver_a->available()); //wait for a character
+      return serial_port->internal_driver_a->read();
+    case SerialB:
+      while(!serial_port->internal_driver_b->available()); //wait for a character
+      return serial_port->internal_driver_b->read();
+    default:
+      //Can't happen since it was us who init  serial_port->id
+      break;
+  }
 }
 
 

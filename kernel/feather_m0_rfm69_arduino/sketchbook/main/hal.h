@@ -64,7 +64,8 @@ typedef struct{
 	tSerialId		id;
 	tIoType			io_type;
 	uint32_t		baudrate;
-	Serial_*	internal_driver;
+	Serial_*	  internal_driver_a;
+  Uart*	      internal_driver_b;  //Serialx in Arduino are not the same tpye for some reason
 }tSerialPort;
 
 typedef struct{
