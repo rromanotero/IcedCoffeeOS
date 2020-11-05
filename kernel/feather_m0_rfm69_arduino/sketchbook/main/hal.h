@@ -15,10 +15,11 @@ void setup() {} /* Don't need it*/
 #define HAL_IO_PIO_PORT_NOT_FOUND     	102
 #define HAL_IO_PIO_PIN_NOT_FOUND      	102
 #define HAL_IO_SERIAL_PORT_NOT_FOUND		103
-#define HAL_RADIO_INIT_FAILED						104
-#define HAL_RADIO_TRANSCEIVER_NOT_FOUND	105
-#define HAL_RADIO_READ_FAILED						106
-#define HAL_RADIO_SEND_FAILED           107
+#define HAL_IO_ADC_CHANNEL_NOT_FOUND    104
+#define HAL_RADIO_INIT_FAILED						105
+#define HAL_RADIO_TRANSCEIVER_NOT_FOUND	106
+#define HAL_RADIO_READ_FAILED						107
+#define HAL_RADIO_SEND_FAILED           108
 
 #define HAL_IO_SERIAL_CHAR_NOT_READY       0
 #define HAL_IO_SERIAL_CHAR_READY           1
@@ -37,6 +38,7 @@ typedef enum tIoType			 { IoPoll = 0, IoInterrupt  };
 typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
 typedef enum tPioDir		   { PioOutput = 0, PioInput } ;
 typedef enum tSerialId     { SerialA = 0, SerialB, SerialC, SerialD  };
+typedef enum tAdcId        { AdcA = 0, AdcB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
 
@@ -68,15 +70,11 @@ typedef struct{
   Uart*	      internal_driver_b;  //Serialx in Arduino are not the same tpye for some reason
 }tSerialPort;
 
-typedef struct{
-	tPioPin* io_pin;
-	uint32_t period;
-	uint32_t duty_cycle;
-}tPwmChannel;
 
 typedef struct{
-	tPioPin* io_pin;
-	uint32_t adc_channel_number;
+  tAdcId		id;
+	tIoType		io_type;
+  uint32_t  internal_adc;
 }tAdcChannel;
 
 typedef struct{

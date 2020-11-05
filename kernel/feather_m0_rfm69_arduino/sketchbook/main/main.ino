@@ -22,22 +22,20 @@
 
 void ARDUINO_MAIN() {
 
-  tPioPin led_pin;
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
-
   tSerialPort serial_usb;
-  hal_io_serial_create_port(&serial_usb, SerialB, IoPoll, 115200);
+  tAdcChannel adc_0;
+
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+  hal_io_adc_create_channel(&adc_0, AdcA, IoPoll);
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
   while(true){
-    uint8_t received = hal_io_serial_getc(&serial_usb);
-    hal_io_serial_putc(&serial_usb, received);
+    char buf[20];
+    sprintf(buf, " Vbat = %d \n\r", hal_io_adc_read(&adc_0));
+    hal_io_serial_puts(&serial_usb, buf);
 
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-
-    if(received=='\r')   //Putty when hitting enter
-      hal_io_serial_putc(&serial_usb, '\n');
+    hal_cpu_delay(1000);
   }
 
   //Exit so we don't
@@ -208,40 +206,44 @@ bool hal_io_pio_read(tPioPin* pio_pin){
 //////////////////////////////////////////////////////////////
 //============================================================
 
-/**
-*	ADC Channel Enable
-*
-*	Begins ADC conversion on given ADC channel
-*/
-void hal_io_adc_channel_enable(tAdcChannel* adc_chan){
-
-}
 
 /**
-*	ADC Channel Disable
+*	ADC Create
 *
 *	Stops ADC conversion on given ADC channel
 */
-void hal_io_adc_channel_disable(tAdcChannel* adc_chan){
+uint32_t hal_io_adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
 
+    if( io_type == IoPoll ){
+      switch( id ){
+        case AdcA:
+          adc->id = id;
+          adc->io_type = IoPoll;
+          adc->internal_adc = A0;
+          break;
+    		case AdcB:
+          adc->id = id;
+          adc->io_type = IoPoll;
+          adc->internal_adc = A7; //VBattery
+          break;
+    		default:
+          return HAL_IO_ADC_CHANNEL_NOT_FOUND;
+    	}
+    }
+    else{
+      return HAL_IO_TYPE_NOT_FOUND;
+    }
+
+    return HAL_SUCCESS;
 }
 
-/**
-*	ADC Channel Status
-*
-*	Returns 1 if channel is enabled, 0 otherwise
-*/
-uint32_t hal_io_adc_channel_status(tAdcChannel* adc_chan){
-
-}
 
 /**
-*	ADC Channel value
+*	ADC Read
 *
-*	Returns a value between 0 - 4096
 */
-uint32_t hal_io_adc_channel_read(tAdcChannel* adc_chan){
-
+uint32_t hal_io_adc_read(tAdcChannel* adc){
+  return analogRead(adc->internal_adc);
 }
 
 //============================================================
@@ -379,53 +381,10 @@ void hal_io_serial_puthex_64_bits( tSerialPort* serial_port, uint64_t value){
 //////////             HAL IO PMW                       //////
 //////////////////////////////////////////////////////////////
 //============================================================
-/**
-*
-*	PWM Start
-*
-*	Starts the PWM Peripheral
-*/
-void hal_io_pwm_start( void ){
 
 
-}
 
-/**
-*
-*	PWM Channel Start
-*
-*	Starts the PWM Channel associated on a given PIO pin. If there's no PWM
-*	associated with the given pin, nothing happens.
-*
-*   Period is given in steps of 0.1ms (with a maximum of X millisecond), while duty cycle is given
-*   percentage. Example for creating a square wave of a 1ms period:
-*
-*	channel.period = 10;
-*   channel.duty_dycle = 50;
-*   hal_io_pwm_start( &channel );
-*
-*/
-void hal_io_pwm_channel_start( tPwmChannel* channel ){
 
-}
-
-/**
-*	PWM Stop
-*
-*	Stops a PWM
-*/
-void hal_io_pwm_channel_stop( tPwmChannel* channel ){
-
-}
-
-/**
-*	PWM Write
-*
-*	Updates period and duty cycle for a PWM
-*/
-void hal_io_pwm_channel_write( tPwmChannel* channel ){
-
-}
 
 
 //============================================================
