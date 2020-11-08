@@ -22,20 +22,23 @@
 
 void ARDUINO_MAIN() {
 
-  tSerialPort serial_usb;
-  tAdcChannel adc_0;
-
-  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
-  hal_io_adc_create_channel(&adc_0, AdcA, IoPoll);
-
-  while(!hal_io_serial_is_ready(&serial_usb));
+  tServoChannel servo_a;
+  tServoChannel servo_b;
+  hal_io_servo_create_channel(&servo_a, ServoA);
+  hal_io_servo_create_channel(&servo_b, ServoB);
 
   while(true){
-    char buf[20];
-    sprintf(buf, " Vbat = %d \n\r", hal_io_adc_read(&adc_0));
-    hal_io_serial_puts(&serial_usb, buf);
+    for (int pos = 90; pos <=180; pos += 1) {
+      hal_io_servo_write(&servo_a, pos);
+      hal_io_servo_write(&servo_b, pos);
+      hal_cpu_delay(15);
+    }
+    for (int pos = 180; pos >= 90; pos -= 1) {
+      hal_io_servo_write(&servo_a, pos);
+      hal_io_servo_write(&servo_b, pos);
+      hal_cpu_delay(15);
+    }
 
-    hal_cpu_delay(1000);
   }
 
   //Exit so we don't
@@ -252,8 +255,6 @@ uint32_t hal_io_adc_read(tAdcChannel* adc){
 //////////////////////////////////////////////////////////////
 //============================================================
 
-
-
 /**
 *  Creates a Serial Port of type 'io_type' (poll or interrupt)
 *  that maps to the physical serial port with ID 'id'.
@@ -381,10 +382,77 @@ void hal_io_serial_puthex_64_bits( tSerialPort* serial_port, uint64_t value){
 //////////             HAL IO PMW                       //////
 //////////////////////////////////////////////////////////////
 //============================================================
+uint32_t hal_io_pwm_create_channel(tPwmChannel* pwm, tPwmId id){
+  //
+  //The following pins can be configured for PWM without any signal conflicts
+  //as long as the SPI, I2C, and UART pins keep their protocol functions:
+  //
+  // Digital pins 5, 6, 9, 10, 11, 12, and 13
+  // Analog pins A3 and A4
+  //
+  //From https://learn.adafruit.com/adafruit-feather-m0-basic-proto/adapting-sketches-to-m0
+
+    switch( id ){
+      case PwmA:
+        pinMode(A3, OUTPUT);   //Output mode indicates PWM (as opposed to DAC)
+        analogWrite(A3, 0);   //Begin off
+        pwm->id = id;
+        pwm->internal_pin = A3;
+        break;
+    	case PwmB:
+        pinMode(A4, OUTPUT);   //Output mode indicates PWM (as opposed to DAC)
+        analogWrite(A4, 0);    //Begin off
+        pwm->id = id;
+        pwm->internal_pin = A4;
+        break;
+    	default:
+        return HAL_IO_PWM_CHANNEL_NOT_FOUND;
+    }
+
+    return HAL_SUCCESS;
+}
+
+
+void hal_io_pwm_write(tPwmChannel* pwm, uint32_t duty_cycle){
+  uint32_t max_val = 256;
+  analogWrite(pwm->internal_pin, (duty_cycle*max_val)/100);
+}
+
+//============================================================
+//////////////////////////////////////////////////////////////
+//////////             HAL IO Servo                       //////
+//////////////////////////////////////////////////////////////
+//============================================================
+uint32_t hal_io_servo_create_channel(tServoChannel* servo, tServoId id){
+
+    static Servo myservo_a;
+    static Servo myservo_b;
+
+    switch( id ){
+      case ServoA:
+        myservo_a.attach(12);
+
+        servo->id = id;
+        servo->internal_driver = &myservo_a;
+        break;
+    	case ServoB:
+        myservo_b.attach(13);
+
+        servo->id = id;
+        servo->internal_driver = &myservo_b;
+        break;
+    	default:       return HAL_IO_PWM_CHANNEL_NOT_FOUND;
+    }
 
 
 
+    return HAL_SUCCESS;
+}
 
+
+void hal_io_servo_write(tServoChannel* servo, uint32_t orientation_in_degrees){
+  servo->internal_driver->write(orientation_in_degrees);
+}
 
 
 //============================================================

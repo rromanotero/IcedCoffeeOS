@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <RH_RF69.h>
 #include <RHReliableDatagram.h>
+#include <Servo.h>
 
 #define ARDUINO_MAIN  loop
 void setup() {} /* Don't need it*/
@@ -16,10 +17,11 @@ void setup() {} /* Don't need it*/
 #define HAL_IO_PIO_PIN_NOT_FOUND      	102
 #define HAL_IO_SERIAL_PORT_NOT_FOUND		103
 #define HAL_IO_ADC_CHANNEL_NOT_FOUND    104
-#define HAL_RADIO_INIT_FAILED						105
-#define HAL_RADIO_TRANSCEIVER_NOT_FOUND	106
-#define HAL_RADIO_READ_FAILED						107
-#define HAL_RADIO_SEND_FAILED           108
+#define HAL_IO_PWM_CHANNEL_NOT_FOUND    105
+#define HAL_RADIO_INIT_FAILED						106
+#define HAL_RADIO_TRANSCEIVER_NOT_FOUND	107
+#define HAL_RADIO_READ_FAILED						108
+#define HAL_RADIO_SEND_FAILED           109
 
 #define HAL_IO_SERIAL_CHAR_NOT_READY       0
 #define HAL_IO_SERIAL_CHAR_READY           1
@@ -39,6 +41,8 @@ typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
 typedef enum tPioDir		   { PioOutput = 0, PioInput } ;
 typedef enum tSerialId     { SerialA = 0, SerialB, SerialC, SerialD  };
 typedef enum tAdcId        { AdcA = 0, AdcB  };
+typedef enum tPwmId        { PwmA = 0, PwmB  };
+typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
 
@@ -76,6 +80,16 @@ typedef struct{
 	tIoType		io_type;
   uint32_t  internal_adc;
 }tAdcChannel;
+
+typedef struct{
+  tPwmId		id;
+  uint32_t  internal_pin;
+}tPwmChannel;
+
+typedef struct{
+  tServoId		id;
+  Servo*  internal_driver;
+}tServoChannel;
 
 typedef struct{
 	uint32_t seconds; /**< seconds */
