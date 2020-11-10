@@ -30,6 +30,13 @@ Clear-Host;
 
 $ErrorActionPreference = "Stop"
 
+Write-Host ""
+Write-Host "  P U T T I N G   T O G E T H E R  "
+Write-Host "==================================="
+python put_src_code_together.py
+
+
+Write-Host ""
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 & "$ARDUINO_CLI_PATH\arduino-cli.exe" compile --fqbn adafruit:samd:adafruit_feather_m0 sketchbook/main
