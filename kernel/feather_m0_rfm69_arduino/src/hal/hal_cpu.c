@@ -19,37 +19,7 @@
 *
 **/
 
-
-/**
-*	HAL CPU Init
-*
-*	Initializes the CPU. This function must be called before
-*	HAL IO Init. That is: hal_cpu_init(); hal_io_init();
-*/
-void hal_cpu_init(void){
-
-}
-
-
-/**
-*	Low Priority Software Interrupt Trigger
-*
-*	Triggers a PendsSV Exception
-*/
-void hal_cpu_lowpty_softint_trigger(void){
-
-}
-
-/**
-*	Low Priority Software Interrupt Register Callback
-*
-*	Registers a callback function for the PendSV Exception
-*
-*	@param callback the function that gets called on PendSV exception
-*/
-void hal_cpu_lowpty_softint_register_callback( void(*callback)(void) ){
-
-}
+void (*systick_callback)(void);
 
 /**
 *	SystemTimer Start
@@ -59,30 +29,18 @@ void hal_cpu_lowpty_softint_register_callback( void(*callback)(void) ){
 *	@param tick_freq_in_ms the tick frequency in milliseconds
 *	@param callback function to be called when a tick occurs
 */
+static uint32_t ms_count = 0;  //milliseconds count
+static uint32_t ms_goal = 0;   //milliseconds goal
 void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
-
+	systick_callback = callback;
+  ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
+                              //No conversion needed
+  //Nothing to start. Arduino has it running already
 }
 
-/**
-*	SystemTimer Stop
-*
-*	Stops the system timer
-*
-*/
-void hal_cpu_systimer_stop(void){
 
-}
 
-/**
-*	SystemTimer reestart
-*
-*	Once started, this function can be used to re-estart the system timer
-*	with the same configuration.
-*
-*/
-void hal_cpu_systimer_reestart(void){
 
-}
 
 /**
 *	Fault Exception Register Callback
@@ -134,5 +92,22 @@ void hal_cpu_delay(uint32_t delay_in_ms){
 *
 */
 void hal_cpu_sleep(uint32_t delay_in_ms){
+
+}
+
+
+extern "C" {
+//C++ code cannot override weak aliases defined in C
+
+int sysTickHook(void){
+  if( systick_callback ){ //We don't want Arduion to trigger this
+                            //before it's defined
+    if( ms_count++ >= ms_goal ){
+        (*systick_callback)();
+        ms_count = 0;
+    }
+  }
+  return 0; //Arduino expects a 0 when things go well
+}
 
 }

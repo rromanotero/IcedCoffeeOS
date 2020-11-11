@@ -20,25 +20,23 @@
 **/
 #include "hal.h"
 
+tPioPin led_pin;
+tSerialPort serial_usb;
+
+void tick_callback(){
+  hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+  hal_io_serial_puts(&serial_usb, "tick\n\r");
+}
+
 void ARDUINO_MAIN() {
 
-  tServoChannel servo_a;
-  tServoChannel servo_b;
-  hal_io_servo_create_channel(&servo_a, ServoA);
-  hal_io_servo_create_channel(&servo_b, ServoB);
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+  hal_cpu_systimer_start(1000, tick_callback);
 
   while(true){
-    for (int pos = 90; pos <=180; pos += 1) {
-      hal_io_servo_write(&servo_a, pos);
-      hal_io_servo_write(&servo_b, pos);
-      hal_cpu_delay(15);
-    }
-    for (int pos = 180; pos >= 90; pos -= 1) {
-      hal_io_servo_write(&servo_a, pos);
-      hal_io_servo_write(&servo_b, pos);
-      hal_cpu_delay(15);
-    }
-
+    hal_io_serial_puts(&serial_usb, "Still here\n\r");
+    hal_cpu_delay(1400);
   }
 
   //Exit so we don't

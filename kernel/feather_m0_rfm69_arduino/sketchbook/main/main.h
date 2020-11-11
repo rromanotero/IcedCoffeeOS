@@ -31,6 +31,8 @@
 #define ARDUINO_MAIN  loop
 void setup() {} /* Don't need it*/
 
+
+
 #define HAL_SUCCESS  									1
 #define HAL_IO_TYPE_NOT_FOUND						101
 #define HAL_IO_PIO_PORT_NOT_FOUND     	102
