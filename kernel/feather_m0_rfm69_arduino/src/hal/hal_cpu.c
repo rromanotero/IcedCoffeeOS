@@ -20,6 +20,7 @@
 **/
 
 void (*systick_callback)(void);
+void (*svc_callback)(void);
 
 /**
 *	SystemTimer Start
@@ -40,8 +41,6 @@ void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
 
 
 
-
-
 /**
 *	Fault Exception Register Callback
 *
@@ -50,7 +49,11 @@ void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
 *	@param callback the function that gets called on fault_type exception
 */
 void hal_cpu_fault_register_callback( tFaultOrigin faultOrigin, void(*callback)(void)  ){
-
+  switch(faultOrigin){
+			case FaultApp:		fault_app_callback = callback;		break;
+			case FaultSystem:	fault_system_callback = callback;	break;
+			default:			/* Error */							break;
+		}
 }
 
 /**
@@ -62,7 +65,7 @@ void hal_cpu_fault_register_callback( tFaultOrigin faultOrigin, void(*callback)(
 *	@param callback the function that gets called on supervisor calls
 */
 void hal_cpu_svc_start( void(*callback)(void) ){
-
+  svc_callback = callback; //SVC Handler definition is in hal_cpu_asm.s
 }
 
 /**
@@ -91,8 +94,8 @@ void hal_cpu_delay(uint32_t delay_in_ms){
 *	CPU Sleep
 *
 */
-void hal_cpu_sleep(uint32_t delay_in_ms){
-
+void hal_cpu_sleep(void){
+  asm volatile( "wfi" );
 }
 
 
@@ -108,6 +111,18 @@ int sysTickHook(void){
     }
   }
   return 0; //Arduino expects a 0 when things go well
+}
+
+void HardFault_Handler(){
+
+}
+
+void svcHook(void){
+
+}
+
+void pendSVHook(void){
+
 }
 
 }
