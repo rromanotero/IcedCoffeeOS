@@ -71,3 +71,8 @@ Error during Upload: uploading error: cannot execute upload tool: exec: "{runtim
 ```
 
 In my case I solved it by pointing the var `tools.bossac.path` in `platform.txt` (C:\Users\[USERNAME]\AppData\Local\Arduino15\packages\adafruit\hardware\samd\1.6.3) to the my bossac installation (in my case that was C:\Users\[USERNAME]\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0-arduino3).
+
+Arduino SAMD core code is at
+```
+C:\Users\rafael.romanotero\AppData\Local\Arduino15\packages\adafruit\hardware\samd\1.6.3
+```
