@@ -19,9 +19,16 @@
 *
 **/
 
+
 /**
-*	HAL Timer Init
+*	System Init
+*
+*	Initializes everything. Must be called before any other call
 */
-void hal_timer_init(void){
-	//For compatibility
+void system_init(void){
+	hal_cpu_init();
+	hal_io_init();
+	hal_radio_init();
+	hal_timer_init();
+	faults_init();
 }

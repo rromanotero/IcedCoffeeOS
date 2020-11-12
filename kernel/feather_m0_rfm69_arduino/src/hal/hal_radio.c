@@ -19,6 +19,14 @@
 *
 **/
 
+/**
+*	HAL Radio Init
+*
+*/
+void hal_radio_init(void){
+	//For compatibility
+}
+
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
   if (!transceiver->internal_manager->sendtoWait(message->payload, sizeof(message->payload), message->address))
         return HAL_RADIO_SEND_FAILED;

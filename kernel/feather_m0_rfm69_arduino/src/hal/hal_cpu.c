@@ -19,8 +19,25 @@
 *
 **/
 
+//SysTick-related definitions
 void (*systick_callback)(void);
+
+//SVC-related defintions
 void (*svc_callback)(void);
+
+//Faults-related definitions
+void (*fault_app_callback)(void);
+void (*fault_system_callback)(void);
+
+/**
+*	HAL CPU Init
+*
+*	Initializes the CPU. This function must be called before
+*	HAL IO Init. That is: hal_cpu_init(); hal_io_init();
+*/
+void hal_cpu_init(void){
+	//For compatibility
+}
 
 /**
 *	SystemTimer Start
@@ -40,16 +57,15 @@ void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
 }
 
 
-
 /**
-*	Fault Exception Register Callback
+*	Fault Start
 *
 *	Registers a generic callback function for CPU Fault Exceptions
 *
 *	@param callback the function that gets called on fault_type exception
 */
-void hal_cpu_fault_register_callback( tFaultOrigin faultOrigin, void(*callback)(void)  ){
-  switch(faultOrigin){
+void hal_cpu_fault_start( tFaultOrigin fault_origin, void(*callback)(void)  ){
+  switch(fault_origin){
 			case FaultApp:		fault_app_callback = callback;		break;
 			case FaultSystem:	fault_system_callback = callback;	break;
 			default:			/* Error */							break;
@@ -68,16 +84,6 @@ void hal_cpu_svc_start( void(*callback)(void) ){
   svc_callback = callback; //SVC Handler definition is in hal_cpu_asm.s
 }
 
-/**
-*	HAL CPU Speed in Hz
-*
-*	Returns the CPU clock speed in Hz.
-*
-*	@return CPU clock speed in Hz
-*/
-uint32_t hal_cpu_speed_in_hz(void){
-
-}
 
 /**
 *	CPU Delays
@@ -98,6 +104,9 @@ void hal_cpu_sleep(void){
   asm volatile( "wfi" );
 }
 
+////////////////////////////////////////////////////////////////////////////
+/////                      C Area                                     //////
+///////////////////////////////////////////////////////////////////////////
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -113,8 +122,25 @@ int sysTickHook(void){
   return 0; //Arduino expects a 0 when things go well
 }
 
-void HardFault_Handler(){
+__attribute__((naked)) void HardFault_Handler(){
+	asm volatile("b faults_goto_right_callback");
+}
 
+__attribute__((naked)) void NMI_Handler(){
+	asm volatile("b faults_goto_right_callback");
+	//EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
+}
+
+__attribute__((naked)) void faults_goto_right_callback(){
+	// Bit 2 in EXC_RETURN (placed in the LR on exception entry) tells
+	// which stack to use on exception return 
+	register uint32_t exc_return;
+  __asm volatile ("mov %0, lr\n" : "=r" (exc_return) );
+
+	if ( exc_return & 0b0100 )
+		(*fault_app_callback)();
+	else
+	 	(*fault_system_callback)();
 }
 
 void svcHook(void){
@@ -125,4 +151,4 @@ void pendSVHook(void){
 
 }
 
-}
+} //end extern C

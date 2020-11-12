@@ -56,7 +56,6 @@ void setup() {} /* Don't need it*/
 #define HAL_RADIO_DEFAULT_ADDRESS    	0    //Default address of this node (my address)
 
 typedef uint32_t tPwmType;		/**< PWM Pin Type */
-typedef uint32_t tFaultOrigin;	/**< Fault Origin type */
 typedef uint32_t tSensorId;		/**< Sensor ID type */
 typedef enum tIoType			 { IoPoll = 0, IoInterrupt  };
 typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
@@ -67,6 +66,7 @@ typedef enum tPwmId        { PwmA = 0, PwmB  };
 typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
+typedef enum tFaultOrigin	 { FaultApp = 0, FaultSystem };
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];

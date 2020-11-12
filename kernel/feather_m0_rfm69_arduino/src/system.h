@@ -19,9 +19,10 @@
 *
 **/
 
-/**
-*	HAL Timer Init
-*/
-void hal_timer_init(void){
-	//For compatibility
-}
+#ifndef SYSTEM_H_
+#define SYSTEM_H_
+
+#define SYS_PANIC_MSG_MAX_LENGTH	  50
+#define KERNEL_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+
+#endif /* SYSTEM_H_ */

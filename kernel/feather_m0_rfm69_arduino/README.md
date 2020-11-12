@@ -54,7 +54,9 @@ Port Type              Board Name          FQBN                              Cor
 COM8 Serial Port (USB) Adafruit Feather M0 adafruit:samd:adafruit_feather_m0 adafruit:samd
 ```
 
-Lastly, there some libraries that need manual installations. Copy the contents of `./sketchbook/libraries` (in this repo) to your local `sketchbook/libraries` directory (i.e. where the Arduino CLI will look for libraries when compiling).
+There's some libraries that need manual installations. Copy the contents of `./sketchbook/libraries` (in this repo) to your local `sketchbook/libraries` directory (i.e. where the Arduino CLI will look for libraries when compiling).
+
+Lastly, look for files in `./sketchbook/hardware/samd` (in this repo), and replace those with same name in your local hardware directory. In my case this was `C:\Users\USERNAME\AppData\Local\Arduino15\packages\adafruit\hardware`. Please note this folder won't exist until after installing Adafruit boards. So for example, if you look at `./sketchbook/hardware/samd`, you'll find the file `./sketchbook/hardware/samd/1.6.3/cores/arduino/WInterrupts.c` . Using this file replace  `WInterrupts.c` in your local installation. 
 
 ### Building and Flashing
 

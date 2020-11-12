@@ -18,6 +18,67 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+#ifndef SYSTEM_H_
+#define SYSTEM_H_
+
+#define SYS_PANIC_MSG_MAX_LENGTH	  50
+#define KERNEL_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+
+#endif /* SYSTEM_H_ */
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+
+#ifndef FAULTS_H_
+#define FAULTS_H_
+
+
+#endif /* FAULTS_H_ */
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 #ifndef HAL_H
 #define HAL_H
 
@@ -56,7 +117,6 @@ void setup() {} /* Don't need it*/
 #define HAL_RADIO_DEFAULT_ADDRESS    	0    //Default address of this node (my address)
 
 typedef uint32_t tPwmType;		/**< PWM Pin Type */
-typedef uint32_t tFaultOrigin;	/**< Fault Origin type */
 typedef uint32_t tSensorId;		/**< Sensor ID type */
 typedef enum tIoType			 { IoPoll = 0, IoInterrupt  };
 typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
@@ -67,6 +127,7 @@ typedef enum tPwmId        { PwmA = 0, PwmB  };
 typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
+typedef enum tFaultOrigin	 { FaultApp = 0, FaultSystem };
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];

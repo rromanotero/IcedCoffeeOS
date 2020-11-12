@@ -20,8 +20,8 @@
 **/
 #include "main.h"
 
-tPioPin led_pin;
-tSerialPort serial_usb;
+extern tPioPin led_pin;				 //Defined as part of the HAL (in HAL IO)
+extern tSerialPort serial_usb;
 
 void tick_callback(){
   hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
@@ -30,13 +30,32 @@ void tick_callback(){
 
 void ARDUINO_MAIN() {
 
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
-  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+  system_init();
+
   hal_cpu_systimer_start(1000, tick_callback);
 
+  volatile uint32_t a = 7;
+  volatile uint32_t b = 0;
+  volatile uint32_t c = 0;
   while(true){
-    hal_io_serial_puts(&serial_usb, "Still here\n\r");
-    hal_cpu_delay(1400);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 7\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 6\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 5\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 4\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 3\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 2\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 1\n\r");
+    hal_cpu_delay(2000);
+    hal_io_serial_puts(&serial_usb, "Div by Zero! 0\n\r");
+    hal_cpu_delay(2000);
+    c = c + a/b;
+    c = c/0; ///<<----- hardfault
   }
 
   //Exit so we don't
@@ -67,97 +86,18 @@ void ARDUINO_MAIN() {
 *
 **/
 
-void (*systick_callback)(void);
 
 /**
-*	SystemTimer Start
+*	System Init
 *
-*	Starts the System Timer
-*
-*	@param tick_freq_in_ms the tick frequency in milliseconds
-*	@param callback function to be called when a tick occurs
+*	Initializes everything. Must be called before any other call
 */
-static uint32_t ms_count = 0;  //milliseconds count
-static uint32_t ms_goal = 0;   //milliseconds goal
-void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
-	systick_callback = callback;
-  ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
-                              //No conversion needed
-  //Nothing to start. Arduino has it running already
-}
-
-
-
-
-
-/**
-*	Fault Exception Register Callback
-*
-*	Registers a generic callback function for CPU Fault Exceptions
-*
-*	@param callback the function that gets called on fault_type exception
-*/
-void hal_cpu_fault_register_callback( tFaultOrigin faultOrigin, void(*callback)(void)  ){
-
-}
-
-/**
-*	SVC Start
-*
-*	Starts SVC calls and registers a callback function. The callback
-*	execution of an SVC instruction
-*
-*	@param callback the function that gets called on supervisor calls
-*/
-void hal_cpu_svc_start( void(*callback)(void) ){
-
-}
-
-/**
-*	HAL CPU Speed in Hz
-*
-*	Returns the CPU clock speed in Hz.
-*
-*	@return CPU clock speed in Hz
-*/
-uint32_t hal_cpu_speed_in_hz(void){
-
-}
-
-/**
-*	CPU Delays
-*
-*	Busy-waiting delay
-*
-*	@param delay_in_ms delay in milliseconds
-*/
-void hal_cpu_delay(uint32_t delay_in_ms){
-  delay(delay_in_ms);
-}
-
-/**
-*	CPU Sleep
-*
-*/
-void hal_cpu_sleep(uint32_t delay_in_ms){
-
-}
-
-
-extern "C" {
-//C++ code cannot override weak aliases defined in C
-
-int sysTickHook(void){
-  if( systick_callback ){ //We don't want Arduion to trigger this
-                            //before it's defined
-    if( ms_count++ >= ms_goal ){
-        (*systick_callback)();
-        ms_count = 0;
-    }
-  }
-  return 0; //Arduino expects a 0 when things go well
-}
-
+void system_init(void){
+	hal_cpu_init();
+	hal_io_init();
+	hal_radio_init();
+	hal_timer_init();
+	faults_init();
 }
 
 
@@ -182,6 +122,267 @@ int sysTickHook(void){
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+/**
+*	Fault Init
+*
+*	Enables CPU Faults exceptions, and sets their respective
+*	callbacks
+*
+*	@param fault_type the fault type
+*	@param callback the function that gets called on fault_type exception
+*/
+void faults_init(void){
+	hal_cpu_fault_start( FaultApp, faults_app_entry_point );
+	hal_cpu_fault_start( FaultSystem, faults_system_entry_point );
+}
+
+/*
+*	App Faults entry point
+*
+*   Execution comes here when a fault originated in an app.
+*
+*/
+void faults_app_entry_point(void){
+  //Terminate offending app
+  while(1); //we don't have appas yet
+}
+
+/*
+*	Kernel Faults entry point
+*
+*   Execution comes here when a fault originated in the OS itself.
+*
+*/
+void faults_system_entry_point(void){
+  //We did something wrong. Panic.
+  faults_kernel_panic( "Caught HardFault or NMI Fault. Cannot recover." );
+}
+
+/**
+*	Kernel Panic Function
+*
+*	@param manic_msg the panic message
+*/
+extern tPioPin led_pin;				//Defined as part of the HAL (in HAL IO)
+extern tSerialPort serial_usb;
+
+void faults_kernel_panic( char* panic_msg ){
+
+	hal_io_serial_puts(&serial_usb, "\n\rSomething went wrong =(\n\r");
+	hal_io_serial_puts(&serial_usb, panic_msg);
+
+	//Show panic LED sequence.
+	while(true){
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+
+		//Can't use HAL Delay function, since
+		//it uses the System Timer to count.
+		//Hard Fault has a hgher priority, so
+		//System Timer won't tick
+		//while we're here.
+    for(volatile int i=0; i<KERNEL_PANIC_LED_BLINKING_WAIT; i++);
+  }
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+//SysTick-related definitions
+void (*systick_callback)(void);
+
+//SVC-related defintions
+void (*svc_callback)(void);
+
+//Faults-related definitions
+void (*fault_app_callback)(void);
+void (*fault_system_callback)(void);
+
+/**
+*	HAL CPU Init
+*
+*	Initializes the CPU. This function must be called before
+*	HAL IO Init. That is: hal_cpu_init(); hal_io_init();
+*/
+void hal_cpu_init(void){
+	//For compatibility
+}
+
+/**
+*	SystemTimer Start
+*
+*	Starts the System Timer
+*
+*	@param tick_freq_in_ms the tick frequency in milliseconds
+*	@param callback function to be called when a tick occurs
+*/
+static uint32_t ms_count = 0;  //milliseconds count
+static uint32_t ms_goal = 0;   //milliseconds goal
+void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
+	systick_callback = callback;
+  ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
+                              //No conversion needed
+  //Nothing to start. Arduino has it running already
+}
+
+
+/**
+*	Fault Start
+*
+*	Registers a generic callback function for CPU Fault Exceptions
+*
+*	@param callback the function that gets called on fault_type exception
+*/
+void hal_cpu_fault_start( tFaultOrigin fault_origin, void(*callback)(void)  ){
+  switch(fault_origin){
+			case FaultApp:		fault_app_callback = callback;		break;
+			case FaultSystem:	fault_system_callback = callback;	break;
+			default:			/* Error */							break;
+		}
+}
+
+/**
+*	SVC Start
+*
+*	Starts SVC calls and registers a callback function. The callback
+*	execution of an SVC instruction
+*
+*	@param callback the function that gets called on supervisor calls
+*/
+void hal_cpu_svc_start( void(*callback)(void) ){
+  svc_callback = callback; //SVC Handler definition is in hal_cpu_asm.s
+}
+
+
+/**
+*	CPU Delays
+*
+*	Busy-waiting delay
+*
+*	@param delay_in_ms delay in milliseconds
+*/
+void hal_cpu_delay(uint32_t delay_in_ms){
+  delay(delay_in_ms);
+}
+
+/**
+*	CPU Sleep
+*
+*/
+void hal_cpu_sleep(void){
+  asm volatile( "wfi" );
+}
+
+////////////////////////////////////////////////////////////////////////////
+/////                      C Area                                     //////
+///////////////////////////////////////////////////////////////////////////
+
+extern "C" {
+//C++ code cannot override weak aliases defined in C
+
+int sysTickHook(void){
+  if( systick_callback ){ //We don't want Arduion to trigger this
+                            //before it's defined
+    if( ms_count++ >= ms_goal ){
+        (*systick_callback)();
+        ms_count = 0;
+    }
+  }
+  return 0; //Arduino expects a 0 when things go well
+}
+
+__attribute__((naked)) void HardFault_Handler(){
+	asm volatile("b faults_goto_right_callback");
+}
+
+__attribute__((naked)) void NMI_Handler(){
+	asm volatile("b faults_goto_right_callback");
+	//EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
+}
+
+__attribute__((naked)) void faults_goto_right_callback(){
+	// Bit 2 in EXC_RETURN (placed in the LR on exception entry) tells
+	// which stack to use on exception return 
+	register uint32_t exc_return;
+  __asm volatile ("mov %0, lr\n" : "=r" (exc_return) );
+
+	if ( exc_return & 0b0100 )
+		(*fault_app_callback)();
+	else
+	 	(*fault_system_callback)();
+}
+
+void svcHook(void){
+
+}
+
+void pendSVHook(void){
+
+}
+
+} //end extern C
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+/**
+*	HAL IO Init
+*
+*	Initializes the board and IO pins. This function must be called before
+*	any other call to an IO device. Example: hal_io_init(); hal_mtimer_Start();...
+*
+*/
+tPioPin led_pin;
+tSerialPort serial_usb;
+
+void hal_io_init(void){
+  //LED Pin begins off
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+  hal_io_pio_write(&led_pin, false);
+
+  //Serial USB begins on
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+}
 
 /**
 *	PIO Create
@@ -493,6 +694,14 @@ void hal_io_servo_write(tServoChannel* servo, uint32_t orientation_in_degrees){
 *
 **/
 
+/**
+*	HAL Radio Init
+*
+*/
+void hal_radio_init(void){
+	//For compatibility
+}
+
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
   if (!transceiver->internal_manager->sendtoWait(message->payload, sizeof(message->payload), message->address))
         return HAL_RADIO_SEND_FAILED;
@@ -583,6 +792,13 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+/**
+*	HAL Timer Init
+*/
+void hal_timer_init(void){
+	//For compatibility
+}
 
 
 

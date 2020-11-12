@@ -20,6 +20,25 @@
 **/
 
 /**
+*	HAL IO Init
+*
+*	Initializes the board and IO pins. This function must be called before
+*	any other call to an IO device. Example: hal_io_init(); hal_mtimer_Start();...
+*
+*/
+tPioPin led_pin;
+tSerialPort serial_usb;
+
+void hal_io_init(void){
+  //LED Pin begins off
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+  hal_io_pio_write(&led_pin, false);
+
+  //Serial USB begins on
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+}
+
+/**
 *	PIO Create
 *
 *  Creates a PIO pin
