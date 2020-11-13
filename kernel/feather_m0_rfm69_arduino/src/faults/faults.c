@@ -77,6 +77,6 @@ void faults_kernel_panic( char* panic_msg ){
 		//Hard Fault has a hgher priority, so
 		//System Timer won't tick
 		//while we're here.
-    for(volatile int i=0; i<KERNEL_PANIC_LED_BLINKING_WAIT; i++);
+    for(volatile int i=0; i<SYS_PANIC_LED_BLINKING_WAIT; i++);
   }
 }

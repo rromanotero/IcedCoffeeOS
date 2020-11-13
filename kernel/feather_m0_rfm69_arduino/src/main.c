@@ -20,43 +20,22 @@
 **/
 #include "hal.h"
 
-extern tPioPin led_pin;				 //Defined as part of the HAL (in HAL IO)
+
+extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void tick_callback(){
-  hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-  hal_io_serial_puts(&serial_usb, "tick\n\r");
-}
+/*void my_thread(void){
+  while(true){
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    hal_cpu_delay(1000);
+  }
+}*/
 
 void ARDUINO_MAIN() {
-
   system_init();
+  //scheduler_thread_create( my_thread, "my thread", 512 );
 
-  hal_cpu_systimer_start(1000, tick_callback);
-
-  volatile uint32_t a = 7;
-  volatile uint32_t b = 0;
-  volatile uint32_t c = 0;
-  while(true){
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 7\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 6\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 5\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 4\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 3\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 2\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 1\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 0\n\r");
-    hal_cpu_delay(2000);
-    c = c + a/b;
-    c = c/0; ///<<----- hardfault
-  }
+  while(true);
 
   //Exit so we don't
   //loop over and over

@@ -20,43 +20,22 @@
 **/
 #include "main.h"
 
-extern tPioPin led_pin;				 //Defined as part of the HAL (in HAL IO)
+
+extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void tick_callback(){
-  hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-  hal_io_serial_puts(&serial_usb, "tick\n\r");
+void my_thread(void){
+  while(true){
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    hal_cpu_delay(1000);
+  }
 }
 
 void ARDUINO_MAIN() {
-
   system_init();
+  scheduler_thread_create( my_thread, "my thread", 512 );
 
-  hal_cpu_systimer_start(1000, tick_callback);
-
-  volatile uint32_t a = 7;
-  volatile uint32_t b = 0;
-  volatile uint32_t c = 0;
-  while(true){
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 7\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 6\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 5\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 4\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 3\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 2\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 1\n\r");
-    hal_cpu_delay(2000);
-    hal_io_serial_puts(&serial_usb, "Div by Zero! 0\n\r");
-    hal_cpu_delay(2000);
-    c = c + a/b;
-    c = c/0; ///<<----- hardfault
-  }
+  while(true);
 
   //Exit so we don't
   //loop over and over
@@ -98,6 +77,7 @@ void system_init(void){
 	hal_radio_init();
 	hal_timer_init();
 	faults_init();
+	scheduler_init();
 }
 
 
@@ -181,7 +161,7 @@ void faults_kernel_panic( char* panic_msg ){
 		//Hard Fault has a hgher priority, so
 		//System Timer won't tick
 		//while we're here.
-    for(volatile int i=0; i<KERNEL_PANIC_LED_BLINKING_WAIT; i++);
+    for(volatile int i=0; i<SYS_PANIC_LED_BLINKING_WAIT; i++);
   }
 }
 
@@ -214,6 +194,9 @@ void (*systick_callback)(void);
 //SVC-related defintions
 void (*svc_callback)(void);
 
+//PendSV-related definitions
+void (*pendsv_callback)(void);
+
 //Faults-related definitions
 void (*fault_app_callback)(void);
 void (*fault_system_callback)(void);
@@ -226,6 +209,53 @@ void (*fault_system_callback)(void);
 */
 void hal_cpu_init(void){
 	//For compatibility
+}
+
+/**
+*	Low Priority Software Interrupt Trigger
+*
+*	Triggers a PendsSV Exception
+*/
+void hal_cpu_lowpty_softint_trigger(void){
+	SCB->ICSR |= (1<<28);
+}
+
+/**
+*	Low Priority Software Interrupt Register Callback
+*
+*	Registers a callback function for the PendSV Exception
+*
+*	@param callback the function that gets called on PendSV exception
+*/
+void hal_cpu_lowpty_softint_register_callback( void(*callback)(void) ){
+	pendsv_callback = callback;
+}
+
+/**
+*	SystemTimer Stop
+*
+*	Stops the system timer
+*
+*/
+void hal_cpu_systimer_stop(void){
+	SysTick->VAL   = 0;								/* Load the SysTick Counter Value */
+	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	/* Disable SysTick IRQ and SysTick Timer */
+	SysTick_CTRL_TICKINT_Msk   |
+	(0UL << SysTick_CTRL_ENABLE_Pos);
+}
+
+/**
+*	SystemTimer reestart
+*
+*	Once started, this function can be used to re-estart the system timer
+*	with the same configuration.
+*
+*/
+void hal_cpu_systimer_reestart(void){
+	SysTick->VAL   = 0;								// Load the SysTick Counter Value
+	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	// Enable SysTick IRQ and SysTick Timer
+	SysTick_CTRL_TICKINT_Msk   |
+	SysTick_CTRL_ENABLE_Msk;
 }
 
 /**
@@ -285,17 +315,140 @@ void hal_cpu_delay(uint32_t delay_in_ms){
   delay(delay_in_ms);
 }
 
+
+
 /**
-*	CPU Sleep
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+
+#define USER_MODE_EXEC_VALUE, 0xFFFFFFFD
+
+/**
+*
+*	Sleep
+*
+*	Executes the instruction that puts the CPU
+*	to sleep
 */
-void hal_cpu_sleep(void){
+__attribute__((naked)) void hal_cpu_sleep(void){
   asm volatile( "wfi" );
 }
 
-////////////////////////////////////////////////////////////////////////////
-/////                      C Area                                     //////
-///////////////////////////////////////////////////////////////////////////
+/**
+*	Return from exception in user mode
+*
+*	Returns from an exception, specifying an EXEC_VALUE
+*	of 0xFFFFFFFD i.e. specifyin user mode and PSP as active SP
+*/
+__attribute__((naked)) void hal_cpu_return_exception_user_mode(){
+  //TO DO FIX IT
+	//asm volatile("ldr pc, =USER_MODE_EXEC_VALUE");
+}
+
+
+/**
+*	void hal_cpu_save_context(void)
+*
+*	CPU Save Context
+*
+*	Pushes onto the stack the registers
+*	R4-R11 that ought to be saved "in software"
+*	during context switch
+*
+*/
+__attribute__((naked)) void hal_cpu_save_context(void){
+  //TO DO FIX IT
+	//asm volatile("mrs r0, psp\nstmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+}
+
+/**
+*	void hal_cpu_restore_context(void)
+*
+*	CPU Restore Context
+*
+*	Pops from the stack the registers
+*	R4-R11 that ought to be restored "in software"
+*	during context switch
+*
+*/
+__attribute__((naked)) void hal_cpu_restore_context(void){
+  //TO DO FIX IT
+	//asm volatile("mrs r0, psp\nldmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+}
+
+/**
+*	uint32_t hal_cpu_get_psp(void)
+*
+*	Gets the PSP
+*
+*	Returns the process stack pointer
+*/
+__attribute__((naked)) uint32_t hal_cpu_get_psp(void){
+  //TO DO FIX IT
+	//asm volatile("mrs	r0, psp\nbx lr");
+}
+
+/**
+*	void hal_cpu_set_unprivileged(void)
+*
+*	CPU Set unprivileged
+*
+*	Set the CPU as unprivileged (when in thread mode)s
+*/
+__attribute__((naked)) void hal_cpu_set_unprivileged(void){
+  //TO DO FIX IT
+	//asm volatile("mrs r3, control\norr	r3, r3, #1\nmsr control, r3\nisb\nbx lr");
+}
+
+
+/**
+*	void hal_cpu_set_psp_active(void)
+*
+*	CPU Set PSP active
+*
+*	Sets the Process Stack Pointer as active (when in thread mode)
+*/
+__attribute__((naked)) void hal_cpu_set_psp_active(void){
+  //TO DO FIX IT
+	//asm volatile("mrs r3, control\norr	r3, r3, #2\nmsr control, r3\nisb\nbx lr");
+}
+
+/**
+*	void hal_cpu_set_psp(uint32_t)
+*
+*	Sets the PSP
+*
+*	Sets the Process Stack Pointer value
+*/
+__attribute__((naked)) void hal_cpu_set_psp(uint32_t){
+  //TO DO FIX IT
+	//asm volatile("msr psp, r0\nbx lr");
+}
+
+
+
+/////////////////////////////////////////////////////////////////////
+//              Handler/Hooks overriding Area                     ///
+/////////////////////////////////////////////////////////////////////
+
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -311,6 +464,10 @@ int sysTickHook(void){
   return 0; //Arduino expects a 0 when things go well
 }
 
+__attribute__((naked)) void PendSV_Handler(void){
+  	(*pendsv_callback)();
+}
+
 __attribute__((naked)) void HardFault_Handler(){
 	asm volatile("b faults_goto_right_callback");
 }
@@ -322,7 +479,7 @@ __attribute__((naked)) void NMI_Handler(){
 
 __attribute__((naked)) void faults_goto_right_callback(){
 	// Bit 2 in EXC_RETURN (placed in the LR on exception entry) tells
-	// which stack to use on exception return 
+	// which stack to use on exception return
 	register uint32_t exc_return;
   __asm volatile ("mov %0, lr\n" : "=r" (exc_return) );
 
@@ -336,9 +493,7 @@ void svcHook(void){
 
 }
 
-void pendSVHook(void){
 
-}
 
 } //end extern C
 
@@ -674,6 +829,85 @@ void hal_io_servo_write(tServoChannel* servo, uint32_t orientation_in_degrees){
 
 
 /**
+ * @file	hal_memreg.c
+ * @author
+ * @version
+ *
+ * @brief Memory Regions part of the Hardware Abstraction Layer.
+ *
+ */
+
+//System Memory Region
+#define MEM_REGION_SYS_BASEPTR		(uint8_t*)0x20000000
+#define MEM_REGION_SYS_SIZE			SYS_SYSTEM_MEM_AVAILABLE
+
+//App Memory Region
+//( Starts right after System + 4 bytes (for SP ))
+#define MEM_REGION_APP_BASEPTR		(uint8_t*)( MEM_REGION_SYS_BASEPTR + MEM_REGION_SYS_SIZE + 4 )
+#define MEM_REGION_APP_SIZE			SYS_APP_MAX_SIZE-4
+
+//Stack Memory Region
+#define MEM_REGION_STACK_BASEPTR	( MEM_REGION_APP_BASEPTR + MEM_REGION_APP_SIZE )
+#define MEM_REGION_STACK_SIZE		SYS_USER_STACK_MAX_SIZE
+
+//Linker script variables for System Stack
+extern uint32_t __StackTop;				//end of stack
+
+/**
+*	HAL Memory Regions Init
+*
+*	Initializes Memory. This function must be called after
+*	HAL CPU Init. That is: hal_cpu_init(); hal_mem_init();...
+*
+*/
+void hal_memreg_init(void){
+	//nothing to initialize...
+	//for consistency...
+	//and compatibility if future versions require initialization
+}
+
+/**
+*	HAL Memory Region Read
+*
+*	Reads information related to the specified memory region.
+*
+*	@param memid	the specified memory region
+*	@param memreg	a pointer to the tMemRegion variable to be populated
+*/
+void hal_memreg_read( tMemRegionId memid, tMemRegion* memreg ){
+	if( memreg == 0 ) return; //Error (null ptr)
+
+	memreg->id = memid;
+
+	switch( memid ){
+		case MemRegSystem:
+			memreg->base = (uint8_t*)MEM_REGION_SYS_BASEPTR;
+			memreg->size  = MEM_REGION_SYS_SIZE;
+			break;
+		case MemRegApp:
+			memreg->base = (uint8_t*)MEM_REGION_APP_BASEPTR;
+			memreg->size  = MEM_REGION_APP_SIZE;
+			break;
+		case MemRegSystemStack:
+			memreg->base = (uint8_t*)&__StackTop;				//base = stack's end address
+                      //THIS IS WHERE ARDUINO SETS THE STACK ACTUALLY....
+                      //LATER THIS NEEDS TO BE CHANGED TO SOMEWHER ELSE.
+			memreg->size =  4098; //FIXED FOR NOWW....  // &__stack_size__;
+			break;
+		case MemRegUserStack:
+			memreg->base = (uint8_t*)MEM_REGION_STACK_BASEPTR;				//base = stack's end address
+			memreg->size = MEM_REGION_STACK_SIZE;
+			break;
+		default:
+			//Error
+			break;
+	}
+
+}
+
+
+
+/**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
@@ -798,6 +1032,308 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 */
 void hal_timer_init(void){
 	//For compatibility
+}
+
+
+
+#define TICK_FREQ		    3
+#define CONTEXT_SIZE    16
+#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
+#define OFFSET_LR       13
+#define OFFSET_PC       14
+#define OFFSET_APSR     15
+
+__attribute__((naked)) static void tick_callback(void);
+__attribute__((naked)) static void low_pty_callback(void);
+
+extern void process_thread_delete(void);
+extern void idle_process_thread(void);
+
+static tProcessList proc_list;			// process list
+static tMiniProcess* wait_list[10];		//waiting list
+static tMiniProcess* active_proc;		//The active process
+static uint32_t proc_count = 0;
+
+
+/*
+*	Scheduler Init
+*
+*   Initializes the scheduler. The system timer is not started here.
+*/
+void scheduler_init(void){
+  //A null process (used to mark the lack of an active process)
+  static tMiniProcess null_proc;
+  null_proc.name = "null";
+  null_proc.state = ProcessStateNull;
+
+	//Init process stack
+	static tMemRegion stack_memreg;
+	hal_memreg_read( MemRegUserStack, &stack_memreg );
+	stack_init( (uint32_t*)stack_memreg.base );	//stack_init( epstack )
+
+	//Inits Low Pty Int
+	hal_cpu_lowpty_softint_register_callback( low_pty_callback );
+
+	//Active process is the null process
+	active_proc = &null_proc;
+
+	//No processes
+	proc_count = 0;
+
+	//Create idle process/thread
+	//(we need one!)
+	scheduler_thread_create( idle_process_thread, "idle process thread", 256 );
+}
+
+/*
+*	The infamous tick callback
+*
+*	Context switch takes place here.
+*/
+__attribute__((naked)) static void tick_callback(void){
+
+	//save software context
+	hal_cpu_save_context();
+
+	//Not the null process?
+	//(this'll skiip hal_cpu_get_psp() on the very first tick)
+	if( active_proc->state != ProcessStateNull ){
+		//save SP
+		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+	}
+
+	//get next active process
+	active_proc = scheduling_policy_next( active_proc, &proc_list );
+
+	//restore SP
+	hal_cpu_set_psp( (uint32_t)(active_proc->sp) );
+
+	//restore software context
+	hal_cpu_restore_context();
+
+	//give CPU to active process
+	hal_cpu_return_exception_user_mode();
+}
+
+/*
+*	Low Priority Callback
+*	(This callback is interruptible by the system timer)
+*
+*	Context switch takes place here.
+*/
+__attribute__((naked)) static void low_pty_callback(void){
+
+	//save software context
+	hal_cpu_save_context();
+
+	//stop systick (else race conditions)
+	hal_cpu_systimer_stop();
+
+	//Not the null process?
+	//(this'll skiip hal_cpu_get_psp() on the very first tick)
+	if( active_proc->state != ProcessStateNull ){
+		//save SP
+		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+	}
+
+	//get next active process
+	active_proc = scheduling_policy_next( active_proc, &proc_list );
+
+	//restore SP
+	hal_cpu_set_psp( (uint32_t)(active_proc->sp) );
+
+	//restart system timer (from 0)
+	hal_cpu_systimer_reestart();
+
+	//restore software context
+	hal_cpu_restore_context();
+
+	//give CPU to active process
+	hal_cpu_return_exception_user_mode();
+}
+
+/*
+*	Scheduler Process Create
+*
+*	Creates a process from a binary in nvmem. Ticking here begins!
+*/
+uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, uint32_t* loader_rval ){
+	tMemRegion proc_memregion;
+	uint32_t stack_sz;
+
+	//Load app binary
+	//uint32_t rval = loader_load_app( binary_file_name, &proc_memregion, &stack_sz );
+	//if(  rval != LOADER_LOAD_SUCCESS ){
+	//	*loader_rval = rval;				//populate loader error
+	//	return SCHEDULER_PROCESS_CREATE_FAILED;
+	//}
+
+	//Set process info
+	proc_list.list[proc_list.count].name = name;
+	proc_list.list[proc_list.count].state = ProcessStateReady;
+
+	//Allocate space for "fake" context
+	stack_alloc( CONTEXT_SIZE );
+
+	//Allocate space for remaining stack
+	proc_list.list[proc_list.count].sp = stack_top();       //set SP
+	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
+
+	//Insert "fake" context
+	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
+	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (proc_memregion.base +1));
+	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
+
+	//Increment counter in list
+	proc_list.count++;
+
+	//Start ticking on first process (idle thread is process/thread 1)
+	if( proc_list.count == 2 ){
+		hal_cpu_set_psp( (uint32_t)(proc_list.list[0].sp) );						//or else the first tick fails
+		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+	}
+
+	return SCHEDULER_PROCESS_CREATE_SUCCESS;
+}
+
+/*
+*	Scheduler Thread Create
+*
+*	Creates a Thread
+*
+*   It's really a process, but processes are so simple, that there's
+*   no  difference between a process and a thread.
+*
+*/
+uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, uint32_t stack_sz ){
+
+	//Set process info
+	proc_list.list[proc_list.count].name = name;
+	proc_list.list[proc_list.count].state = ProcessStateReady;
+
+	//Allocate space for "fake" context
+	stack_alloc( CONTEXT_SIZE );
+
+	//Allocate space for remaining stack
+	proc_list.list[proc_list.count].sp = stack_top();       //set SP
+	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
+
+	//Insert "fake" context
+	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
+	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (thread_code +1));
+	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
+
+	//Increment counter in list
+	proc_list.count++;
+
+	return SCHEDULER_PROCESS_CREATE_SUCCESS;
+}
+
+void scheduler_process_current_stop(void){
+	//changes thread state to dead
+	//(so it's not scheduled anymore)
+	active_proc->state =  ProcessStateDead;
+
+	//context switches
+	hal_cpu_lowpty_softint_trigger();
+}
+
+
+
+
+/*	Puts the processor to sleep. executes in user mode  */
+void idle_process_thread(){
+   while(true){
+     hal_cpu_sleep();
+   }
+}
+
+void process_thread_delete(){
+/*	Deletes the current process/thread. this function will be
+ accessed in user mode when a thread "returns" hence the syscall  */
+  // svc 29 /* thread_stop system call see syscalls.c */
+   //b .		/* execution won't get here */
+}
+
+
+
+uint32_t process_mark = 0;
+
+/*
+* NOTE: This needs a better name. Scheduling Policy sounds so
+*       INSURANCEsy
+*
+*       I believe this is round robin! It jsut looks different thatn what
+*		it appears on textsbooks.
+*/
+tMiniProcess* scheduling_policy_next( tMiniProcess* active_proc, tProcessList* proc_list  ){
+
+	//Increment process mark
+	//(skip dead processes)
+	uint32_t count=0;
+	do{
+		count++;
+		process_mark = (process_mark + 1) % proc_list->count;
+	}while( proc_list->list[process_mark].state == ProcessStateDead );
+
+
+	//Return process at process mark
+	return &(proc_list->list[process_mark]);
+}
+
+
+
+/**
+ * @file	stack.c
+ * @author
+ * @version
+ *
+ * @brief Stack module. This is a generic module to handle allocation of memory in the stack.
+ *		  It assumes a full-descendant stack, and ensures 8-byte alignment on allocation.
+ *		  This module must be ported when porting MiniOS
+ *
+ *		  Careful with mixing integer arithmetic with pointer arithmetic.
+ */
+
+static void alloc(uint32_t);
+static void align_to_eight_byte_boundary(void);
+
+static uint32_t* stack;
+static bool initialized = false;
+
+void stack_init(uint32_t* address){
+	stack = address;
+	initialized = true;
+}
+
+uint32_t* stack_top(void){
+	if( !initialized )
+		faults_kernel_panic( "Reading uninit stack" );
+
+	return stack;
+}
+
+void stack_alloc(uint32_t elements){
+	if( !initialized )
+		faults_kernel_panic( "Allocation on uninit stack" );
+
+	alloc(elements);
+	align_to_eight_byte_boundary();
+}
+
+static void alloc(uint32_t elements){
+	stack = stack - elements;
+}
+
+
+static void align_to_eight_byte_boundary(void){
+	uint32_t address = (uint32_t)stack;
+
+	while( address % 8 != 0 ){
+		address--;
+	}
+
+	stack = (uint32_t*)address;
 }
 
 

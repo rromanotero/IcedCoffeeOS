@@ -22,8 +22,30 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#define SYS_PANIC_MSG_MAX_LENGTH	  50
-#define KERNEL_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+#define SYS_VERSION					       "3"
+#define SYS_NAME					         "IcedCoffeeOS"
+#define SYS_USERNAME_MAX_LENGTH		  10
+#define SYS_CONF_SERIAL_A_BAUDRATE	115200
+#define SYS_CONF_SERIAL_B_BAUDRATE	115200
+
+#define SYS_SYSTEM_MEM_AVAILABLE	16384							//Total SYSTEM mem available is 16Kb of 32KB Total
+#define SYS_USER_MEM_AVAILABLE		16384							//Total USER mem available is 16Kb of 32KB Total
+
+#define SYS_USER_STACK_MAX_SIZE		   (SYS_USER_MEM_AVAILABLE/2)		//HALF of Total User Mem Available
+#define SYS_APP_MAX_SIZE			       (SYS_USER_MEM_AVAILABLE/4)		//QUARTER of Total User Mem Available
+#define SYS_LOADER_BUFFER_MAX_SIZE	 (SYS_USER_MEM_AVAILABLE/4)		//QUARTER of Total User Mem Available
+
+//#define SYS_APP_DEFAULT_NAME		"App.bin"
+#define SYS_CONSOLE_NEWLINE			"\n\r"		//Some serial console like putty use \n\r as newlines,
+												//others like Atmel's Terminal use only \n. Choose accordingly.
+
+#define SYS_MAX_NUM_OF_PROCESSES	10								//Max number of processes supported
+
+
+#define SYS_PANIC_MSG_MAX_LENGTH	50
+#define SYS_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+
+
 
 #endif /* SYSTEM_H_ */
 
@@ -128,6 +150,16 @@ typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
 typedef enum tFaultOrigin	 { FaultApp = 0, FaultSystem };
+typedef enum tMemRegionId	{ MemRegSystem = 0, MemRegApp, MemRegSystemStack, MemRegUserStack };
+
+/**
+* Memory regions
+*/
+typedef struct{
+	tMemRegionId	id;
+	uint8_t*		base;		/**< a pointer to the beginning of the region */
+	uint32_t		size;		/**< size in bytes */
+}tMemRegion;
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];
@@ -190,6 +222,48 @@ typedef struct{
 }CPUInfo;
 
 #endif
+
+
+
+#ifndef SCHEDULER_H_
+#define SCHEDULER_H_
+
+#define SCHEDULER_PROCESS_CREATE_FAILED		0
+#define SCHEDULER_PROCESS_CREATE_SUCCESS	1
+#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_MAX_NUM_OF_PROCESSES
+
+typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
+
+typedef struct{
+	const char* name;
+	uint32_t* sp;
+	tProcessState state;
+}tMiniProcess;
+
+typedef struct{
+	tMiniProcess list[SCHEDULER_MAX_NUM_PROCESSES];
+	uint32_t count;
+}tProcessList;
+
+#endif /* SCHEDULER_H_ */
+
+
+
+/**
+ * @file	stack.h
+ * @author
+ * @version
+ *
+ * @brief Header file for the stack.c
+ *
+ */
+
+#ifndef STACK_H_
+#define STACK_H_
+
+
+
+#endif /* STACK_H_ */
 
 
 

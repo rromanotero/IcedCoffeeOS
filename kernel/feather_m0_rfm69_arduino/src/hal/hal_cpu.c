@@ -25,6 +25,9 @@ void (*systick_callback)(void);
 //SVC-related defintions
 void (*svc_callback)(void);
 
+//PendSV-related definitions
+void (*pendsv_callback)(void);
+
 //Faults-related definitions
 void (*fault_app_callback)(void);
 void (*fault_system_callback)(void);
@@ -37,6 +40,53 @@ void (*fault_system_callback)(void);
 */
 void hal_cpu_init(void){
 	//For compatibility
+}
+
+/**
+*	Low Priority Software Interrupt Trigger
+*
+*	Triggers a PendsSV Exception
+*/
+void hal_cpu_lowpty_softint_trigger(void){
+	SCB->ICSR |= (1<<28);
+}
+
+/**
+*	Low Priority Software Interrupt Register Callback
+*
+*	Registers a callback function for the PendSV Exception
+*
+*	@param callback the function that gets called on PendSV exception
+*/
+void hal_cpu_lowpty_softint_register_callback( void(*callback)(void) ){
+	pendsv_callback = callback;
+}
+
+/**
+*	SystemTimer Stop
+*
+*	Stops the system timer
+*
+*/
+void hal_cpu_systimer_stop(void){
+	SysTick->VAL   = 0;								/* Load the SysTick Counter Value */
+	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	/* Disable SysTick IRQ and SysTick Timer */
+	SysTick_CTRL_TICKINT_Msk   |
+	(0UL << SysTick_CTRL_ENABLE_Pos);
+}
+
+/**
+*	SystemTimer reestart
+*
+*	Once started, this function can be used to re-estart the system timer
+*	with the same configuration.
+*
+*/
+void hal_cpu_systimer_reestart(void){
+	SysTick->VAL   = 0;								// Load the SysTick Counter Value
+	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	// Enable SysTick IRQ and SysTick Timer
+	SysTick_CTRL_TICKINT_Msk   |
+	SysTick_CTRL_ENABLE_Msk;
 }
 
 /**
@@ -95,60 +145,3 @@ void hal_cpu_svc_start( void(*callback)(void) ){
 void hal_cpu_delay(uint32_t delay_in_ms){
   delay(delay_in_ms);
 }
-
-/**
-*	CPU Sleep
-*
-*/
-void hal_cpu_sleep(void){
-  asm volatile( "wfi" );
-}
-
-////////////////////////////////////////////////////////////////////////////
-/////                      C Area                                     //////
-///////////////////////////////////////////////////////////////////////////
-
-extern "C" {
-//C++ code cannot override weak aliases defined in C
-
-int sysTickHook(void){
-  if( systick_callback ){ //We don't want Arduion to trigger this
-                            //before it's defined
-    if( ms_count++ >= ms_goal ){
-        (*systick_callback)();
-        ms_count = 0;
-    }
-  }
-  return 0; //Arduino expects a 0 when things go well
-}
-
-__attribute__((naked)) void HardFault_Handler(){
-	asm volatile("b faults_goto_right_callback");
-}
-
-__attribute__((naked)) void NMI_Handler(){
-	asm volatile("b faults_goto_right_callback");
-	//EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
-}
-
-__attribute__((naked)) void faults_goto_right_callback(){
-	// Bit 2 in EXC_RETURN (placed in the LR on exception entry) tells
-	// which stack to use on exception return 
-	register uint32_t exc_return;
-  __asm volatile ("mov %0, lr\n" : "=r" (exc_return) );
-
-	if ( exc_return & 0b0100 )
-		(*fault_app_callback)();
-	else
-	 	(*fault_system_callback)();
-}
-
-void svcHook(void){
-
-}
-
-void pendSVHook(void){
-
-}
-
-} //end extern C

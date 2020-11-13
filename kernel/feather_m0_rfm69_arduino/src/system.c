@@ -31,4 +31,5 @@ void system_init(void){
 	hal_radio_init();
 	hal_timer_init();
 	faults_init();
+	scheduler_init();
 }

@@ -27,10 +27,7 @@ void ARDUINO_MAIN() {
   hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
 
   while(true){
-    hal_io_pio_write(&led_pin, true);
-    hal_cpu_delay(1000);
-
-    hal_io_pio_write(&led_pin, false);
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     hal_cpu_delay(1000);
   }
 

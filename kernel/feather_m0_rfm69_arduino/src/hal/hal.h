@@ -67,6 +67,16 @@ typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
 typedef enum tFaultOrigin	 { FaultApp = 0, FaultSystem };
+typedef enum tMemRegionId	{ MemRegSystem = 0, MemRegApp, MemRegSystemStack, MemRegUserStack };
+
+/**
+* Memory regions
+*/
+typedef struct{
+	tMemRegionId	id;
+	uint8_t*		base;		/**< a pointer to the beginning of the region */
+	uint32_t		size;		/**< size in bytes */
+}tMemRegion;
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];
