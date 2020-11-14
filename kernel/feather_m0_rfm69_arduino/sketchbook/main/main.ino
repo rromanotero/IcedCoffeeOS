@@ -24,23 +24,58 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void my_thread(void){
+extern uint32_t tick_count_a;
+
+void task_handler2(void){
   while(true){
+    __disable_irq();
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    __enable_irq();
+
     hal_cpu_delay(1000);
   }
 }
 
-extern int tick_count;
+void task_handler1(void){
+  while(true){
+    __disable_irq();
+    Serial.println(tick_count_a);
+    __enable_irq();
+
+    //hal_io_serial_puts(&serial_usb, "hey\n");
+    hal_cpu_delay(1000);
+  }
+}
 
 void ARDUINO_MAIN() {
   system_init();
-  scheduler_thread_create( my_thread, "my thread", 512 );
+  //scheduler_thread_create( task_handler1, "task_handler1", 512 );
+
+  bool status;
+
+  /* Initialize task stacks: */
+	static uint32_t stack1[512];
+	static uint32_t stack2[512];
+	static uint32_t stack3[512];
+
+
+  /* Setup task parameters: */
+	uint32_t p1 = 200000;
+	uint32_t p2 = p1/2;
+	uint32_t p3 = p1/4;
+
+	os_init();
+
+	status = os_task_init(&task_handler1, stack1, sizeof(stack1));
+	status = os_task_init(&task_handler2, stack2, sizeof(stack2));
+
+	/* Context switch every second: */
+  Serial.println("Begin scheduler");
+	status = os_start(3);
+
 
   while(true){
-    Serial.println("This is main");
-    Serial.println(tick_count);
-    hal_cpu_delay(1000);
+
   }
 
   //Exit so we don't
@@ -91,7 +126,7 @@ void system_init(void){
 	delay(1000);
 
 
-	scheduler_init();
+	//scheduler_init();
 }
 
 
@@ -352,6 +387,26 @@ void hal_cpu_delay(uint32_t delay_in_ms){
 *
 **/
 
+/*  Used some code verbatim from here. So here's the License.
+*  - Rafael
+*
+ * This file is part of os.h.
+ *
+ * Copyright (C) 2016 Adam Heinrich <adam@adamh.cz>
+ *
+ * Os.h is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Os.h is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #define USER_MODE_EXEC_VALUE  0xFFFFFFFD
 
@@ -382,6 +437,8 @@ __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
 }
 
 
+
+
 /**
 *	void hal_cpu_save_context(void)
 *
@@ -393,15 +450,33 @@ __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
 *
 */
 __attribute__((naked)) void hal_cpu_save_context(void){
+
+  //I wasn't having too much luck porting these from COrtex-M4 to M0,
+  //because LDMIA in M0 only works with Lo registers. Firtunately
+  //found this:
+  //
+  //  https://github.com/adamheinrich/os.h/blob/blog_2016_07/src/os_pendsv_handler.s
+  //
+  // See code and explanation below
+
+  /* Save registers R4-R11 (32 bytes) onto current PSP (process stack
+	   pointer) and make the PSP point to the last stacked register (R8):
+	   - The MRS/MSR instruction is for loading/saving a special registers.
+	   - The STMIA inscruction can only save low registers (R0-R7), it is
+	     therefore necesary to copy registers R8-R11 into R4-R7 and call
+	     STMIA twice. */
   __asm volatile(
-    "mrs r0, psp        \n" \
-    "stmia r0!, {r4-r7} \n" \
-        //I don't know if it's a flag being passed to GCC
-        //by the Arduino CLI, but it only allows me to use LO registers
-        //(that's up to R7). As far as I know some ARM architectures
-        //tht use Thumb can actually only access LO registers, but
-        //I don't think Cortex-M0 is one of them. So I don't know.
-    "msr psp, r0        \n" \
+    "mrs	r0, psp      \n"  \
+  	"sub	r0, #16      \n"  \
+  	"stmia	r0!,{r4-r7}\n"  \
+  	"mov	r4, r8       \n"  \
+  	"mov	r5, r9       \n"  \
+  	"mov	r6, r10      \n"  \
+  	"mov	r7, r11      \n"  \
+  	"sub	r0, #32      \n"  \
+  	"stmia	r0!,{r4-r7}\n"  \
+  	"sub	r0, #16      \n"  \
+
     "bx lr"
       :::
     );
@@ -418,16 +493,28 @@ __attribute__((naked)) void hal_cpu_save_context(void){
 *
 */
 __attribute__((naked)) void hal_cpu_restore_context(void){
+
+  //I wasn't having too much luck porting these from COrtex-M4 to M0,
+  //because LDMIA in M0 only works with Lo registers. Firtunately
+  //found this:
+  //
+  //  https://github.com/adamheinrich/os.h/blob/blog_2016_07/src/os_pendsv_handler.s
+  //
+  // See code and explanation below
+
+  /* Load registers R4-R11 (32 bytes) from the new PSP and make the PSP
+       point to the end of the exception stack frame. The NVIC hardware
+       will restore remaining registers after returning from exception): */
   __asm volatile(
-    "mrs r0, psp        \n" \
-    "ldmfd r0!, {r4-r7} \n" \
-        //I don't know if it's a flag being passed to GCC
-        //by the Arduino CLI, but it only allows me to use LO registers
-        //(that's up to R7). As far as I know some ARM architectures
-        //tht use Thumb can actually only access LO registers, but
-        //I don't think Cortex-M0 is one of them. So I don't know.
-    "msr psp, r0        \n" \
-    "bx lr"
+    	"ldmia	r0!,{r4-r7} \n"  \
+    	"mov	r8, r4        \n"  \
+    	"mov	r9, r5        \n"  \
+    	"mov	r10, r6       \n"  \
+    	"mov	r11, r7       \n"  \
+    	"ldmia	r0!,{r4-r7} \n"  \
+    	"msr	psp, r0       \n" \
+
+      "bx lr"
       :::
     );
 }
@@ -442,6 +529,30 @@ __attribute__((naked)) void hal_cpu_restore_context(void){
 __attribute__((naked)) uint32_t hal_cpu_get_psp(void){
   __asm volatile(
     "mrs	r0, psp        \n" \
+    "bx lr"
+      :::
+    );
+}
+
+/**
+*	Enable Interrupts
+*
+*/
+__attribute__((naked)) void hal_cpu_enable_interrupts(void){
+  __asm volatile(
+    "cpsie	i\n" \
+    "bx lr"
+      :::
+    );
+}
+
+/**
+*	Disable Interrupts
+*
+*/
+__attribute__((naked)) void hal_cpu_disable_interrupts(void){
+  __asm volatile(
+    "cpsid	i        \n" \
     "bx lr"
       :::
     );
@@ -535,6 +646,7 @@ __attribute__((naked)) void hal_cpu_set_msp(uint32_t){
 //              Handler/Hooks overriding Area                     ///
 /////////////////////////////////////////////////////////////////////
 
+uint32_t tick_count_a = 0;
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -550,8 +662,62 @@ int sysTickHook(void){
   return 0; //Arduino expects a 0 when things go well
 }
 
-__attribute__((naked)) void PendSV_Handler(void){
-  	(*pendsv_callback)();
+
+void PendSV_Handler(void){
+  //	(*pendsv_callback)();
+  __asm volatile(
+    "cpsid	i        \n" \
+      :::
+    );
+
+  __asm volatile(
+    "mrs	r0, psp      \n"  \
+    "sub	r0, #16      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "mov	r4, r8       \n"  \
+    "mov	r5, r9       \n"  \
+    "mov	r6, r10      \n"  \
+    "mov	r7, r11      \n"  \
+    "sub	r0, #32      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "sub	r0, #16      \n"
+      :::
+    );
+
+    __asm volatile(
+      "ldr	r2, =os_curr_task  \n" \
+      "ldr	r1, [r2]           \n" \
+      "str	r0, [r1]           "
+        :::
+      );
+
+      __asm volatile(
+        "ldr	r2, =os_next_task  \n" \
+        "ldr	r1, [r2]           \n" \
+        "str	r0, [r1]           "
+          :::
+        );
+
+  tick_count_a++;
+
+  __asm volatile(
+      "ldmia	r0!,{r4-r7} \n"  \
+      "mov	r8, r4        \n"  \
+      "mov	r9, r5        \n"  \
+      "mov	r10, r6       \n"  \
+      "mov	r11, r7       \n"  \
+      "ldmia	r0!,{r4-r7} \n"  \
+      "msr	psp, r0       "
+      :::
+    );
+
+    __asm volatile(
+      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
+      "ldr r0, =0xFFFFFFFD\n" \
+      "cpsie i       \n"      \
+      "bx r0"
+        :::
+      );
 }
 
 __attribute__((naked)) void HardFault_Handler(){
@@ -1123,228 +1289,129 @@ void hal_timer_init(void){
 
 
 
-#define TICK_FREQ		    3
-#define CONTEXT_SIZE    16
-#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
-#define OFFSET_LR       13
-#define OFFSET_PC       14
-#define OFFSET_APSR     15
 
-__attribute__((naked)) static void tick_callback(void);
-__attribute__((naked)) static void low_pty_callback(void);
+typedef enum {
+	OS_TASK_STATUS_IDLE = 1,
+	OS_TASK_STATUS_ACTIVE
+} os_task_status_t;
 
-extern void process_thread_delete(void);
-extern void idle_process_thread(void);
+typedef struct {
+	/* The stack pointer (sp) has to be the first element as it is located
+	   at the same address as the structure itself (which makes it possible
+	   to locate it safely from assembly implementation of PendSV_Handler).
+	   The compiler might add padding between other structure elements. */
+	volatile uint32_t sp;
+	void (*handler)(void);
+	volatile os_task_status_t status;
+} os_task_t;
 
-static tProcessList proc_list;			// process list
-static tMiniProcess* wait_list[10];		//waiting list
-static tMiniProcess* active_proc;		//The active process
-static uint32_t proc_count = 0;
+static struct {
+	os_task_t tasks[OS_CONFIG_MAX_TASKS];
+	volatile uint32_t current_task;
+	uint32_t size;
+} m_task_table;
 
+volatile os_task_t *os_curr_task;
+volatile os_task_t *os_next_task;
 
-/*
-*	Scheduler Init
-*
-*   Initializes the scheduler. The system timer is not started here.
-*/
-void scheduler_init(void){
-  //A null process (used to mark the lack of an active process)
-  static tMiniProcess null_proc;
-  null_proc.name = "null";
-  null_proc.state = ProcessStateNull;
-
-	//Init process stack
-	static tMemRegion stack_memreg;
-	hal_memreg_read( MemRegUserStack, &stack_memreg );
-	stack_init( (uint32_t*)stack_memreg.base );	//stack_init( epstack )
-
-	//Inits Low Pty Int
-	hal_cpu_lowpty_softint_register_callback( low_pty_callback );
-
-	//Active process is the null process
-	active_proc = &null_proc;
-
-	//No processes
-	proc_count = 0;
-
-	//Create idle process/thread
-	//(we need one!)
-	scheduler_thread_create( idle_process_thread, "idle process thread", 256 );
+static void task_finished(void)
+{
+	/* This function is called when some task handler returns. */
+	volatile uint32_t i = 0;
+	while (1)
+		i++;
 }
+
+void os_init(void)
+{
+	memset(&m_task_table, 0, sizeof(m_task_table));
+}
+
+bool os_task_init(void (*handler)(void), os_stack_t *p_stack, uint32_t stack_size)
+{
+	if (m_task_table.size >= OS_CONFIG_MAX_TASKS-1)
+		return false;
+
+	/* Initialize the task structure and set SP to the top of the stack
+	   minus 16 words (64 bytes) to leave space for storing 16 registers: */
+	os_task_t *p_task = &m_task_table.tasks[m_task_table.size];
+	p_task->handler = handler;
+	p_task->sp = (uint32_t)(p_stack+stack_size-16);
+	p_task->status = OS_TASK_STATUS_IDLE;
+
+	/* Save special registers which will be restored on exc. return:
+	   - XPSR: Default value (0x01000000)
+	   - PC: Point to the handler function
+	   - LR: Point to a function to be called when the handler returns */
+	p_stack[stack_size-1] = 0x01000000;
+	p_stack[stack_size-2] = (uint32_t)handler;
+	p_stack[stack_size-3] = (uint32_t) &task_finished;
+
+#ifdef OS_CONFIG_DEBUG
+	uint32_t base = (m_task_table.size+1)*1000;
+	p_stack[stack_size-4] = base+12;  /* R12 */
+	p_stack[stack_size-5] = base+3;   /* R3  */
+	p_stack[stack_size-6] = base+2;   /* R2  */
+	p_stack[stack_size-7] = base+1;   /* R1  */
+	p_stack[stack_size-8] = base+0;   /* R0  */
+	p_stack[stack_size-9] = base+7;   /* R7  */
+	p_stack[stack_size-10] = base+6;  /* R6  */
+	p_stack[stack_size-11] = base+5;  /* R5  */
+	p_stack[stack_size-12] = base+4;  /* R4  */
+	p_stack[stack_size-13] = base+11; /* R11 */
+	p_stack[stack_size-14] = base+10; /* R10 */
+	p_stack[stack_size-15] = base+9;  /* R9  */
+	p_stack[stack_size-16] = base+8;  /* R8  */
+#endif
+
+	m_task_table.size++;
+
+	return true;
+}
+
+bool os_start(uint32_t systick_ticks)
+{
+	NVIC_SetPriority(PendSV_IRQn, 0xff); /* Lowest possible priority */
+	NVIC_SetPriority(SysTick_IRQn, 0x00); /* Highest possible priority */
+
+
+  hal_cpu_systimer_start(systick_ticks, tick_callback);
+
+	/* Start the first task: */
+	os_curr_task = &m_task_table.tasks[m_task_table.current_task];
+
+	__set_PSP(os_curr_task->sp+64); /* Set PSP to the top of task's stack */
+	__set_CONTROL(0x03); /* Switch to PSP, unprivilleged mode */
+	__ISB(); /* Exec. ISB after changing CONTORL (recommended) */
+
+	os_curr_task->handler();
+
+	return true;
+}
+
 
 /*
 *	The infamous tick callback
 *
 *	Context switch takes place here.
 */
-int tick_count = 0;
-__attribute__((naked)) static void tick_callback(void){
+static void tick_callback(void){
 
-	//save software context
-	//hal_cpu_save_context();
+  os_curr_task = &m_task_table.tasks[m_task_table.current_task];
+	os_curr_task->status = OS_TASK_STATUS_IDLE;
 
-  //Serial.println("......Tick......");
-  //Serial.println("Active Process");
-  //Serial.println(active_proc->name);
+  //tick_count++;
 
-  tick_count++;
+	/* Select next task: */
+	m_task_table.current_task++;
+	if (m_task_table.current_task >= m_task_table.size)
+		m_task_table.current_task = 0;
 
-	//Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	//if( active_proc->state != ProcessStateNull ){
-		//save SP
-	//	active_proc->sp = (uint32_t*)hal_cpu_get_msp();
-	//}
+	os_next_task = &m_task_table.tasks[m_task_table.current_task];
+	os_next_task->status = OS_TASK_STATUS_ACTIVE;
 
-	//get next active process
-	//active_proc = scheduling_policy_next( active_proc, &proc_list );
-
-  //Serial.println("NEW Active Process");
-  //Serial.println(active_proc->name);
-
-	//restore SP
-	//hal_cpu_set_msp( (uint32_t)(active_proc->sp) );
-
-	//restore software context
-	//hal_cpu_restore_context();
-
-	//give CPU to active process
-	//hal_cpu_return_exception_user_mode();
-}
-
-/*
-*	Low Priority Callback
-*	(This callback is interruptible by the system timer)
-*
-*	Context switch takes place here.
-*/
-__attribute__((naked)) static void low_pty_callback(void){
-
-	//save software context
-	hal_cpu_save_context();
-
-	//stop systick (else race conditions)
-	hal_cpu_systimer_stop();
-
-	//Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
-		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
-	}
-
-	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list );
-
-	//restore SP
-	hal_cpu_set_psp( (uint32_t)(active_proc->sp) );
-
-	//restart system timer (from 0)
-	hal_cpu_systimer_reestart();
-
-	//restore software context
-	hal_cpu_restore_context();
-
-	//give CPU to active process
-	hal_cpu_return_exception_user_mode();
-}
-
-/*
-*	Scheduler Process Create
-*
-*	Creates a process from a binary in nvmem. Ticking here begins!
-*/
-uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, uint32_t* loader_rval ){
-	tMemRegion proc_memregion;
-	uint32_t stack_sz;
-
-	//Load app binary
-	//uint32_t rval = loader_load_app( binary_file_name, &proc_memregion, &stack_sz );
-	//if(  rval != LOADER_LOAD_SUCCESS ){
-	//	*loader_rval = rval;				//populate loader error
-	//	return SCHEDULER_PROCESS_CREATE_FAILED;
-	//}
-
-	//Set process info
-	proc_list.list[proc_list.count].name = name;
-	proc_list.list[proc_list.count].state = ProcessStateReady;
-
-	//Allocate space for "fake" context
-	stack_alloc( CONTEXT_SIZE );
-
-	//Allocate space for remaining stack
-	proc_list.list[proc_list.count].sp = stack_top();       //set SP
-	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
-
-	//Insert "fake" context
-	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
-	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (proc_memregion.base +1));
-	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
-
-	//Increment counter in list
-	proc_list.count++;
-
-	//Start ticking on first process (idle thread is process/thread 1)
-	if( proc_list.count == 2 ){
-		hal_cpu_set_psp( (uint32_t)(proc_list.list[0].sp) );						//or else the first tick fails
-		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
-	}
-
-	return SCHEDULER_PROCESS_CREATE_SUCCESS;
-}
-
-/*
-*	Scheduler Thread Create
-*
-*	Creates a Thread
-*
-*   It's really a process, but processes are so simple, that there's
-*   no  difference between a process and a thread.
-*
-*/
-uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, uint32_t stack_sz ){
-
-  Serial.println("Creating Thread");
-  Serial.println(name);
-
-	//Set process info
-	proc_list.list[proc_list.count].name = name;
-	proc_list.list[proc_list.count].state = ProcessStateReady;
-
-	//Allocate space for "fake" context
-	stack_alloc( CONTEXT_SIZE );
-
-	//Allocate space for remaining stack
-	proc_list.list[proc_list.count].sp = stack_top();       //set SP
-	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
-
-	//Insert "fake" context
-	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
-	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (thread_code +1));
-	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
-
-	//Increment counter in list
-	proc_list.count++;
-
-  //Start ticking on first process (idle thread is process/thread 1)
-	if( proc_list.count == 2 ){
-    Serial.println("Process count is 2");
-    Serial.println("Setting PSP");
-		hal_cpu_set_psp( (uint32_t)(proc_list.list[0].sp) );						//or else the first tick fails
-    Serial.println("Setting System SysTimer");
-		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
-	}
-
-	return SCHEDULER_PROCESS_CREATE_SUCCESS;
-}
-
-void scheduler_process_current_stop(void){
-	//changes thread state to dead
-	//(so it's not scheduled anymore)
-	active_proc->state =  ProcessStateDead;
-
-	//context switches
-	hal_cpu_lowpty_softint_trigger();
+	/* Trigger PendSV which performs the actual context switch: */
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
 

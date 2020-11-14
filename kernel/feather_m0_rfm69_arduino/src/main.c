@@ -24,23 +24,58 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void my_thread(void){
+extern uint32_t tick_count_a;
+
+void task_handler2(void){
   while(true){
+    __disable_irq();
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    __enable_irq();
+
     hal_cpu_delay(1000);
   }
 }
 
-extern int tick_count;
+void task_handler1(void){
+  while(true){
+    __disable_irq();
+    Serial.println(tick_count_a);
+    __enable_irq();
+
+    //hal_io_serial_puts(&serial_usb, "hey\n");
+    hal_cpu_delay(1000);
+  }
+}
 
 void ARDUINO_MAIN() {
   system_init();
-  scheduler_thread_create( my_thread, "my thread", 512 );
+  //scheduler_thread_create( task_handler1, "task_handler1", 512 );
+
+  bool status;
+
+  /* Initialize task stacks: */
+	static uint32_t stack1[512];
+	static uint32_t stack2[512];
+	static uint32_t stack3[512];
+
+
+  /* Setup task parameters: */
+	uint32_t p1 = 200000;
+	uint32_t p2 = p1/2;
+	uint32_t p3 = p1/4;
+
+	os_init();
+
+	status = os_task_init(&task_handler1, stack1, sizeof(stack1));
+	status = os_task_init(&task_handler2, stack2, sizeof(stack2));
+
+	/* Context switch every second: */
+  Serial.println("Begin scheduler");
+	status = os_start(3);
+
 
   while(true){
-    Serial.println("This is main");
-    Serial.println(tick_count);
-    hal_cpu_delay(1000);
+
   }
 
   //Exit so we don't

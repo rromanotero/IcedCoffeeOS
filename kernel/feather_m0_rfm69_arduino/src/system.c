@@ -39,5 +39,5 @@ void system_init(void){
 	delay(1000);
 
 
-	scheduler_init();
+	//scheduler_init();
 }

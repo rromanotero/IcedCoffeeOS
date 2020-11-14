@@ -228,6 +228,12 @@ typedef struct{
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+
+//-------------------
+typedef uint32_t os_stack_t;
+#define OS_CONFIG_MAX_TASKS	10
+///-----------------
+
 #define SCHEDULER_PROCESS_CREATE_FAILED		0
 #define SCHEDULER_PROCESS_CREATE_SUCCESS	1
 #define SCHEDULER_MAX_NUM_PROCESSES			  SYS_MAX_NUM_OF_PROCESSES
