@@ -299,7 +299,10 @@ int sysTickHook(void){
 
 void PendSV_Handler(void){
   //	(*pendsv_callback)();
-
+  __asm volatile(
+    "cpsid	i        \n" \
+      :::
+    );
 
   __asm volatile(
     "mrs	r0, psp      \n"  \
@@ -319,14 +322,14 @@ void PendSV_Handler(void){
 	//(this'll skiip hal_cpu_get_psp() on the very first tick)
 	if( active_proc->state != ProcessStateNull ){
 		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+		active_proc->sp = (uint32_t*)hal_cpu_get_msp();
 	}
 
 	//get next active process
 	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
 
 	//restore SP
-	hal_cpu_set_psp( (uint32_t)active_proc->sp );
+	hal_cpu_set_msp( (uint32_t)active_proc->sp );
 
   tick_count_a++;
 
@@ -344,6 +347,7 @@ void PendSV_Handler(void){
     __asm volatile(
       //0xFFFFFFFD is USER_MODE_EXEC_VALUE
       "ldr r0, =0xFFFFFFFD\n" \
+      "cpsie i       \n"      \
       "bx r0"
         :::
       );

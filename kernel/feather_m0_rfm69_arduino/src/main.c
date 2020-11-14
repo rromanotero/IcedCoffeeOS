@@ -29,7 +29,7 @@ extern uint32_t tick_count_a;
 void task_handler2(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_cpu_delay(1000);
+    for(int i=0; i<24000; i++);
   }
 }
 
@@ -39,7 +39,7 @@ void task_handler1(void){
     Serial.println(tick_count_a);
 
     //hal_io_serial_puts(&serial_usb, "hey\n");
-    hal_cpu_delay(1000);
+    for(int i=0; i<24000; i++);
   }
 }
 

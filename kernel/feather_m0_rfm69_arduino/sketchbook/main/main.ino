@@ -29,7 +29,7 @@ extern uint32_t tick_count_a;
 void task_handler2(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_cpu_delay(1000);
+    for(int i=0; i<24000; i++);
   }
 }
 
@@ -39,7 +39,7 @@ void task_handler1(void){
     Serial.println(tick_count_a);
 
     //hal_io_serial_puts(&serial_usb, "hey\n");
-    hal_cpu_delay(1000);
+    for(int i=0; i<24000; i++);
   }
 }
 
@@ -665,7 +665,10 @@ int sysTickHook(void){
 
 void PendSV_Handler(void){
   //	(*pendsv_callback)();
-
+  __asm volatile(
+    "cpsid	i        \n" \
+      :::
+    );
 
   __asm volatile(
     "mrs	r0, psp      \n"  \
@@ -685,14 +688,14 @@ void PendSV_Handler(void){
 	//(this'll skiip hal_cpu_get_psp() on the very first tick)
 	if( active_proc->state != ProcessStateNull ){
 		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+		active_proc->sp = (uint32_t*)hal_cpu_get_msp();
 	}
 
 	//get next active process
 	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
 
 	//restore SP
-	hal_cpu_set_psp( (uint32_t)active_proc->sp );
+	hal_cpu_set_msp( (uint32_t)active_proc->sp );
 
   tick_count_a++;
 
@@ -710,6 +713,7 @@ void PendSV_Handler(void){
     __asm volatile(
       //0xFFFFFFFD is USER_MODE_EXEC_VALUE
       "ldr r0, =0xFFFFFFFD\n" \
+      "cpsie i       \n"      \
       "bx r0"
         :::
       );
@@ -1539,8 +1543,8 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
   //Start ticking on first process (idle thread is process/thread 1)
   if( proc_list.count == 2 ){
-  	 hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  	  hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+  	  hal_cpu_systimer_start( TICK_FREQ*1000, tick_callback );
   }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
@@ -1566,6 +1570,7 @@ void idle_process_thread(){
 }
 
 void process_thread_delete(){
+  while(1);
 /*	Deletes the current process/thread. this function will be
  accessed in user mode when a thread "returns" hence the syscall  */
   // svc 29 /* thread_stop system call see syscalls.c */

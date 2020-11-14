@@ -254,8 +254,8 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
   //Start ticking on first process (idle thread is process/thread 1)
   if( proc_list.count == 2 ){
-  	 hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  	  hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+  	  hal_cpu_systimer_start( TICK_FREQ*1000, tick_callback );
   }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
