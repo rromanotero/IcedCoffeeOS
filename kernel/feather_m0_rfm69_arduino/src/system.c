@@ -31,5 +31,13 @@ void system_init(void){
 	hal_radio_init();
 	hal_timer_init();
 	faults_init();
+
+
+	while(!Serial);
+
+	Serial.println("Here we go..");
+	delay(1000);
+
+
 	scheduler_init();
 }

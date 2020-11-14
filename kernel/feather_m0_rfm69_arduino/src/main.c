@@ -24,18 +24,24 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-/*void my_thread(void){
+void my_thread(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     hal_cpu_delay(1000);
   }
-}*/
+}
+
+extern int tick_count;
 
 void ARDUINO_MAIN() {
   system_init();
-  //scheduler_thread_create( my_thread, "my thread", 512 );
+  scheduler_thread_create( my_thread, "my thread", 512 );
 
-  while(true);
+  while(true){
+    Serial.println("This is main");
+    Serial.println(tick_count);
+    hal_cpu_delay(1000);
+  }
 
   //Exit so we don't
   //loop over and over

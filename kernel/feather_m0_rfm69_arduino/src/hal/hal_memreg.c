@@ -62,7 +62,8 @@ void hal_memreg_read( tMemRegionId memid, tMemRegion* memreg ){
 			memreg->base = (uint8_t*)&__StackTop;				//base = stack's end address
                       //THIS IS WHERE ARDUINO SETS THE STACK ACTUALLY....
                       //LATER THIS NEEDS TO BE CHANGED TO SOMEWHER ELSE.
-			memreg->size =  4098; //FIXED FOR NOWW....  // &__stack_size__;
+			memreg->size =  4096; //FIXED FOR NOWW, since we have no way to set &__stack_size__;
+													  //in the linker script... JUST MAKE SURE IT'S 8-BYTE ALIGNED
 			break;
 		case MemRegUserStack:
 			memreg->base = (uint8_t*)MEM_REGION_STACK_BASEPTR;				//base = stack's end address

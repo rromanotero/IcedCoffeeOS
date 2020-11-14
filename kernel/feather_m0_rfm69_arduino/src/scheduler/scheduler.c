@@ -52,29 +52,39 @@ void scheduler_init(void){
 *
 *	Context switch takes place here.
 */
+int tick_count = 0;
 __attribute__((naked)) static void tick_callback(void){
 
 	//save software context
-	hal_cpu_save_context();
+	//hal_cpu_save_context();
+
+  //Serial.println("......Tick......");
+  //Serial.println("Active Process");
+  //Serial.println(active_proc->name);
+
+  tick_count++;
 
 	//Not the null process?
 	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
+	//if( active_proc->state != ProcessStateNull ){
 		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
-	}
+	//	active_proc->sp = (uint32_t*)hal_cpu_get_msp();
+	//}
 
 	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list );
+	//active_proc = scheduling_policy_next( active_proc, &proc_list );
+
+  //Serial.println("NEW Active Process");
+  //Serial.println(active_proc->name);
 
 	//restore SP
-	hal_cpu_set_psp( (uint32_t)(active_proc->sp) );
+	//hal_cpu_set_msp( (uint32_t)(active_proc->sp) );
 
 	//restore software context
-	hal_cpu_restore_context();
+	//hal_cpu_restore_context();
 
 	//give CPU to active process
-	hal_cpu_return_exception_user_mode();
+	//hal_cpu_return_exception_user_mode();
 }
 
 /*
@@ -169,6 +179,9 @@ uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, 
 */
 uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, uint32_t stack_sz ){
 
+  Serial.println("Creating Thread");
+  Serial.println(name);
+
 	//Set process info
 	proc_list.list[proc_list.count].name = name;
 	proc_list.list[proc_list.count].state = ProcessStateReady;
@@ -187,6 +200,15 @@ uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, u
 
 	//Increment counter in list
 	proc_list.count++;
+
+  //Start ticking on first process (idle thread is process/thread 1)
+	if( proc_list.count == 2 ){
+    Serial.println("Process count is 2");
+    Serial.println("Setting PSP");
+		hal_cpu_set_psp( (uint32_t)(proc_list.list[0].sp) );						//or else the first tick fails
+    Serial.println("Setting System SysTimer");
+		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+	}
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }

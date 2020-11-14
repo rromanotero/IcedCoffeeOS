@@ -31,11 +31,17 @@ void my_thread(void){
   }
 }
 
+extern int tick_count;
+
 void ARDUINO_MAIN() {
   system_init();
   scheduler_thread_create( my_thread, "my thread", 512 );
 
-  while(true);
+  while(true){
+    Serial.println("This is main");
+    Serial.println(tick_count);
+    hal_cpu_delay(1000);
+  }
 
   //Exit so we don't
   //loop over and over
@@ -77,6 +83,14 @@ void system_init(void){
 	hal_radio_init();
 	hal_timer_init();
 	faults_init();
+
+
+	while(!Serial);
+
+	Serial.println("Here we go..");
+	delay(1000);
+
+
 	scheduler_init();
 }
 
@@ -339,7 +353,7 @@ void hal_cpu_delay(uint32_t delay_in_ms){
 **/
 
 
-#define USER_MODE_EXEC_VALUE, 0xFFFFFFFD
+#define USER_MODE_EXEC_VALUE  0xFFFFFFFD
 
 /**
 *
@@ -359,8 +373,12 @@ __attribute__((naked)) void hal_cpu_sleep(void){
 *	of 0xFFFFFFFD i.e. specifyin user mode and PSP as active SP
 */
 __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
-  //TO DO FIX IT
-	//asm volatile("ldr pc, =USER_MODE_EXEC_VALUE");
+	__asm volatile(
+    "mov pc, %[user_mode_exec_value]\n"
+      :
+      : [user_mode_exec_value] "l" (USER_MODE_EXEC_VALUE)
+      :
+    );
 }
 
 
@@ -375,8 +393,18 @@ __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
 *
 */
 __attribute__((naked)) void hal_cpu_save_context(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r0, psp\nstmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+  __asm volatile(
+    "mrs r0, psp        \n" \
+    "stmia r0!, {r4-r7} \n" \
+        //I don't know if it's a flag being passed to GCC
+        //by the Arduino CLI, but it only allows me to use LO registers
+        //(that's up to R7). As far as I know some ARM architectures
+        //tht use Thumb can actually only access LO registers, but
+        //I don't think Cortex-M0 is one of them. So I don't know.
+    "msr psp, r0        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -390,8 +418,18 @@ __attribute__((naked)) void hal_cpu_save_context(void){
 *
 */
 __attribute__((naked)) void hal_cpu_restore_context(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r0, psp\nldmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+  __asm volatile(
+    "mrs r0, psp        \n" \
+    "ldmfd r0!, {r4-r7} \n" \
+        //I don't know if it's a flag being passed to GCC
+        //by the Arduino CLI, but it only allows me to use LO registers
+        //(that's up to R7). As far as I know some ARM architectures
+        //tht use Thumb can actually only access LO registers, but
+        //I don't think Cortex-M0 is one of them. So I don't know.
+    "msr psp, r0        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -402,8 +440,26 @@ __attribute__((naked)) void hal_cpu_restore_context(void){
 *	Returns the process stack pointer
 */
 __attribute__((naked)) uint32_t hal_cpu_get_psp(void){
-  //TO DO FIX IT
-	//asm volatile("mrs	r0, psp\nbx lr");
+  __asm volatile(
+    "mrs	r0, psp        \n" \
+    "bx lr"
+      :::
+    );
+}
+
+/**
+*	uint32_t hal_cpu_get_msp(void)
+*
+*	Gets the MSP
+*
+*	Returns the process stack pointer
+*/
+__attribute__((naked)) uint32_t hal_cpu_get_msp(void){
+  __asm volatile(
+    "mrs	r0, msp        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -414,8 +470,15 @@ __attribute__((naked)) uint32_t hal_cpu_get_psp(void){
 *	Set the CPU as unprivileged (when in thread mode)s
 */
 __attribute__((naked)) void hal_cpu_set_unprivileged(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r3, control\norr	r3, r3, #1\nmsr control, r3\nisb\nbx lr");
+  __asm volatile(
+    "mrs r3, control    \n" \
+    "mov r2, #1         \n" \
+    "orr	r3, r3, r2    \n" \
+    "msr control, r3    \n" \
+    "isb                \n" \
+    "bx lr"
+      :::
+    );
 }
 
 
@@ -427,8 +490,15 @@ __attribute__((naked)) void hal_cpu_set_unprivileged(void){
 *	Sets the Process Stack Pointer as active (when in thread mode)
 */
 __attribute__((naked)) void hal_cpu_set_psp_active(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r3, control\norr	r3, r3, #2\nmsr control, r3\nisb\nbx lr");
+  __asm volatile(
+    "mrs r3, control    \n" \
+    "mov r2, #2         \n" \
+    "orr	r3, r3, r2    \n" \
+    "msr control, r3    \n" \
+    "isb                \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -439,10 +509,26 @@ __attribute__((naked)) void hal_cpu_set_psp_active(void){
 *	Sets the Process Stack Pointer value
 */
 __attribute__((naked)) void hal_cpu_set_psp(uint32_t){
-  //TO DO FIX IT
-	//asm volatile("msr psp, r0\nbx lr");
+  __asm volatile(
+    "msr psp, r0  \n" \
+    "bx lr"
+      :::
+    );
 }
 
+/**
+*	void hal_cpu_set_msp(uint32_t)
+*
+*	Sets the MSP
+*
+*/
+__attribute__((naked)) void hal_cpu_set_msp(uint32_t){
+  __asm volatile(
+    "msr msp, r0  \n" \
+    "bx lr"
+      :::
+    );
+}
 
 
 /////////////////////////////////////////////////////////////////////
@@ -892,7 +978,8 @@ void hal_memreg_read( tMemRegionId memid, tMemRegion* memreg ){
 			memreg->base = (uint8_t*)&__StackTop;				//base = stack's end address
                       //THIS IS WHERE ARDUINO SETS THE STACK ACTUALLY....
                       //LATER THIS NEEDS TO BE CHANGED TO SOMEWHER ELSE.
-			memreg->size =  4098; //FIXED FOR NOWW....  // &__stack_size__;
+			memreg->size =  4096; //FIXED FOR NOWW, since we have no way to set &__stack_size__;
+													  //in the linker script... JUST MAKE SURE IT'S 8-BYTE ALIGNED
 			break;
 		case MemRegUserStack:
 			memreg->base = (uint8_t*)MEM_REGION_STACK_BASEPTR;				//base = stack's end address
@@ -1090,29 +1177,39 @@ void scheduler_init(void){
 *
 *	Context switch takes place here.
 */
+int tick_count = 0;
 __attribute__((naked)) static void tick_callback(void){
 
 	//save software context
-	hal_cpu_save_context();
+	//hal_cpu_save_context();
+
+  //Serial.println("......Tick......");
+  //Serial.println("Active Process");
+  //Serial.println(active_proc->name);
+
+  tick_count++;
 
 	//Not the null process?
 	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
+	//if( active_proc->state != ProcessStateNull ){
 		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
-	}
+	//	active_proc->sp = (uint32_t*)hal_cpu_get_msp();
+	//}
 
 	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list );
+	//active_proc = scheduling_policy_next( active_proc, &proc_list );
+
+  //Serial.println("NEW Active Process");
+  //Serial.println(active_proc->name);
 
 	//restore SP
-	hal_cpu_set_psp( (uint32_t)(active_proc->sp) );
+	//hal_cpu_set_msp( (uint32_t)(active_proc->sp) );
 
 	//restore software context
-	hal_cpu_restore_context();
+	//hal_cpu_restore_context();
 
 	//give CPU to active process
-	hal_cpu_return_exception_user_mode();
+	//hal_cpu_return_exception_user_mode();
 }
 
 /*
@@ -1207,6 +1304,9 @@ uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, 
 */
 uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, uint32_t stack_sz ){
 
+  Serial.println("Creating Thread");
+  Serial.println(name);
+
 	//Set process info
 	proc_list.list[proc_list.count].name = name;
 	proc_list.list[proc_list.count].state = ProcessStateReady;
@@ -1225,6 +1325,15 @@ uint32_t scheduler_thread_create( void(*thread_code)(void) , const char* name, u
 
 	//Increment counter in list
 	proc_list.count++;
+
+  //Start ticking on first process (idle thread is process/thread 1)
+	if( proc_list.count == 2 ){
+    Serial.println("Process count is 2");
+    Serial.println("Setting PSP");
+		hal_cpu_set_psp( (uint32_t)(proc_list.list[0].sp) );						//or else the first tick fails
+    Serial.println("Setting System SysTimer");
+		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+	}
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }

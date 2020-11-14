@@ -20,7 +20,7 @@
 **/
 
 
-#define USER_MODE_EXEC_VALUE, 0xFFFFFFFD
+#define USER_MODE_EXEC_VALUE  0xFFFFFFFD
 
 /**
 *
@@ -40,8 +40,12 @@ __attribute__((naked)) void hal_cpu_sleep(void){
 *	of 0xFFFFFFFD i.e. specifyin user mode and PSP as active SP
 */
 __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
-  //TO DO FIX IT
-	//asm volatile("ldr pc, =USER_MODE_EXEC_VALUE");
+	__asm volatile(
+    "mov pc, %[user_mode_exec_value]\n"
+      :
+      : [user_mode_exec_value] "l" (USER_MODE_EXEC_VALUE)
+      :
+    );
 }
 
 
@@ -56,8 +60,18 @@ __attribute__((naked)) void hal_cpu_return_exception_user_mode(){
 *
 */
 __attribute__((naked)) void hal_cpu_save_context(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r0, psp\nstmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+  __asm volatile(
+    "mrs r0, psp        \n" \
+    "stmia r0!, {r4-r7} \n" \
+        //I don't know if it's a flag being passed to GCC
+        //by the Arduino CLI, but it only allows me to use LO registers
+        //(that's up to R7). As far as I know some ARM architectures
+        //tht use Thumb can actually only access LO registers, but
+        //I don't think Cortex-M0 is one of them. So I don't know.
+    "msr psp, r0        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -71,8 +85,18 @@ __attribute__((naked)) void hal_cpu_save_context(void){
 *
 */
 __attribute__((naked)) void hal_cpu_restore_context(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r0, psp\nldmfd r0!, {r4-r11}\nmsr psp, r0\nbx lr");
+  __asm volatile(
+    "mrs r0, psp        \n" \
+    "ldmfd r0!, {r4-r7} \n" \
+        //I don't know if it's a flag being passed to GCC
+        //by the Arduino CLI, but it only allows me to use LO registers
+        //(that's up to R7). As far as I know some ARM architectures
+        //tht use Thumb can actually only access LO registers, but
+        //I don't think Cortex-M0 is one of them. So I don't know.
+    "msr psp, r0        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -83,8 +107,26 @@ __attribute__((naked)) void hal_cpu_restore_context(void){
 *	Returns the process stack pointer
 */
 __attribute__((naked)) uint32_t hal_cpu_get_psp(void){
-  //TO DO FIX IT
-	//asm volatile("mrs	r0, psp\nbx lr");
+  __asm volatile(
+    "mrs	r0, psp        \n" \
+    "bx lr"
+      :::
+    );
+}
+
+/**
+*	uint32_t hal_cpu_get_msp(void)
+*
+*	Gets the MSP
+*
+*	Returns the process stack pointer
+*/
+__attribute__((naked)) uint32_t hal_cpu_get_msp(void){
+  __asm volatile(
+    "mrs	r0, msp        \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -95,8 +137,15 @@ __attribute__((naked)) uint32_t hal_cpu_get_psp(void){
 *	Set the CPU as unprivileged (when in thread mode)s
 */
 __attribute__((naked)) void hal_cpu_set_unprivileged(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r3, control\norr	r3, r3, #1\nmsr control, r3\nisb\nbx lr");
+  __asm volatile(
+    "mrs r3, control    \n" \
+    "mov r2, #1         \n" \
+    "orr	r3, r3, r2    \n" \
+    "msr control, r3    \n" \
+    "isb                \n" \
+    "bx lr"
+      :::
+    );
 }
 
 
@@ -108,8 +157,15 @@ __attribute__((naked)) void hal_cpu_set_unprivileged(void){
 *	Sets the Process Stack Pointer as active (when in thread mode)
 */
 __attribute__((naked)) void hal_cpu_set_psp_active(void){
-  //TO DO FIX IT
-	//asm volatile("mrs r3, control\norr	r3, r3, #2\nmsr control, r3\nisb\nbx lr");
+  __asm volatile(
+    "mrs r3, control    \n" \
+    "mov r2, #2         \n" \
+    "orr	r3, r3, r2    \n" \
+    "msr control, r3    \n" \
+    "isb                \n" \
+    "bx lr"
+      :::
+    );
 }
 
 /**
@@ -120,10 +176,26 @@ __attribute__((naked)) void hal_cpu_set_psp_active(void){
 *	Sets the Process Stack Pointer value
 */
 __attribute__((naked)) void hal_cpu_set_psp(uint32_t){
-  //TO DO FIX IT
-	//asm volatile("msr psp, r0\nbx lr");
+  __asm volatile(
+    "msr psp, r0  \n" \
+    "bx lr"
+      :::
+    );
 }
 
+/**
+*	void hal_cpu_set_msp(uint32_t)
+*
+*	Sets the MSP
+*
+*/
+__attribute__((naked)) void hal_cpu_set_msp(uint32_t){
+  __asm volatile(
+    "msr msp, r0  \n" \
+    "bx lr"
+      :::
+    );
+}
 
 
 /////////////////////////////////////////////////////////////////////
