@@ -73,6 +73,10 @@ void ARDUINO_MAIN() {
   Serial.println("Begin scheduler");
 	status = os_start(3);
 
+  //scheduler_thread_create( my_thread, "my thread", 512 );
+
+  //hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+  //hal_cpu_systimer_start( TICK_FREQ, tick_callback );
 
   while(true){
 
