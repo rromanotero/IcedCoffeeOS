@@ -28,19 +28,15 @@ extern uint32_t tick_count_a;
 
 void task_handler2(void){
   while(true){
-    __disable_irq();
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    __enable_irq();
-
     hal_cpu_delay(1000);
   }
 }
 
 void task_handler1(void){
   while(true){
-    __disable_irq();
+    Serial.println("Hey");
     Serial.println(tick_count_a);
-    __enable_irq();
 
     //hal_io_serial_puts(&serial_usb, "hey\n");
     hal_cpu_delay(1000);
@@ -66,17 +62,15 @@ void ARDUINO_MAIN() {
 
 	os_init();
 
-	status = os_task_init(&task_handler1, stack1, sizeof(stack1));
-	status = os_task_init(&task_handler2, stack2, sizeof(stack2));
+	//status = os_task_init(&task_handler1, stack1, sizeof(stack1));
+	//status = os_task_init(&task_handler2, stack2, sizeof(stack2));
 
 	/* Context switch every second: */
-  Serial.println("Begin scheduler");
-	status = os_start(3);
+  //Serial.println("Begin scheduler");
+	//status = os_start(3);
 
-  //scheduler_thread_create( my_thread, "my thread", 512 );
-
-  //hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  //hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  scheduler_thread_create( task_handler1, "task_handler1a", 1024 );
+  scheduler_thread_create( task_handler1, "task_handler1b", 1024 );
 
   while(true){
 

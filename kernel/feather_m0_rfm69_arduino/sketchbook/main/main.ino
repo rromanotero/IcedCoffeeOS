@@ -28,19 +28,15 @@ extern uint32_t tick_count_a;
 
 void task_handler2(void){
   while(true){
-    __disable_irq();
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    __enable_irq();
-
     hal_cpu_delay(1000);
   }
 }
 
 void task_handler1(void){
   while(true){
-    __disable_irq();
+    Serial.println("Hey");
     Serial.println(tick_count_a);
-    __enable_irq();
 
     //hal_io_serial_puts(&serial_usb, "hey\n");
     hal_cpu_delay(1000);
@@ -66,17 +62,15 @@ void ARDUINO_MAIN() {
 
 	os_init();
 
-	status = os_task_init(&task_handler1, stack1, sizeof(stack1));
-	status = os_task_init(&task_handler2, stack2, sizeof(stack2));
+	//status = os_task_init(&task_handler1, stack1, sizeof(stack1));
+	//status = os_task_init(&task_handler2, stack2, sizeof(stack2));
 
 	/* Context switch every second: */
-  Serial.println("Begin scheduler");
-	status = os_start(3);
+  //Serial.println("Begin scheduler");
+	//status = os_start(3);
 
-  //scheduler_thread_create( my_thread, "my thread", 512 );
-
-  //hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  //hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  scheduler_thread_create( task_handler1, "task_handler1a", 1024 );
+  scheduler_thread_create( task_handler1, "task_handler1b", 1024 );
 
   while(true){
 
@@ -651,6 +645,8 @@ __attribute__((naked)) void hal_cpu_set_msp(uint32_t){
 /////////////////////////////////////////////////////////////////////
 
 uint32_t tick_count_a = 0;
+extern tMiniProcess* active_proc;		//The active process
+extern tProcessList proc_list;			// process list
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -669,10 +665,7 @@ int sysTickHook(void){
 
 void PendSV_Handler(void){
   //	(*pendsv_callback)();
-  __asm volatile(
-    "cpsid	i        \n" \
-      :::
-    );
+
 
   __asm volatile(
     "mrs	r0, psp      \n"  \
@@ -688,19 +681,18 @@ void PendSV_Handler(void){
       :::
     );
 
-    __asm volatile(
-      "ldr	r2, =os_curr_task  \n" \
-      "ldr	r1, [r2]           \n" \
-      "str	r0, [r1]           "
-        :::
-      );
+    //Not the null process?
+	//(this'll skiip hal_cpu_get_psp() on the very first tick)
+	if( active_proc->state != ProcessStateNull ){
+		//save SP
+		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+	}
 
-      __asm volatile(
-        "ldr	r2, =os_next_task  \n" \
-        "ldr	r1, [r2]           \n" \
-        "str	r0, [r1]           "
-          :::
-        );
+	//get next active process
+	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
+
+	//restore SP
+	hal_cpu_set_psp( (uint32_t)active_proc->sp );
 
   tick_count_a++;
 
@@ -718,7 +710,6 @@ void PendSV_Handler(void){
     __asm volatile(
       //0xFFFFFFFD is USER_MODE_EXEC_VALUE
       "ldr r0, =0xFFFFFFFD\n" \
-      "cpsie i       \n"      \
       "bx r0"
         :::
       );
@@ -1436,10 +1427,10 @@ static void tick_callback(void){
 extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
-static tProcessList proc_list;			// process list
-static tMiniProcess* wait_list[10];		//waiting list
-static tMiniProcess* active_proc;		//The active process
-static uint32_t proc_count = 0;
+tProcessList proc_list;			// process list
+tMiniProcess* wait_list[10];		//waiting list
+tMiniProcess* active_proc;		//The active process
+uint32_t proc_count = 0;
 
 /*
 *	Scheduler Init
@@ -1460,7 +1451,7 @@ void scheduler_init(void){
   static tMiniProcess null_proc;
   null_proc.name = "null",
   null_proc.state = ProcessStateNull;
-  
+
 	active_proc = &null_proc;
 
 	//No processes
@@ -1545,6 +1536,12 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
 	//Increment counter in list
 	proc_list.count++;
+
+  //Start ticking on first process (idle thread is process/thread 1)
+  if( proc_list.count == 2 ){
+  	 hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+  	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }

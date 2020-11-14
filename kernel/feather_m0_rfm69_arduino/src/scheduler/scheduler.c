@@ -142,10 +142,10 @@ static void tick_callback(void){
 extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
-static tProcessList proc_list;			// process list
-static tMiniProcess* wait_list[10];		//waiting list
-static tMiniProcess* active_proc;		//The active process
-static uint32_t proc_count = 0;
+tProcessList proc_list;			// process list
+tMiniProcess* wait_list[10];		//waiting list
+tMiniProcess* active_proc;		//The active process
+uint32_t proc_count = 0;
 
 /*
 *	Scheduler Init
@@ -166,7 +166,7 @@ void scheduler_init(void){
   static tMiniProcess null_proc;
   null_proc.name = "null",
   null_proc.state = ProcessStateNull;
-  
+
 	active_proc = &null_proc;
 
 	//No processes
@@ -251,6 +251,12 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
 	//Increment counter in list
 	proc_list.count++;
+
+  //Start ticking on first process (idle thread is process/thread 1)
+  if( proc_list.count == 2 ){
+  	 hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+  	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+  }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }
