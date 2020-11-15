@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -41,7 +44,7 @@ void faults_init(void){
 */
 void faults_app_entry_point(void){
   //Terminate offending app
-  while(1); //we don't have appas yet
+  while(1); //we don't have apps yet
 }
 
 /*

@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -30,8 +33,6 @@
 
 #define ARDUINO_KERNEL_MAIN  loop
 void setup() {} /* Don't need it*/
-
-
 
 #define HAL_SUCCESS  									1
 #define HAL_IO_TYPE_NOT_FOUND						101

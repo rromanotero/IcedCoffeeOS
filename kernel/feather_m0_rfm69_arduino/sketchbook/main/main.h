@@ -225,14 +225,30 @@ typedef struct{
 
 
 
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-
-//-------------------
-typedef uint32_t os_stack_t;
-#define OS_CONFIG_MAX_TASKS	10
-///-----------------
 
 #define SCHEDULER_PROCESS_CREATE_FAILED		0
 #define SCHEDULER_PROCESS_CREATE_SUCCESS	1

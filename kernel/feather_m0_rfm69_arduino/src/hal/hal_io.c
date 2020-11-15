@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -201,8 +204,8 @@ uint32_t hal_io_serial_create_port( tSerialPort* serial_port, tSerialId id, tIoT
 */
 bool hal_io_serial_is_ready( tSerialPort* serial_port ){
   switch( serial_port->id ){
-    case SerialA: return serial_port->internal_driver_a;
-    case SerialB: return serial_port->internal_driver_b;
+    case SerialA: return *(serial_port->internal_driver_a);
+    case SerialB: return *(serial_port->internal_driver_b);
     default:
       //Can't happen since it was us who init  serial_port->id
       break;

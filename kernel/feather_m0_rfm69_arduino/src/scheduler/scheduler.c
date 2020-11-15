@@ -1,6 +1,50 @@
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
+/*  There's now way I was getting that PendSV Handler code right
+ *  by myself. So here's the License.
+ *    - Rafael
+ *
+ * This file is part of os.h.
+ *
+ * Copyright (C) 2016 Adam Heinrich <adam@adamh.cz>
+ *
+ * Os.h is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Os.h is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#define TICK_FREQ				5
+#define TICK_FREQ				SYS_SCHED_CONTEXT_SWITCH_FREQ
 #define CONTEXT_SIZE    16
 #define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
 #define OFFSET_LR       13
@@ -10,10 +54,93 @@
 extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
-tProcessList proc_list;			// process list
-tMiniProcess* wait_list[10];		//waiting list
+tProcessList proc_list;				// process list
+tMiniProcess* wait_list[10];	//waiting list
 tMiniProcess* active_proc;		//The active process
 uint32_t proc_count = 0;
+
+/*
+*	The tick callback
+*
+*/
+void tick_callback(void){
+
+	//Context switch happens in the low pty interrupt
+	//
+	//This is to prevent the issue of a tick interrupting
+	//an interrupt handler and then giving it back
+	//to a thread (instead of the handler that had it).
+	hal_cpu_lowpty_softint_trigger();
+}
+
+/*
+*	Low Pty interrupt callback
+*
+*  Context switch takes place here.
+*/
+__attribute__((naked)) void low_pty_callback(void){
+	// This is adapted from both MiniOS's and Heinrich's os.h
+	// Cortex M0 context switcher.
+	//
+	// https://github.com/adamheinrich/os.h/blob/master/src/os.c
+
+	__asm volatile(
+    "cpsid	i        \n" \
+      :::
+    );
+
+	//save software context
+  __asm volatile(
+    "mrs	r0, psp      \n"  \
+    "sub	r0, #16      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "mov	r4, r8       \n"  \
+    "mov	r5, r9       \n"  \
+    "mov	r6, r10      \n"  \
+    "mov	r7, r11      \n"  \
+    "sub	r0, #32      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "sub	r0, #16      \n" \
+		"msr psp, r0"			//<<--- Needed so SP points to the top of the stack
+      :::							// New SP (FIgure 12.2 MiniOS Book)
+    );
+
+  //Not the null process?
+	//(this'll skiip hal_cpu_get_psp() on the very first tick)
+	if( active_proc->state != ProcessStateNull ){
+		//save SP
+		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+	}
+
+	//get next active process
+	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
+
+	//restore SP
+	hal_cpu_set_psp( (uint32_t)active_proc->sp );
+
+	//restore software context
+  __asm volatile(
+      "ldmia	r0!,{r4-r7} \n"  \
+      "mov	r8, r4        \n"  \
+      "mov	r9, r5        \n"  \
+      "mov	r10, r6       \n"  \
+      "mov	r11, r7       \n"  \
+      "ldmia	r0!,{r4-r7} \n"  \
+      "msr	psp, r0       "   //<<--- Needed so SP points to the top of the stack
+      :::											// New SP (FIgure 12.2 MiniOS Book)
+    );
+
+		//give CPU to active process
+    __asm volatile(
+      "ldr r0, =0xFFFFFFFD\n" \
+      "cpsie i       			\n" \
+      "bx r0"
+        :::
+      );	//0xFFFFFFFD is USER_MODE_EXEC_VALUE. It tells
+					//the CPU to return the exception in User (thread) mode
+					//and using the PSP.
+}
+
 
 /*
 *	Scheduler Init
@@ -27,7 +154,7 @@ void scheduler_init(void){
 	stack_init( (uint32_t*)stack_memreg.base );	//stack_init( epstack )
 
 	//Inits Low Pty Int
-	//hal_cpu_lowpty_softint_register_callback( low_pty_callback );
+	hal_cpu_lowpty_softint_start( low_pty_callback );
 
 	//Active process is the null process
   //A null process (used to mark the lack of an active process)
@@ -40,15 +167,10 @@ void scheduler_init(void){
 	//No processes
 	proc_count = 0;
 
-	//THIS NEEDS TO BE MOVED TO THE HAL
-	NVIC_SetPriority(PendSV_IRQn, 0xff); /* Lowest possible priority */
-	NVIC_SetPriority(SysTick_IRQn, 0x00); /* Highest possible priority */
-
 	//Create idle process/thread
 	//(we need one!)
 	scheduler_thread_create( idle_process_thread, "idle process thread", 256 );
 }
-
 
 /*
 *	Scheduler Process Create
@@ -140,79 +262,4 @@ void scheduler_process_current_stop(void){
 
 	//context switches
 	hal_cpu_lowpty_softint_trigger();
-}
-
-
-/*
-*	The infamous tick callback
-*
-*	Context switch takes place here.
-*/
-void tick_callback(void){
-
-	/* Trigger PendSV which performs the actual context switch: */
-	hal_cpu_lowpty_softint_trigger();
-}
-
-uint32_t tick_count = 0;
-
-extern "C" {
-//C++ code cannot override weak aliases defined in C
-
-__attribute__((naked)) void PendSV_Handler(void){
-  //	(*pendsv_callback)();
-  __asm volatile(
-    "cpsid	i        \n" \
-      :::
-    );
-
-  __asm volatile(
-    "mrs	r0, psp      \n"  \
-    "sub	r0, #16      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "mov	r4, r8       \n"  \
-    "mov	r5, r9       \n"  \
-    "mov	r6, r10      \n"  \
-    "mov	r7, r11      \n"  \
-    "sub	r0, #32      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "sub	r0, #16      \n" \
-		"msr psp, r0"			//<<--- Needed so SP points to the top of the stack
-      :::							// New SP (FIgure 12.2 MiniOS Book)
-    );
-
-    //Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
-		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
-	}
-
-	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
-
-	//restore SP
-	hal_cpu_set_psp( (uint32_t)active_proc->sp );
-
-
-  __asm volatile(
-      "ldmia	r0!,{r4-r7} \n"  \
-      "mov	r8, r4        \n"  \
-      "mov	r9, r5        \n"  \
-      "mov	r10, r6       \n"  \
-      "mov	r11, r7       \n"  \
-      "ldmia	r0!,{r4-r7} \n"  \
-      "msr	psp, r0       "   //<<--- Needed so SP points to the top of the stack
-      :::											// New SP (FIgure 12.2 MiniOS Book)
-    );
-
-    __asm volatile(
-      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
-      "ldr r0, =0xFFFFFFFD\n" \
-      "cpsie i       \n"      \
-      "bx r0"
-        :::
-      );
-}
-
 }

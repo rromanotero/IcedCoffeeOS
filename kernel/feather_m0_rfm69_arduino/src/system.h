@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -28,6 +31,13 @@
 #define SYS_CONF_SERIAL_A_BAUDRATE	115200
 #define SYS_CONF_SERIAL_B_BAUDRATE	115200
 
+#define SYS_SCHED_MAX_NUM_OF_PROCESSES	10	//Max number of processes supported
+#define SYS_SCHED_CONTEXT_SWITCH_FREQ   5   //How often in milliseconds should
+                                            //context switch occur
+
+#define SYS_PANIC_MSG_MAX_LENGTH	50
+#define SYS_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+
 #define SYS_SYSTEM_MEM_AVAILABLE	16384							//Total SYSTEM mem available is 16Kb of 32KB Total
 #define SYS_USER_MEM_AVAILABLE		16384							//Total USER mem available is 16Kb of 32KB Total
 
@@ -37,14 +47,6 @@
 
 //#define SYS_APP_DEFAULT_NAME		"App.bin"
 #define SYS_CONSOLE_NEWLINE			"\n\r"		//Some serial console like putty use \n\r as newlines,
-												//others like Atmel's Terminal use only \n. Choose accordingly.
-
-#define SYS_MAX_NUM_OF_PROCESSES	10								//Max number of processes supported
-
-
-#define SYS_PANIC_MSG_MAX_LENGTH	50
-#define SYS_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
-
-
+												                  //others like Atmel's Terminal use only \n. Choose accordingly.
 
 #endif /* SYSTEM_H_ */

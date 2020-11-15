@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -41,7 +44,12 @@ void (*fault_system_callback)(void);
 *	HAL IO Init. That is: hal_cpu_init(); hal_io_init();
 */
 void hal_cpu_init(void){
-	//For compatibility
+
+	//Required for the CONTEXT SWITCHING to function
+	// - Low Pty interrupt must have the lowest priority possible
+	// - System timer the Highest highest
+	NVIC_SetPriority(PendSV_IRQn, 0xFF); // Lowest
+	NVIC_SetPriority(SysTick_IRQn, 0x00); // Highest
 }
 
 /**
@@ -54,41 +62,20 @@ void hal_cpu_lowpty_softint_trigger(void){
 }
 
 /**
-*	Low Priority Software Interrupt Register Callback
+*	Low Priority Software Interrupt Start
 *
 *	Registers a callback function for the PendSV Exception
 *
 *	@param callback the function that gets called on PendSV exception
 */
-void hal_cpu_lowpty_softint_register_callback( void(*callback)(void) ){
+void hal_cpu_lowpty_softint_start( void(*callback)(void) ){
 	pendsv_callback = callback;
-}
 
-/**
-*	SystemTimer Stop
-*
-*	Stops the system timer
-*
-*/
-void hal_cpu_systimer_stop(void){
-	SysTick->VAL   = 0;								/* Load the SysTick Counter Value */
-	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	/* Disable SysTick IRQ and SysTick Timer */
-	SysTick_CTRL_TICKINT_Msk   |
-	(0UL << SysTick_CTRL_ENABLE_Pos);
-}
 
-/**
-*	SystemTimer reestart
-*
-*	Once started, this function can be used to re-estart the system timer
-*	with the same configuration.
-*
-*/
-void hal_cpu_systimer_reestart(void){
-	SysTick->VAL   = 0;								// Load the SysTick Counter Value
-	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |	// Enable SysTick IRQ and SysTick Timer
-	SysTick_CTRL_TICKINT_Msk   |
-	SysTick_CTRL_ENABLE_Msk;
+	//Required for the CONTEXT SWITCHING to function
+	// - Low Pty interrupt must have the lowest priority
+	//   possible. System timer the Highest highest
+	NVIC_SetPriority(PendSV_IRQn, 0xFF); // Lowest
 }
 
 /**
@@ -102,10 +89,17 @@ void hal_cpu_systimer_reestart(void){
 uint32_t ms_count = 0;  //milliseconds count
 uint32_t ms_goal = 0;   //milliseconds goal
 void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
+
 	systick_callback = callback;
   ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
                               //No conversion needed
-  														//Nothing to start. Arduino has it running already
+
+	//Required for the CONTEXT SWITCHING to function
+	// - Low Pty interrupt must have the lowest priority
+	//   possible. System timer the Highest highest
+	NVIC_SetPriority(SysTick_IRQn, 0x00); // Highest
+
+  //Nothing to start. Arduino has it running already
 }
 
 
@@ -122,18 +116,6 @@ void hal_cpu_fault_start( tFaultOrigin fault_origin, void(*callback)(void)  ){
 			case FaultSystem:	fault_system_callback = callback;	break;
 			default:			/* Error */							break;
 		}
-}
-
-/**
-*	SVC Start
-*
-*	Starts SVC calls and registers a callback function. The callback
-*	execution of an SVC instruction
-*
-*	@param callback the function that gets called on supervisor calls
-*/
-void hal_cpu_svc_start( void(*callback)(void) ){
-  svc_callback = callback; //SVC Handler definition is in hal_cpu_asm.s
 }
 
 

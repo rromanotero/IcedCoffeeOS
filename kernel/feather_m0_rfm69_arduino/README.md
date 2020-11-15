@@ -78,3 +78,20 @@ Arduino SAMD core code is at
 ```
 C:\Users\rafael.romanotero\AppData\Local\Arduino15\packages\adafruit\hardware\samd\1.6.3
 ```
+
+### Troubleshooting
+
+When the feather becomes unflashable. Say you flash some binary that triggers a hardfault within 1 sec of running. You won't be able to flash a new program (the booloader wont respond). The solutoin is to get the Feather in bootloader mode by quickly double pressing (like a double click) the reset button.
+
+If that sitll doesn't work. Using Arduino IDE, try to flash some dummy program. There's this windows of a few secs when the IDE tries to find the feather. During that time get the Fetaher in bootloader mode. Flashing will then succeed. You can go back to flashing you crashing program. When I know this may happen, I add the line:
+
+```
+while(!hal_io_serial_is_ready());
+```
+
+so it won't crash until after I connect with Putty.
+
+### TO DO
+
+- Add Support for Priotities
+- Currently Idle thread always runs. It should only run when there's no other threads available. It's stilling time to other threads.

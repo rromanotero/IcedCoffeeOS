@@ -20,16 +20,8 @@
 **/
 #include "hal.h"
 
-
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
-
-void thread_led(void){
-  while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000;i++);
-  }
-}
 
 void main_user_thread(void){
 
@@ -39,29 +31,35 @@ void main_user_thread(void){
 
   while(true){
     hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
-    for(volatile int i=0; i<480000*7;i++);
+    for(volatile int i=0; i<480000*5;i++);
   }
 }
 
 void thread_a(void){
   while(true){
     hal_io_serial_puts(&serial_usb, "Thread A\n\r");
-    for(volatile int i=0; i<480000*4;i++);
+    for(volatile int i=0; i<480000*2;i++);
   }
 }
 
 void thread_b(void){
   while(true){
     hal_io_serial_puts(&serial_usb, "Thread B\n\r");
-    for(volatile int i=0; i<480000*5;i++);
+    for(volatile int i=0; i<480000*3;i++);
+  }
+}
+
+void thread_led(void){
+  while(true){
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    for(volatile int i=0; i<480000;i++);
   }
 }
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  while(!Serial);
-  delay(1000);
+  while(!hal_io_serial_is_ready(&serial_usb));
 
   scheduler_thread_create( main_user_thread, "main_user_thread", 1024 );
 
