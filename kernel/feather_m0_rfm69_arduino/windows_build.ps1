@@ -25,6 +25,9 @@
 #>
 
 $ARDUINO_CLI_PATH = "C:\Program Files\Arduino"
+$ARDUINO_CLI_BUILD_PATH = "sketchbook/main/build/adafruit.samd.adafruit_feather_m0"
+$GCC_PATH = "C:\gcc-arm-none-eabi-9-2020-q2-update-win32\bin"
+
 
 Clear-Host;
 
@@ -40,6 +43,9 @@ Write-Host ""
 Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 & "$ARDUINO_CLI_PATH\arduino-cli.exe" compile --fqbn adafruit:samd:adafruit_feather_m0 sketchbook/main
+
+###& "$GCC_PATH\arm-none-eabi-objdump.exe" -D $ARDUINO_CLI_BUILD_PATH\main.ino.elf > $ARDUINO_CLI_BUILD_PATH\main.lss
+###& "$GCC_PATH\arm-none-eabi-objdump.exe" -s $ARDUINO_CLI_BUILD_PATH\main.ino.elf > $ARDUINO_CLI_BUILD_PATH\mains.dump
 
 Write-Host ""
 Write-Host "  FLASHING HEX  "

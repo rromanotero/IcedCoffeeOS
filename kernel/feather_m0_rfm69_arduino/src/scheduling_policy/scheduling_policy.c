@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -19,19 +22,26 @@
 *
 **/
 
-#include "hal.h"
+uint32_t process_mark = 0;
 
-void ARDUINO_KERNEL_MAIN() {
+/*
+* NOTE: This needs a better name. Scheduling Policy sounds so
+*       INSURANCEsy
+*
+*       I believe this is round robin! It jsut looks different thatn what
+*		it appears on textsbooks.
+*/
+tMiniProcess* scheduling_policy_next( tMiniProcess* active_proc, tProcessList* proc_list  ){
 
-  tPioPin led_pin;
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+	//Increment process mark
+	//(skip dead processes)
+	uint32_t count=0;
+	do{
+		count++;
+		process_mark = (process_mark + 1) % proc_list->count;
+	}while( proc_list->list[process_mark].state == ProcessStateDead );
 
-  while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_cpu_delay(1000);
-  }
 
-  //Exit so we don't
-  //loop over and over
-  exit(0);
+	//Return process at process mark
+	return &(proc_list->list[process_mark]);
 }

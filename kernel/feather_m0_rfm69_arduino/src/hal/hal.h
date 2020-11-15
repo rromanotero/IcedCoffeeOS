@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -28,10 +31,8 @@
 #include <RHReliableDatagram.h>
 #include <Servo.h>
 
-#define ARDUINO_MAIN  loop
+#define ARDUINO_KERNEL_MAIN  loop
 void setup() {} /* Don't need it*/
-
-
 
 #define HAL_SUCCESS  									1
 #define HAL_IO_TYPE_NOT_FOUND						101
@@ -56,7 +57,6 @@ void setup() {} /* Don't need it*/
 #define HAL_RADIO_DEFAULT_ADDRESS    	0    //Default address of this node (my address)
 
 typedef uint32_t tPwmType;		/**< PWM Pin Type */
-typedef uint32_t tFaultOrigin;	/**< Fault Origin type */
 typedef uint32_t tSensorId;		/**< Sensor ID type */
 typedef enum tIoType			 { IoPoll = 0, IoInterrupt  };
 typedef enum tPioPort			 { PioA = 0, PioB, PioC, PioD };
@@ -67,6 +67,17 @@ typedef enum tPwmId        { PwmA = 0, PwmB  };
 typedef enum tServoId      { ServoA = 0, ServoB  };
 typedef enum tRadioId      { RadioA = 0, RadioB };
 typedef enum tTimerId      { TimerSysTick = 0, TimerMicroseconds = 1, };
+typedef enum tFaultOrigin	 { FaultApp = 0, FaultSystem };
+typedef enum tMemRegionId	{ MemRegSystem = 0, MemRegApp, MemRegSystemStack, MemRegUserStack };
+
+/**
+* Memory regions
+*/
+typedef struct{
+	tMemRegionId	id;
+	uint8_t*		base;		/**< a pointer to the beginning of the region */
+	uint32_t		size;		/**< size in bytes */
+}tMemRegion;
 
 typedef struct{
     uint8_t payload[HAL_RADIO_MAX_MESSAGE_LEN];

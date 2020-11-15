@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -18,3 +21,16 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+/**
+*	System Init
+*
+*	Initializes everything. Must be called before any other call
+*/
+void system_init(void){
+	hal_cpu_init();
+	hal_io_init();
+	hal_radio_init();
+	faults_init();
+	scheduler_init();
+}

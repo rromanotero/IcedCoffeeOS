@@ -21,7 +21,7 @@
 
 #include "hal.h"
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tSerialPort serial_usb;
   tAdcChannel adc_0;

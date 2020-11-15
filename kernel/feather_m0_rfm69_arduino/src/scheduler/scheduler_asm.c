@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -19,19 +22,17 @@
 *
 **/
 
-#include "hal.h"
+/*	Puts the processor to sleep. executes in user mode  */
+__attribute__((naked)) void idle_process_thread(){
+     __asm volatile(
+        "wfi\n" \
+        "b =idle_process_thread"
+      );
+}
 
-void ARDUINO_KERNEL_MAIN() {
+void process_thread_delete(){
+  /*	Deletes the current process/thread */
+  //Unimplemented
+  while(1);
 
-  tPioPin led_pin;
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
-
-  while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_cpu_delay(1000);
-  }
-
-  //Exit so we don't
-  //loop over and over
-  exit(0);
 }

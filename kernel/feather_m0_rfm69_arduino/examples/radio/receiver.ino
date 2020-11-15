@@ -27,7 +27,7 @@
 
 tRadioMessage message; //Do not place in the stack
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tPioPin led_pin;
   tSerialPort serial_usb;

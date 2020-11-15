@@ -25,7 +25,7 @@
 
 tRadioMessage message;  //Must be static
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tPioPin led_pin;
   tRadioTransceiver radio;

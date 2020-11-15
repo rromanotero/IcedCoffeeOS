@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -18,6 +21,14 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+/**
+*	HAL Radio Init
+*
+*/
+void hal_radio_init(void){
+	//For compatibility
+}
 
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
   if (!transceiver->internal_manager->sendtoWait(message->payload, sizeof(message->payload), message->address))

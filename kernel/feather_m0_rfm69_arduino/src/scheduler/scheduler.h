@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -19,19 +22,25 @@
 *
 **/
 
-#include "hal.h"
+#ifndef SCHEDULER_H_
+#define SCHEDULER_H_
 
-void ARDUINO_KERNEL_MAIN() {
 
-  tPioPin led_pin;
-  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+#define SCHEDULER_PROCESS_CREATE_FAILED		0
+#define SCHEDULER_PROCESS_CREATE_SUCCESS	1
+#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_SCHED_MAX_NUM_OF_PROCESSES
 
-  while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_cpu_delay(1000);
-  }
+typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
 
-  //Exit so we don't
-  //loop over and over
-  exit(0);
-}
+typedef struct{
+	const char* name;
+	uint32_t* sp;
+	tProcessState state;
+}tMiniProcess;
+
+typedef struct{
+	tMiniProcess list[SCHEDULER_MAX_NUM_PROCESSES];
+	uint32_t count;
+}tProcessList;
+
+#endif /* SCHEDULER_H_ */
