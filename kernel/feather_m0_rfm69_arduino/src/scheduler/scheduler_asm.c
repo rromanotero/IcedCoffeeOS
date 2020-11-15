@@ -1,11 +1,10 @@
 
 /*	Puts the processor to sleep. executes in user mode  */
-void idle_process_thread(){
-  volatile uint8_t i=0;
-   while(true){
-     i++;
-     //hal_cpu_sleep();
-   }
+__attribute__((naked)) void idle_process_thread(){
+     __asm volatile(
+        "wfi\n" \
+        "b =idle_process_thread"
+      );
 }
 
 void process_thread_delete(){

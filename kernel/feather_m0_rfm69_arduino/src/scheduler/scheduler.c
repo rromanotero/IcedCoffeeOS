@@ -1,6 +1,6 @@
 
 
-#define TICK_FREQ				7000
+#define TICK_FREQ				5
 #define CONTEXT_SIZE    16
 #define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
 #define OFFSET_LR       13
@@ -39,6 +39,10 @@ void scheduler_init(void){
 
 	//No processes
 	proc_count = 0;
+
+	//THIS NEEDS TO BE MOVED TO THE HAL
+	NVIC_SetPriority(PendSV_IRQn, 0xff); /* Lowest possible priority */
+	NVIC_SetPriority(SysTick_IRQn, 0x00); /* Highest possible priority */
 
 	//Create idle process/thread
 	//(we need one!)
@@ -83,7 +87,6 @@ uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, 
 
 	//Start ticking on first process (idle thread is process/thread 1)
 	if( proc_list.count == 2 ){
-		Serial.println("STARTING SYSTIMER");
 		hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
 		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
 	}
@@ -123,7 +126,6 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
   //Start ticking on first process (idle thread is process/thread 1)
   if( proc_list.count == 2 ){
-			Serial.println("STARTING SYSTIMER");
   	  hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
   	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
   }
@@ -174,8 +176,9 @@ __attribute__((naked)) void PendSV_Handler(void){
     "mov	r7, r11      \n"  \
     "sub	r0, #32      \n"  \
     "stmia	r0!,{r4-r7}\n"  \
-    "sub	r0, #16      \n"
-      :::
+    "sub	r0, #16      \n" \
+		"msr psp, r0"			//<<--- Needed so SP points to the top of the stack
+      :::							// New SP (FIgure 12.2 MiniOS Book)
     );
 
     //Not the null process?
@@ -185,23 +188,11 @@ __attribute__((naked)) void PendSV_Handler(void){
 		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
 	}
 
-	Serial.println("active process is");
-	Serial.println(active_proc->name);
-
 	//get next active process
 	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
 
-	tick_count++;
-	Serial.println("TICK COUNT IS");
-	Serial.println(tick_count);
-
-	Serial.println("NEW active process is");
-	Serial.println(active_proc->name);
-
-
 	//restore SP
 	hal_cpu_set_psp( (uint32_t)active_proc->sp );
-
 
 
   __asm volatile(
@@ -211,8 +202,8 @@ __attribute__((naked)) void PendSV_Handler(void){
       "mov	r10, r6       \n"  \
       "mov	r11, r7       \n"  \
       "ldmia	r0!,{r4-r7} \n"  \
-      "msr	psp, r0       "
-      :::
+      "msr	psp, r0       "   //<<--- Needed so SP points to the top of the stack
+      :::											// New SP (FIgure 12.2 MiniOS Book)
     );
 
     __asm volatile(

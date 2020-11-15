@@ -34,10 +34,26 @@ void thread_led(void){
 void main_user_thread(void){
 
   scheduler_thread_create( thread_led, "thread_led", 1024 );
+  scheduler_thread_create( thread_a, "thread_a", 1024 );
+  scheduler_thread_create( thread_b, "thread_b", 1024 );
 
   while(true){
-    hal_io_serial_puts(&serial_usb, "main user thread\n\r");
-    for(volatile int i=0; i<480000;i++);
+    hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
+    for(volatile int i=0; i<480000*7;i++);
+  }
+}
+
+void thread_a(void){
+  while(true){
+    hal_io_serial_puts(&serial_usb, "Thread A\n\r");
+    for(volatile int i=0; i<480000*4;i++);
+  }
+}
+
+void thread_b(void){
+  while(true){
+    hal_io_serial_puts(&serial_usb, "Thread B\n\r");
+    for(volatile int i=0; i<480000*5;i++);
   }
 }
 
