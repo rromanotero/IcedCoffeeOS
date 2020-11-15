@@ -28,7 +28,7 @@
 
 #define SCHEDULER_PROCESS_CREATE_FAILED		0
 #define SCHEDULER_PROCESS_CREATE_SUCCESS	1
-#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_MAX_NUM_OF_PROCESSES
+#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_SCHED_MAX_NUM_OF_PROCESSES
 
 typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
 

@@ -76,6 +76,9 @@ void ARDUINO_KERNEL_MAIN() {
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -93,7 +96,6 @@ void ARDUINO_KERNEL_MAIN() {
 *
 **/
 
-
 /**
 *	System Init
 *
@@ -103,7 +105,6 @@ void system_init(void){
 	hal_cpu_init();
 	hal_io_init();
 	hal_radio_init();
-	hal_timer_init();
 	faults_init();
 	scheduler_init();
 }
@@ -113,6 +114,9 @@ void system_init(void){
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -153,7 +157,7 @@ void faults_init(void){
 */
 void faults_app_entry_point(void){
   //Terminate offending app
-  while(1); //we don't have appas yet
+  while(1); //we don't have apps yet
 }
 
 /*
@@ -198,6 +202,9 @@ void faults_kernel_panic( char* panic_msg ){
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -330,6 +337,9 @@ void hal_cpu_delay(uint32_t delay_in_ms){
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -461,6 +471,9 @@ __attribute__((naked)) void faults_goto_right_callback(){
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -791,6 +804,9 @@ void hal_io_servo_write(tServoChannel* servo, uint32_t orientation_in_degrees){
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -892,6 +908,9 @@ void hal_memreg_read( tMemRegionId memid, tMemRegion* memreg ){
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -991,35 +1010,8 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
-*   Copyright (c) 2020 Rafael Roman Otero.
-*
-*   This program is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*
-**/
-
-/**
-*	HAL Timer Init
-*/
-void hal_timer_init(void){
-	//For compatibility
-}
-
-
-
-/**
-*   This file is part of IcedCoffeeOS
-*   (https://github.com/rromanotero/IcedCoffeeOS).
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -1060,7 +1052,7 @@ void hal_timer_init(void){
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define TICK_FREQ				5
+#define TICK_FREQ				SYS_SCHED_CONTEXT_SWITCH_FREQ
 #define CONTEXT_SIZE    16
 #define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
 #define OFFSET_LR       13
@@ -1286,6 +1278,9 @@ void scheduler_process_current_stop(void){
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -1323,6 +1318,9 @@ void process_thread_delete(){
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -1366,6 +1364,30 @@ tMiniProcess* scheduling_policy_next( tMiniProcess* active_proc, tProcessList* p
 }
 
 
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
 /**
  * @file	stack.c

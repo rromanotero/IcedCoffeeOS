@@ -2,6 +2,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -28,6 +31,13 @@
 #define SYS_CONF_SERIAL_A_BAUDRATE	115200
 #define SYS_CONF_SERIAL_B_BAUDRATE	115200
 
+#define SYS_SCHED_MAX_NUM_OF_PROCESSES	10	//Max number of processes supported
+#define SYS_SCHED_CONTEXT_SWITCH_FREQ   5   //How often in milliseconds should
+                                            //context switch occur
+
+#define SYS_PANIC_MSG_MAX_LENGTH	50
+#define SYS_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
+
 #define SYS_SYSTEM_MEM_AVAILABLE	16384							//Total SYSTEM mem available is 16Kb of 32KB Total
 #define SYS_USER_MEM_AVAILABLE		16384							//Total USER mem available is 16Kb of 32KB Total
 
@@ -37,15 +47,7 @@
 
 //#define SYS_APP_DEFAULT_NAME		"App.bin"
 #define SYS_CONSOLE_NEWLINE			"\n\r"		//Some serial console like putty use \n\r as newlines,
-												//others like Atmel's Terminal use only \n. Choose accordingly.
-
-#define SYS_MAX_NUM_OF_PROCESSES	10								//Max number of processes supported
-
-
-#define SYS_PANIC_MSG_MAX_LENGTH	50
-#define SYS_PANIC_LED_BLINKING_WAIT 240000   //The smaller, the faster the Kenel Panic LED Blinks
-
-
+												                  //others like Atmel's Terminal use only \n. Choose accordingly.
 
 #endif /* SYSTEM_H_ */
 
@@ -54,6 +56,9 @@
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
 *
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
@@ -85,6 +90,9 @@
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -113,8 +121,6 @@
 
 #define ARDUINO_KERNEL_MAIN  loop
 void setup() {} /* Don't need it*/
-
-
 
 #define HAL_SUCCESS  									1
 #define HAL_IO_TYPE_NOT_FOUND						101
@@ -229,6 +235,9 @@ typedef struct{
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
 *
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
 *   Copyright (c) 2020 Rafael Roman Otero.
 *
 *   This program is free software: you can redistribute it and/or modify
@@ -252,7 +261,7 @@ typedef struct{
 
 #define SCHEDULER_PROCESS_CREATE_FAILED		0
 #define SCHEDULER_PROCESS_CREATE_SUCCESS	1
-#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_MAX_NUM_OF_PROCESSES
+#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_SCHED_MAX_NUM_OF_PROCESSES
 
 typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
 
@@ -272,13 +281,28 @@ typedef struct{
 
 
 /**
- * @file	stack.h
- * @author
- * @version
- *
- * @brief Header file for the stack.c
- *
- */
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
 #ifndef STACK_H_
 #define STACK_H_
