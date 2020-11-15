@@ -278,9 +278,7 @@ __attribute__((naked)) void hal_cpu_set_msp(uint32_t){
 //              Handler/Hooks overriding Area                     ///
 /////////////////////////////////////////////////////////////////////
 
-uint32_t tick_count_a = 0;
-extern tMiniProcess* active_proc;		//The active process
-extern tProcessList proc_list;			// process list
+uint32_t tick_count = 0;
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -297,60 +295,56 @@ int sysTickHook(void){
 }
 
 
-void PendSV_Handler(void){
-  //	(*pendsv_callback)();
-  __asm volatile(
-    "cpsid	i        \n" \
-      :::
-    );
-
+__attribute__((naked)) void PendSV_Handler(void){
+  //Save context
   __asm volatile(
     "mrs	r0, psp      \n"  \
-    "sub	r0, #16      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "mov	r4, r8       \n"  \
-    "mov	r5, r9       \n"  \
-    "mov	r6, r10      \n"  \
-    "mov	r7, r11      \n"  \
-    "sub	r0, #32      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "sub	r0, #16      \n"
+  	"sub	r0, #16      \n"  \
+  	"stmia	r0!,{r4-r7}\n"  \
+  	"mov	r4, r8       \n"  \
+  	"mov	r5, r9       \n"  \
+  	"mov	r6, r10      \n"  \
+  	"mov	r7, r11      \n"  \
+  	"sub	r0, #32      \n"  \
+  	"stmia	r0!,{r4-r7}\n"  \
+  	"sub	r0, #16      \n"
       :::
     );
 
-    //Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
-		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_msp();
-	}
+    // /tick_count++;
 
-	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
 
-	//restore SP
-	hal_cpu_set_msp( (uint32_t)active_proc->sp );
-
-  tick_count_a++;
-
+  //Restore context
   __asm volatile(
-      "ldmia	r0!,{r4-r7} \n"  \
-      "mov	r8, r4        \n"  \
-      "mov	r9, r5        \n"  \
-      "mov	r10, r6       \n"  \
-      "mov	r11, r7       \n"  \
-      "ldmia	r0!,{r4-r7} \n"  \
-      "msr	psp, r0       "
-      :::
+    	"ldmia	r0!,{r4-r7} \n"  \
+    	"mov	r8, r4        \n"  \
+    	"mov	r9, r5        \n"  \
+    	"mov	r10, r6       \n"  \
+    	"mov	r11, r7       \n"  \
+    	"ldmia	r0!,{r4-r7} \n"  \
+    	"msr	psp, r0       \n" \
+      "mov pc, %[user_mode_exec_value]"
+      :
+      : [user_mode_exec_value] "l" (USER_MODE_EXEC_VALUE) // Return to USer (thread) mode and use PSP
+      :
     );
+    //Note:
+    //    mov pc, %[user_mode_exec_value]
+    // will work because gcc will user a scracth register
+    // (which are saved and restored in hardware) to get
+    //user_mode_exec_value to to PC.
+    //
+    //For exmaple (this is an actual gcc translatoin):
+    //
+    //  movs    r3, #3
+    //  negs    r3, r3
+    //  mov     pc, r3
+    //
+    // R3 was stacked "in hardware" so it won't be restore
+    // until later. GCC is free to mess it up.
 
-    __asm volatile(
-      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
-      "ldr r0, =0xFFFFFFFD\n" \
-      "cpsie i       \n"      \
-      "bx r0"
-        :::
-      );
+
+  //hal_cpu_return_exception_user_mode();
 }
 
 __attribute__((naked)) void HardFault_Handler(){
@@ -373,11 +367,6 @@ __attribute__((naked)) void faults_goto_right_callback(){
 	else
 	 	(*fault_system_callback)();
 }
-
-void svcHook(void){
-
-}
-
 
 
 } //end extern C

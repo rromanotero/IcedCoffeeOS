@@ -44,8 +44,13 @@ Write-Host "  C O M P I L I N G  "
 Write-Host "==================="
 & "$ARDUINO_CLI_PATH\arduino-cli.exe" compile --fqbn adafruit:samd:adafruit_feather_m0 sketchbook/main
 
-###& "$GCC_PATH\arm-none-eabi-objdump.exe" -D $ARDUINO_CLI_BUILD_PATH\main.ino.elf > $ARDUINO_CLI_BUILD_PATH\main.lss
-###& "$GCC_PATH\arm-none-eabi-objdump.exe" -s $ARDUINO_CLI_BUILD_PATH\main.ino.elf > $ARDUINO_CLI_BUILD_PATH\mains.dump
+### THIS DOESNT WORK FOR SOME REASON, OUTPUT COMES OUT SPACED
+##& "$GCC_PATH\arm-none-eabi-objdump.exe" -D $ARDUINO_CLI_BUILD_PATH\main.ino.elf | Out-File -FilePath $ARDUINO_CLI_BUILD_PATH\main.lss
+##& "$GCC_PATH\arm-none-eabi-objdump.exe" -s $ARDUINO_CLI_BUILD_PATH\main.ino.elf | Out-File -FilePath $ARDUINO_CLI_BUILD_PATH\mains.dump
+
+#USe this instead as needed:
+#C:\gcc-arm-none-eabi-9-2020-q2-update-win32\bin\arm-none-eabi-objdump.exe -D .\sketchbook\main\build\adafruit.samd.adafruit_feather_m0\main.ino.elf | Select-String PendSV_Handler -Context 2,15
+
 
 Write-Host ""
 Write-Host "  FLASHING HEX  "

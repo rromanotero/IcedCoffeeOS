@@ -1,17 +1,7 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-
-//-------------------
-typedef uint32_t os_stack_t;
-#define OS_CONFIG_MAX_TASKS	10
-///-----------------
-
-#define SCHEDULER_PROCESS_CREATE_FAILED		0
-#define SCHEDULER_PROCESS_CREATE_SUCCESS	1
-#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_MAX_NUM_OF_PROCESSES
-
-typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
+enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };	
 
 typedef struct{
 	const char* name;
@@ -19,9 +9,5 @@ typedef struct{
 	tProcessState state;
 }tMiniProcess;
 
-typedef struct{
-	tMiniProcess list[SCHEDULER_MAX_NUM_PROCESSES];
-	uint32_t count;
-}tProcessList;
 
 #endif /* SCHEDULER_H_ */
