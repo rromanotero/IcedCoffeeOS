@@ -28,7 +28,7 @@ void tick_callback(){
   hal_io_serial_puts(&serial_usb, "tick\n\r");
 }
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   system_init();
 

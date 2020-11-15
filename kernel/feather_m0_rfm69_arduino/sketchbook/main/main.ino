@@ -24,57 +24,32 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-extern uint32_t tick_count_a;
-
-void task_handler2(void){
+void thread_led(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(int i=0; i<24000; i++);
+    for(volatile int i=0; i<480000;i++);
   }
 }
 
-void task_handler1(void){
+void main_user_thread(void){
+
+  scheduler_thread_create( thread_led, "thread_led", 1024 );
+
   while(true){
-    Serial.println("Hey");
-    Serial.println(tick_count_a);
-
-    //hal_io_serial_puts(&serial_usb, "hey\n");
-    for(int i=0; i<24000; i++);
+    hal_io_serial_puts(&serial_usb, "main user thread\n\r");
+    for(volatile int i=0; i<480000;i++);
   }
 }
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
   system_init();
-  //scheduler_thread_create( task_handler1, "task_handler1", 512 );
 
-  bool status;
+  while(!Serial);
+  delay(1000);
 
-  /* Initialize task stacks: */
-	static uint32_t stack1[512];
-	static uint32_t stack2[512];
-	static uint32_t stack3[512];
+  scheduler_thread_create( main_user_thread, "main_user_thread", 1024 );
 
-
-  /* Setup task parameters: */
-	uint32_t p1 = 200000;
-	uint32_t p2 = p1/2;
-	uint32_t p3 = p1/4;
-
-	os_init();
-
-	//status = os_task_init(&task_handler1, stack1, sizeof(stack1));
-	//status = os_task_init(&task_handler2, stack2, sizeof(stack2));
-
-	/* Context switch every second: */
-  //Serial.println("Begin scheduler");
-	//status = os_start(3);
-
-  scheduler_thread_create( task_handler1, "task_handler1a", 1024 );
-  scheduler_thread_create( task_handler1, "task_handler1b", 1024 );
-
-  while(true){
-
-  }
+  while(true);
 
   //Exit so we don't
   //loop over and over
@@ -116,14 +91,6 @@ void system_init(void){
 	hal_radio_init();
 	hal_timer_init();
 	faults_init();
-
-
-	while(!Serial);
-
-	Serial.println("Here we go..");
-	delay(1000);
-
-
 	scheduler_init();
 }
 
@@ -235,6 +202,8 @@ void faults_kernel_panic( char* panic_msg ){
 *
 **/
 
+#define USER_MODE_EXEC_VALUE 0xFFFFFFFD
+
 //SysTick-related definitions
 void (*systick_callback)(void);
 
@@ -313,13 +282,13 @@ void hal_cpu_systimer_reestart(void){
 *	@param tick_freq_in_ms the tick frequency in milliseconds
 *	@param callback function to be called when a tick occurs
 */
-static uint32_t ms_count = 0;  //milliseconds count
-static uint32_t ms_goal = 0;   //milliseconds goal
+uint32_t ms_count = 0;  //milliseconds count
+uint32_t ms_goal = 0;   //milliseconds goal
 void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
 	systick_callback = callback;
   ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
                               //No conversion needed
-  //Nothing to start. Arduino has it running already
+  														//Nothing to start. Arduino has it running already
 }
 
 
@@ -405,8 +374,6 @@ void hal_cpu_delay(uint32_t delay_in_ms){
  * You should have received a copy of the GNU General Public License
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#define USER_MODE_EXEC_VALUE  0xFFFFFFFD
 
 /**
 *
@@ -556,20 +523,7 @@ __attribute__((naked)) void hal_cpu_disable_interrupts(void){
     );
 }
 
-/**
-*	uint32_t hal_cpu_get_msp(void)
-*
-*	Gets the MSP
-*
-*	Returns the process stack pointer
-*/
-__attribute__((naked)) uint32_t hal_cpu_get_msp(void){
-  __asm volatile(
-    "mrs	r0, msp        \n" \
-    "bx lr"
-      :::
-    );
-}
+
 
 /**
 *	void hal_cpu_set_unprivileged(void)
@@ -625,28 +579,13 @@ __attribute__((naked)) void hal_cpu_set_psp(uint32_t){
     );
 }
 
-/**
-*	void hal_cpu_set_msp(uint32_t)
-*
-*	Sets the MSP
-*
-*/
-__attribute__((naked)) void hal_cpu_set_msp(uint32_t){
-  __asm volatile(
-    "msr msp, r0  \n" \
-    "bx lr"
-      :::
-    );
-}
-
 
 /////////////////////////////////////////////////////////////////////
 //              Handler/Hooks overriding Area                     ///
 /////////////////////////////////////////////////////////////////////
 
-uint32_t tick_count_a = 0;
-extern tMiniProcess* active_proc;		//The active process
-extern tProcessList proc_list;			// process list
+
+extern uint32_t ms_goal;
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -655,68 +594,11 @@ int sysTickHook(void){
   if( systick_callback ){ //We don't want Arduion to trigger this
                             //before it's defined
     if( ms_count++ >= ms_goal ){
-        (*systick_callback)();
         ms_count = 0;
+        (*systick_callback)();
     }
   }
   return 0; //Arduino expects a 0 when things go well
-}
-
-
-void PendSV_Handler(void){
-  //	(*pendsv_callback)();
-  __asm volatile(
-    "cpsid	i        \n" \
-      :::
-    );
-
-  __asm volatile(
-    "mrs	r0, psp      \n"  \
-    "sub	r0, #16      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "mov	r4, r8       \n"  \
-    "mov	r5, r9       \n"  \
-    "mov	r6, r10      \n"  \
-    "mov	r7, r11      \n"  \
-    "sub	r0, #32      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "sub	r0, #16      \n"
-      :::
-    );
-
-    //Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
-		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_msp();
-	}
-
-	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
-
-	//restore SP
-	hal_cpu_set_msp( (uint32_t)active_proc->sp );
-
-  tick_count_a++;
-
-  __asm volatile(
-      "ldmia	r0!,{r4-r7} \n"  \
-      "mov	r8, r4        \n"  \
-      "mov	r9, r5        \n"  \
-      "mov	r10, r6       \n"  \
-      "mov	r11, r7       \n"  \
-      "ldmia	r0!,{r4-r7} \n"  \
-      "msr	psp, r0       "
-      :::
-    );
-
-    __asm volatile(
-      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
-      "ldr r0, =0xFFFFFFFD\n" \
-      "cpsie i       \n"      \
-      "bx r0"
-        :::
-      );
 }
 
 __attribute__((naked)) void HardFault_Handler(){
@@ -1289,139 +1171,8 @@ void hal_timer_init(void){
 
 
 
-typedef enum {
-	OS_TASK_STATUS_IDLE = 1,
-	OS_TASK_STATUS_ACTIVE
-} os_task_status_t;
 
-typedef struct {
-	/* The stack pointer (sp) has to be the first element as it is located
-	   at the same address as the structure itself (which makes it possible
-	   to locate it safely from assembly implementation of PendSV_Handler).
-	   The compiler might add padding between other structure elements. */
-	volatile uint32_t sp;
-	void (*handler)(void);
-	volatile os_task_status_t status;
-} os_task_t;
-
-static struct {
-	os_task_t tasks[OS_CONFIG_MAX_TASKS];
-	volatile uint32_t current_task;
-	uint32_t size;
-} m_task_table;
-
-volatile os_task_t *os_curr_task;
-volatile os_task_t *os_next_task;
-
-static void task_finished(void)
-{
-	/* This function is called when some task handler returns. */
-	volatile uint32_t i = 0;
-	while (1)
-		i++;
-}
-
-void os_init(void)
-{
-	memset(&m_task_table, 0, sizeof(m_task_table));
-}
-
-bool os_task_init(void (*handler)(void), os_stack_t *p_stack, uint32_t stack_size)
-{
-	if (m_task_table.size >= OS_CONFIG_MAX_TASKS-1)
-		return false;
-
-	/* Initialize the task structure and set SP to the top of the stack
-	   minus 16 words (64 bytes) to leave space for storing 16 registers: */
-	os_task_t *p_task = &m_task_table.tasks[m_task_table.size];
-	p_task->handler = handler;
-	p_task->sp = (uint32_t)(p_stack+stack_size-16);
-	p_task->status = OS_TASK_STATUS_IDLE;
-
-	/* Save special registers which will be restored on exc. return:
-	   - XPSR: Default value (0x01000000)
-	   - PC: Point to the handler function
-	   - LR: Point to a function to be called when the handler returns */
-	p_stack[stack_size-1] = 0x01000000;
-	p_stack[stack_size-2] = (uint32_t)handler;
-	p_stack[stack_size-3] = (uint32_t) &task_finished;
-
-#ifdef OS_CONFIG_DEBUG
-	uint32_t base = (m_task_table.size+1)*1000;
-	p_stack[stack_size-4] = base+12;  /* R12 */
-	p_stack[stack_size-5] = base+3;   /* R3  */
-	p_stack[stack_size-6] = base+2;   /* R2  */
-	p_stack[stack_size-7] = base+1;   /* R1  */
-	p_stack[stack_size-8] = base+0;   /* R0  */
-	p_stack[stack_size-9] = base+7;   /* R7  */
-	p_stack[stack_size-10] = base+6;  /* R6  */
-	p_stack[stack_size-11] = base+5;  /* R5  */
-	p_stack[stack_size-12] = base+4;  /* R4  */
-	p_stack[stack_size-13] = base+11; /* R11 */
-	p_stack[stack_size-14] = base+10; /* R10 */
-	p_stack[stack_size-15] = base+9;  /* R9  */
-	p_stack[stack_size-16] = base+8;  /* R8  */
-#endif
-
-	m_task_table.size++;
-
-	return true;
-}
-
-bool os_start(uint32_t systick_ticks)
-{
-	NVIC_SetPriority(PendSV_IRQn, 0xff); /* Lowest possible priority */
-	NVIC_SetPriority(SysTick_IRQn, 0x00); /* Highest possible priority */
-
-
-  hal_cpu_systimer_start(systick_ticks, tick_callback);
-
-	/* Start the first task: */
-	os_curr_task = &m_task_table.tasks[m_task_table.current_task];
-
-	__set_PSP(os_curr_task->sp+64); /* Set PSP to the top of task's stack */
-	__set_CONTROL(0x03); /* Switch to PSP, unprivilleged mode */
-	__ISB(); /* Exec. ISB after changing CONTORL (recommended) */
-
-	os_curr_task->handler();
-
-	return true;
-}
-
-
-/*
-*	The infamous tick callback
-*
-*	Context switch takes place here.
-*/
-static void tick_callback(void){
-
-  os_curr_task = &m_task_table.tasks[m_task_table.current_task];
-	os_curr_task->status = OS_TASK_STATUS_IDLE;
-
-  //tick_count++;
-
-	/* Select next task: */
-	m_task_table.current_task++;
-	if (m_task_table.current_task >= m_task_table.size)
-		m_task_table.current_task = 0;
-
-	os_next_task = &m_task_table.tasks[m_task_table.current_task];
-	os_next_task->status = OS_TASK_STATUS_ACTIVE;
-
-	/* Trigger PendSV which performs the actual context switch: */
-	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-}
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-
-#define TICK_FREQ		3
+#define TICK_FREQ				7000
 #define CONTEXT_SIZE    16
 #define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
 #define OFFSET_LR       13
@@ -1504,8 +1255,9 @@ uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, 
 
 	//Start ticking on first process (idle thread is process/thread 1)
 	if( proc_list.count == 2 ){
-	//	hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-	//	hal_cpu_systimer_start( TICK_FREQ, tick_callback );
+		Serial.println("STARTING SYSTIMER");
+		hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
+		hal_cpu_systimer_start( TICK_FREQ, tick_callback );
 	}
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
@@ -1543,8 +1295,9 @@ uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, ui
 
   //Start ticking on first process (idle thread is process/thread 1)
   if( proc_list.count == 2 ){
+			Serial.println("STARTING SYSTIMER");
   	  hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  	  hal_cpu_systimer_start( TICK_FREQ*1000, tick_callback );
+  	  hal_cpu_systimer_start( TICK_FREQ, tick_callback );
   }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
@@ -1560,12 +1313,100 @@ void scheduler_process_current_stop(void){
 }
 
 
+/*
+*	The infamous tick callback
+*
+*	Context switch takes place here.
+*/
+void tick_callback(void){
+
+	/* Trigger PendSV which performs the actual context switch: */
+	hal_cpu_lowpty_softint_trigger();
+}
+
+uint32_t tick_count = 0;
+
+extern "C" {
+//C++ code cannot override weak aliases defined in C
+
+__attribute__((naked)) void PendSV_Handler(void){
+  //	(*pendsv_callback)();
+  __asm volatile(
+    "cpsid	i        \n" \
+      :::
+    );
+
+  __asm volatile(
+    "mrs	r0, psp      \n"  \
+    "sub	r0, #16      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "mov	r4, r8       \n"  \
+    "mov	r5, r9       \n"  \
+    "mov	r6, r10      \n"  \
+    "mov	r7, r11      \n"  \
+    "sub	r0, #32      \n"  \
+    "stmia	r0!,{r4-r7}\n"  \
+    "sub	r0, #16      \n"
+      :::
+    );
+
+    //Not the null process?
+	//(this'll skiip hal_cpu_get_psp() on the very first tick)
+	if( active_proc->state != ProcessStateNull ){
+		//save SP
+		active_proc->sp = (uint32_t*)hal_cpu_get_psp();
+	}
+
+	Serial.println("active process is");
+	Serial.println(active_proc->name);
+
+	//get next active process
+	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
+
+	tick_count++;
+	Serial.println("TICK COUNT IS");
+	Serial.println(tick_count);
+
+	Serial.println("NEW active process is");
+	Serial.println(active_proc->name);
+
+
+	//restore SP
+	hal_cpu_set_psp( (uint32_t)active_proc->sp );
+
+
+
+  __asm volatile(
+      "ldmia	r0!,{r4-r7} \n"  \
+      "mov	r8, r4        \n"  \
+      "mov	r9, r5        \n"  \
+      "mov	r10, r6       \n"  \
+      "mov	r11, r7       \n"  \
+      "ldmia	r0!,{r4-r7} \n"  \
+      "msr	psp, r0       "
+      :::
+    );
+
+    __asm volatile(
+      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
+      "ldr r0, =0xFFFFFFFD\n" \
+      "cpsie i       \n"      \
+      "bx r0"
+        :::
+      );
+}
+
+}
+
+
 
 
 /*	Puts the processor to sleep. executes in user mode  */
 void idle_process_thread(){
+  volatile uint8_t i=0;
    while(true){
-     hal_cpu_sleep();
+     i++;
+     //hal_cpu_sleep();
    }
 }
 

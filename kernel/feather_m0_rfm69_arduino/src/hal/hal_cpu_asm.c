@@ -40,8 +40,6 @@
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define USER_MODE_EXEC_VALUE  0xFFFFFFFD
-
 /**
 *
 *	Sleep
@@ -190,20 +188,7 @@ __attribute__((naked)) void hal_cpu_disable_interrupts(void){
     );
 }
 
-/**
-*	uint32_t hal_cpu_get_msp(void)
-*
-*	Gets the MSP
-*
-*	Returns the process stack pointer
-*/
-__attribute__((naked)) uint32_t hal_cpu_get_msp(void){
-  __asm volatile(
-    "mrs	r0, msp        \n" \
-    "bx lr"
-      :::
-    );
-}
+
 
 /**
 *	void hal_cpu_set_unprivileged(void)
@@ -259,28 +244,13 @@ __attribute__((naked)) void hal_cpu_set_psp(uint32_t){
     );
 }
 
-/**
-*	void hal_cpu_set_msp(uint32_t)
-*
-*	Sets the MSP
-*
-*/
-__attribute__((naked)) void hal_cpu_set_msp(uint32_t){
-  __asm volatile(
-    "msr msp, r0  \n" \
-    "bx lr"
-      :::
-    );
-}
-
 
 /////////////////////////////////////////////////////////////////////
 //              Handler/Hooks overriding Area                     ///
 /////////////////////////////////////////////////////////////////////
 
-uint32_t tick_count_a = 0;
-extern tMiniProcess* active_proc;		//The active process
-extern tProcessList proc_list;			// process list
+
+extern uint32_t ms_goal;
 
 extern "C" {
 //C++ code cannot override weak aliases defined in C
@@ -289,68 +259,11 @@ int sysTickHook(void){
   if( systick_callback ){ //We don't want Arduion to trigger this
                             //before it's defined
     if( ms_count++ >= ms_goal ){
-        (*systick_callback)();
         ms_count = 0;
+        (*systick_callback)();
     }
   }
   return 0; //Arduino expects a 0 when things go well
-}
-
-
-void PendSV_Handler(void){
-  //	(*pendsv_callback)();
-  __asm volatile(
-    "cpsid	i        \n" \
-      :::
-    );
-
-  __asm volatile(
-    "mrs	r0, psp      \n"  \
-    "sub	r0, #16      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "mov	r4, r8       \n"  \
-    "mov	r5, r9       \n"  \
-    "mov	r6, r10      \n"  \
-    "mov	r7, r11      \n"  \
-    "sub	r0, #32      \n"  \
-    "stmia	r0!,{r4-r7}\n"  \
-    "sub	r0, #16      \n"
-      :::
-    );
-
-    //Not the null process?
-	//(this'll skiip hal_cpu_get_psp() on the very first tick)
-	if( active_proc->state != ProcessStateNull ){
-		//save SP
-		active_proc->sp = (uint32_t*)hal_cpu_get_msp();
-	}
-
-	//get next active process
-	active_proc = scheduling_policy_next( active_proc, &proc_list ); //&(proc_list.list[1]);
-
-	//restore SP
-	hal_cpu_set_msp( (uint32_t)active_proc->sp );
-
-  tick_count_a++;
-
-  __asm volatile(
-      "ldmia	r0!,{r4-r7} \n"  \
-      "mov	r8, r4        \n"  \
-      "mov	r9, r5        \n"  \
-      "mov	r10, r6       \n"  \
-      "mov	r11, r7       \n"  \
-      "ldmia	r0!,{r4-r7} \n"  \
-      "msr	psp, r0       "
-      :::
-    );
-
-    __asm volatile(
-      //0xFFFFFFFD is USER_MODE_EXEC_VALUE
-      "ldr r0, =0xFFFFFFFD\n" \
-      "cpsie i       \n"      \
-      "bx r0"
-        :::
-      );
 }
 
 __attribute__((naked)) void HardFault_Handler(){

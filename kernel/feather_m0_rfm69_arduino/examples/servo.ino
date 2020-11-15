@@ -1,4 +1,4 @@
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tServoChannel servo_a;
   tServoChannel servo_b;

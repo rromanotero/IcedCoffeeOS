@@ -19,6 +19,8 @@
 *
 **/
 
+#define USER_MODE_EXEC_VALUE 0xFFFFFFFD
+
 //SysTick-related definitions
 void (*systick_callback)(void);
 
@@ -97,13 +99,13 @@ void hal_cpu_systimer_reestart(void){
 *	@param tick_freq_in_ms the tick frequency in milliseconds
 *	@param callback function to be called when a tick occurs
 */
-static uint32_t ms_count = 0;  //milliseconds count
-static uint32_t ms_goal = 0;   //milliseconds goal
+uint32_t ms_count = 0;  //milliseconds count
+uint32_t ms_goal = 0;   //milliseconds goal
 void hal_cpu_systimer_start(uint32_t tick_freq_in_ms, void(*callback)(void)){
 	systick_callback = callback;
   ms_goal = tick_freq_in_ms;  //Arduino's systimer is set in millisecond steps
                               //No conversion needed
-  //Nothing to start. Arduino has it running already
+  														//Nothing to start. Arduino has it running already
 }
 
 

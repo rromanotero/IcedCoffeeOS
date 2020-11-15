@@ -24,57 +24,32 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-extern uint32_t tick_count_a;
-
-void task_handler2(void){
+void thread_led(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(int i=0; i<24000; i++);
+    for(volatile int i=0; i<480000;i++);
   }
 }
 
-void task_handler1(void){
+void main_user_thread(void){
+
+  scheduler_thread_create( thread_led, "thread_led", 1024 );
+
   while(true){
-    Serial.println("Hey");
-    Serial.println(tick_count_a);
-
-    //hal_io_serial_puts(&serial_usb, "hey\n");
-    for(int i=0; i<24000; i++);
+    hal_io_serial_puts(&serial_usb, "main user thread\n\r");
+    for(volatile int i=0; i<480000;i++);
   }
 }
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
   system_init();
-  //scheduler_thread_create( task_handler1, "task_handler1", 512 );
 
-  bool status;
+  while(!Serial);
+  delay(1000);
 
-  /* Initialize task stacks: */
-	static uint32_t stack1[512];
-	static uint32_t stack2[512];
-	static uint32_t stack3[512];
+  scheduler_thread_create( main_user_thread, "main_user_thread", 1024 );
 
-
-  /* Setup task parameters: */
-	uint32_t p1 = 200000;
-	uint32_t p2 = p1/2;
-	uint32_t p3 = p1/4;
-
-	os_init();
-
-	//status = os_task_init(&task_handler1, stack1, sizeof(stack1));
-	//status = os_task_init(&task_handler2, stack2, sizeof(stack2));
-
-	/* Context switch every second: */
-  //Serial.println("Begin scheduler");
-	//status = os_start(3);
-
-  scheduler_thread_create( task_handler1, "task_handler1a", 1024 );
-  scheduler_thread_create( task_handler1, "task_handler1b", 1024 );
-
-  while(true){
-
-  }
+  while(true);
 
   //Exit so we don't
   //loop over and over

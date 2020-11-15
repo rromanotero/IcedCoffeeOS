@@ -1,8 +1,10 @@
 
 /*	Puts the processor to sleep. executes in user mode  */
 void idle_process_thread(){
+  volatile uint8_t i=0;
    while(true){
-     hal_cpu_sleep();
+     i++;
+     //hal_cpu_sleep();
    }
 }
 

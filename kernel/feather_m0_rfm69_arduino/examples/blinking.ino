@@ -21,7 +21,7 @@
 
 #include "hal.h"
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tPioPin led_pin;
   hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);

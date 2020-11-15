@@ -111,7 +111,7 @@
 #include <RHReliableDatagram.h>
 #include <Servo.h>
 
-#define ARDUINO_MAIN  loop
+#define ARDUINO_KERNEL_MAIN  loop
 void setup() {} /* Don't need it*/
 
 

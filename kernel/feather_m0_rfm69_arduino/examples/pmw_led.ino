@@ -20,7 +20,7 @@
 **/
 #include "hal.h"
 
-void ARDUINO_MAIN() {
+void ARDUINO_KERNEL_MAIN() {
 
   tPwmChannel pwm;
   hal_io_pwm_create_channel(&pwm, PwmA);
