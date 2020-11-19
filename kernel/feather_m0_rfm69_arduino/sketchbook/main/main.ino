@@ -25,9 +25,9 @@ extern tSerialPort serial_usb;
 
 void main_user_thread(void){
 
-  scheduler_thread_create( thread_led, "thread_led", 1024 );
-  scheduler_thread_create( thread_a, "thread_a", 1024 );
-  scheduler_thread_create( thread_b, "thread_b", 1024 );
+  scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( thread_b, "thread_b", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( thread_led, "thread_led", 1024, ProcQueueReadyRealTime );
 
   while(true){
     hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
@@ -61,7 +61,7 @@ void ARDUINO_KERNEL_MAIN() {
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
-  scheduler_thread_create( main_user_thread, "main_user_thread", 1024 );
+  scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 
@@ -173,6 +173,15 @@ static uint32_t tick_frequency;
 void context_switcher_init(uint32_t tick_freq){
   tick_frequency = tick_freq;
 
+  //Active process is the null process
+  //A null process (used to mark the lack of an active process)
+  static tMiniProcess null_proc;
+  null_proc.name = "null",
+  null_proc.state = ProcessStateNull;
+
+	active_proc = &null_proc;
+
+
   //Inits Low Pty Int
 	hal_cpu_lowpty_softint_start( low_pty_callback );
 }
@@ -250,7 +259,7 @@ __attribute__((naked)) void low_pty_callback(void){
 	}
 
 	//get next active process
-	active_proc = scheduler_process_next();
+	active_proc = scheduler_proc_next(active_proc);
 
 	//restore SP
 	hal_cpu_set_psp( (uint32_t)active_proc->sp );
@@ -1175,6 +1184,78 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 
 
 
+
+typedef struct{
+	tMiniProcess* list[SCHEDULER_MAX_NUM_PROCESSES];
+	uint32_t capacity;
+	uint32_t head;
+	uint32_t tail;
+}tQueue;
+
+//The different queues
+static tQueue q_ready_real_time;
+static tQueue q_blocked_real_time;
+static tQueue q_ready_system;
+static tQueue q_blocked_system;
+static tQueue q_ready_user;
+static tQueue q_blocked_user;
+static tQueue q_ready_batch;
+static tQueue q_blocked_batch;
+static tQueue q_ready_idle;
+
+static tQueue* queue_map[PROC_QUEUE_TOTAL_NUM_OF_QUEUES];
+
+void proc_queue_init(){
+
+  queue_map[ProcQueueReadyRealTime] = &q_ready_real_time;
+  queue_map[ProcQueueReadySystem] = &q_ready_system;
+  queue_map[ProcQueueReadyUser] = &q_ready_user;
+  queue_map[ProcQueueReadyBatch] = &q_ready_batch;
+	queue_map[ProcQueueReadyIdle] = &q_ready_idle;
+  queue_map[ProcQueueBlockedRealTime] = &q_blocked_real_time;
+  queue_map[ProcQueueBlockedSystem] = &q_blocked_system;
+  queue_map[ProcQueueBlockedUser] = &q_blocked_user;
+  queue_map[ProcQueueBlockedBatch] = &q_blocked_batch;
+
+	for(uint32_t i=0; i<PROC_QUEUE_TOTAL_NUM_OF_QUEUES; i++){
+		queue_map[i]->head = 0;
+		queue_map[i]->tail = 0;
+		queue_map[i]->capacity = SCHEDULER_MAX_NUM_PROCESSES;
+	}
+
+}
+
+void proc_queue_enqueue(tProcQueueId queue_id, tMiniProcess* proc){
+  tQueue* q = queue_map[queue_id];
+
+  q->list[q->tail] = proc;
+  q->tail = (q->tail + 1) % q->capacity;
+}
+
+tMiniProcess* proc_queue_dequeue(tProcQueueId queue_id){
+  tQueue* q = queue_map[queue_id];
+  tMiniProcess* proc;
+
+  proc =  q->list[q->head];
+  q->head = (q->head + 1) % q->capacity;
+
+  return proc;
+}
+
+tMiniProcess* proc_queue_peek(tProcQueueId queue_id){
+  tQueue* q = queue_map[queue_id];
+
+  return q->list[q->head];
+}
+
+uint32_t proc_queue_size(tProcQueueId queue_id){
+  tQueue* q = queue_map[queue_id];
+
+  return q->head - q->tail;
+}
+
+
+
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
@@ -1199,15 +1280,18 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 *
 **/
 
-#define TICK_FREQ				SYS_SCHED_CONTEXT_SWITCH_FREQ
+#define TICK_FREQ		SYS_SCHED_CONTEXT_SWITCH_FREQ
 
 extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
-static tProcessList proc_list;				// process list
-static tMiniProcess* wait_list[10];	//waiting list
-static uint32_t proc_count = 0;
+//This is where thread/processes data strutures
+//is allocated memory. All thread pointers passe around
+//ultimately point to this.
+static tThreadPool thread_pool;
 
+static uint32_t proc_started_count = 0;	//How many processes have been started
+																				//since the beginning of time
 /*
 *	Scheduler Init
 *
@@ -1217,25 +1301,29 @@ void scheduler_init(void){
 	//Init context switcher
 	context_switcher_init(TICK_FREQ);
 
+	//Init thread pool
+	for(uint32_t i=0; i<SCHEDULER_THREAD_POOL_SIZE; i++){
+		tMiniProcess proc;
+		proc.state = ProcessStateFree;
+		thread_pool.list[i] = proc;
+		thread_pool.count++;
+	}
+
+
+	//Init ready and blocked queues
+	proc_queue_init();
+
 	//Init process stack
 	static tMemRegion stack_memreg;
 	hal_memreg_read( MemRegUserStack, &stack_memreg );
 	stack_init( (uint32_t*)stack_memreg.base );	//stack_init( epstack )
 
-	//Active process is the null process
-  //A null process (used to mark the lack of an active process)
-  static tMiniProcess null_proc;
-  null_proc.name = "null",
-  null_proc.state = ProcessStateNull;
-
-	active_proc = &null_proc;
-
 	//No processes
-	proc_count = 0;
+	proc_started_count = 0;
 
 	//Create idle process/thread
 	//(we need one!)
-	scheduler_thread_create( idle_process_thread, "idle process thread", 256 );
+	scheduler_thread_create( idle_process_thread, "idle process thread", 256, ProcQueueReadyIdle );
 }
 
 /*
@@ -1243,41 +1331,18 @@ void scheduler_init(void){
 *
 *	Creates a process from a binary in nvmem. Ticking here begins!
 */
-uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, uint32_t* loader_rval ){
-	tMemRegion proc_memregion;
-	uint32_t stack_sz;
+uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, uint32_t* loader_rval, tProcQueueId destination_queue_id ){
+	//tMemRegion proc_memregion;
 
 	//Load app binary
 	//uint32_t rval = loader_load_app( binary_file_name, &proc_memregion, &stack_sz );
-//	if(  rval != LOADER_LOAD_SUCCESS ){
-//		*loader_rval = rval;				//populate loader error
-//		return SCHEDULER_PROCESS_CREATE_FAILED;
-//	}
+	//	if(  rval != LOADER_LOAD_SUCCESS ){
+	//		*loader_rval = rval;				//populate loader error
+	//		return SCHEDULER_PROCESS_CREATE_FAILED;
+	//	}
 
-	//Set process info
-	proc_list.list[proc_list.count].name = name;
-	proc_list.list[proc_list.count].state = ProcessStateReady;
+	//LOAD BIN ... THEN CALL scheduler_thread_create
 
-	//Allocate space for "fake" context
-	stack_alloc( CONTEXT_SIZE );
-
-	//Allocate space for remaining stack
-	proc_list.list[proc_list.count].sp = stack_top();       //set SP
-	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
-
-	//Insert "fake" context
-	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
-	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (proc_memregion.base +1));
-	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
-
-	//Increment counter in list
-	proc_list.count++;
-
-	//Start ticking on first process (idle thread is process/thread 1)
-	if( proc_list.count == 2 ){
-		hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-		context_switcher_begin_ticking();
-	}
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }
@@ -1291,64 +1356,103 @@ uint32_t scheduler_process_create( uint8_t* binary_file_name, const char* name, 
 *   no  difference between a process and a thread.
 *
 */
-uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, uint32_t stack_sz ){
+uint32_t scheduler_thread_create( void(*thread_code)(void), const char* name, uint32_t stack_sz, tProcQueueId destination_queue_id ){
+	tMiniProcess* proc = thread_pool_get_one();
+
+	if(proc == NULL)
+			faults_kernel_panic("Failed to schedule. Thread pool exhausted.");
 
 	//Set process info
-	proc_list.list[proc_list.count].name = name;
-	proc_list.list[proc_list.count].state = ProcessStateReady;
+	proc->name = name;
+	proc->state = ProcessStateReady;
+	proc->queue_id = destination_queue_id;
 
 	//Allocate space for "fake" context
 	stack_alloc( CONTEXT_SIZE );
 
 	//Allocate space for remaining stack
-	proc_list.list[proc_list.count].sp = stack_top();       //set SP
+	proc->sp = stack_top();       //set SP
 	stack_alloc( stack_sz - CONTEXT_SIZE );					//make space
 
 	//Insert "fake" context
-	proc_list.list[proc_list.count].sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
-	proc_list.list[proc_list.count].sp[OFFSET_PC] =     ((uint32_t) (thread_code +1));
-	proc_list.list[proc_list.count].sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
+	proc->sp[OFFSET_LR] =     ((uint32_t) (process_thread_delete +1));
+	proc->sp[OFFSET_PC] =     ((uint32_t) (thread_code +1));
+	proc->sp[OFFSET_APSR] =   ((uint32_t) INITIAL_APSR);
 
 	//Increment counter in list
-	proc_list.count++;
+	proc_started_count++;
 
-  //Start ticking on first process (idle thread is process/thread 1)
-  if( proc_list.count == 2 ){
-  	  hal_cpu_set_psp( (uint32_t)proc_list.list[0].sp );						//or else the first tick fails
-  	  context_switcher_begin_ticking();
+	//Send to ready queue
+	proc_queue_enqueue(destination_queue_id, proc);
+
+	//Start ticking on first process
+	// Proc 1 = Idle thread
+	// Proc 2 = this thread (FIRST actual process)
+  if( proc_started_count == 2 ){
+		tMiniProcess* idle_thread = proc_queue_peek(ProcQueueReadyIdle);
+		hal_cpu_set_psp( (uint32_t)idle_thread->sp );	//or else the first tick fails
+
+		context_switcher_begin_ticking();
   }
 
 	return SCHEDULER_PROCESS_CREATE_SUCCESS;
 }
 
 /*
-*       I believe this is round robin! It jsut looks different thatn what
-*		it appears on textsbooks.
+*		 Scheduler Next Process
+*
+*    Slect next process to run from all the ready queues
+*		 as per some priority
 */
-static uint32_t process_mark = 0;
+static tProcQueueId queue_ids[] = {
+	ProcQueueReadyRealTime,	//priority 1
+	ProcQueueReadySystem,		//priority 2
+	ProcQueueReadyUser,		  //priority 3
+	ProcQueueReadyBatch,	  //...
+	ProcQueueReadyIdle
+};
 
-tMiniProcess* scheduler_process_next(){
-		//Increment process mark
-		//(skip dead processes)
-		uint32_t count=0;
-		do{
-			count++;
-			process_mark = (process_mark + 1) % proc_list.count;
-		}while( proc_list.list[process_mark].state == ProcessStateDead );
+tMiniProcess* scheduler_proc_next(tMiniProcess* active_proc){
 
+	if(active_proc->state != ProcessStateNull){
+		//Queue active process back to where it was
+		proc_queue_enqueue(active_proc->queue_id, active_proc);	//enqueue(active)
+	}
 
-		//Return process at process mark
-		return &(proc_list.list[process_mark]);
+	//Find next
+	tMiniProcess* next;
+
+	for(uint32_t i=0; i<PROC_QUEUE_TOTAL_NUM_OF_READY_QUEUES; i++){
+			if( proc_queue_size(queue_ids[i]) > 0 ){
+				next = proc_queue_dequeue(queue_ids[i]);	//next = dequeue()
+				break;
+			}
+	}
+
+	if(next == NULL)
+			faults_kernel_panic("Failed to schedule. No process found in ready queues.");
+
+	return next;
 }
 
 
 void scheduler_process_current_stop(void){
 	//changes thread state to dead
 	//(so it's not scheduled anymore)
-	active_proc->state =  ProcessStateDead;
+	//active_proc.state =  ProcessStateDead;
 
 	//context switches
 	context_switcher_trigger();
+}
+
+
+tMiniProcess* thread_pool_get_one(){
+	for(uint32_t i=0; i<SCHEDULER_THREAD_POOL_SIZE; i++){
+		if( thread_pool.list[i].state == ProcessStateFree )
+			return &(thread_pool.list[i]);
+	}
+
+	return NULL;
 }
 
 

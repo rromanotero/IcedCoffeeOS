@@ -22,33 +22,26 @@
 *
 **/
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+
+#ifndef PROC_QUEUE_H_
+#define PROC_QUEUE_H_
+
+#define PROC_QUEUE_TOTAL_NUM_OF_QUEUES          PROC_QUEUE_TOTAL_NUM_OF_READY_QUEUES + PROC_QUEUE_TOTAL_NUM_OF_BLOCKED_QUEUES
+#define PROC_QUEUE_TOTAL_NUM_OF_READY_QUEUES    5
+#define PROC_QUEUE_TOTAL_NUM_OF_BLOCKED_QUEUES  4
+
+typedef enum tProcQueueId {
+    ProcQueueReadyRealTime = 0,
+    ProcQueueReadySystem,
+    ProcQueueReadyUser,
+    ProcQueueReadyBatch,
+    ProcQueueReadyIdle,
+    ProcQueueBlockedRealTime,
+    ProcQueueBlockedSystem,
+    ProcQueueBlockedUser,
+    ProcQueueBlockedBatch
+  };
 
 
-#define SCHEDULER_PROCESS_CREATE_FAILED		0
-#define SCHEDULER_PROCESS_CREATE_SUCCESS	1
-#define SCHEDULER_MAX_NUM_PROCESSES			  SYS_SCHED_MAX_NUM_OF_PROCESSES
-#define SCHEDULER_THREAD_POOL_SIZE				SCHEDULER_MAX_NUM_PROCESSES
 
-typedef enum tProcessState {
-		ProcessStateReady = 0,
-		ProcessStateRunning,
-		ProcessStateFree,
-		ProcessStateNull
-	};
-
-typedef struct{
-	const char* name;
-	uint32_t* sp;
-	tProcessState state;
-  tProcQueueId queue_id;
-}tMiniProcess;
-
-
-typedef struct{
-	tMiniProcess list[SCHEDULER_MAX_NUM_PROCESSES];
-	uint32_t count;
-}tThreadPool;
-
-#endif /* SCHEDULER_H_ */
+#endif /* PROC_QUEUE_H_ */

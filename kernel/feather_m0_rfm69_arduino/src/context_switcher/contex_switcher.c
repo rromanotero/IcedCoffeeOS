@@ -60,6 +60,15 @@ static uint32_t tick_frequency;
 void context_switcher_init(uint32_t tick_freq){
   tick_frequency = tick_freq;
 
+  //Active process is the null process
+  //A null process (used to mark the lack of an active process)
+  static tMiniProcess null_proc;
+  null_proc.name = "null",
+  null_proc.state = ProcessStateNull;
+
+	active_proc = &null_proc;
+
+
   //Inits Low Pty Int
 	hal_cpu_lowpty_softint_start( low_pty_callback );
 }
@@ -137,7 +146,7 @@ __attribute__((naked)) void low_pty_callback(void){
 	}
 
 	//get next active process
-	active_proc = scheduler_process_next();
+	active_proc = scheduler_proc_next(active_proc);
 
 	//restore SP
 	hal_cpu_set_psp( (uint32_t)active_proc->sp );

@@ -25,9 +25,9 @@ extern tSerialPort serial_usb;
 
 void main_user_thread(void){
 
-  scheduler_thread_create( thread_led, "thread_led", 1024 );
-  scheduler_thread_create( thread_a, "thread_a", 1024 );
-  scheduler_thread_create( thread_b, "thread_b", 1024 );
+  scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( thread_b, "thread_b", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( thread_led, "thread_led", 1024, ProcQueueReadyRealTime );
 
   while(true){
     hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
@@ -61,7 +61,7 @@ void ARDUINO_KERNEL_MAIN() {
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
-  scheduler_thread_create( main_user_thread, "main_user_thread", 1024 );
+  scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 
