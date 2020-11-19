@@ -30,14 +30,6 @@
 #define SCHEDULER_PROCESS_CREATE_SUCCESS	1
 #define SCHEDULER_MAX_NUM_PROCESSES			  SYS_SCHED_MAX_NUM_OF_PROCESSES
 
-typedef enum tProcessState { ProcessStateReady = 0, ProcessStateRunning, ProcessStateDead, ProcessStateNull  };
-
-typedef struct{
-	const char* name;
-	uint32_t* sp;
-	tProcessState state;
-}tMiniProcess;
-
 typedef struct{
 	tMiniProcess list[SCHEDULER_MAX_NUM_PROCESSES];
 	uint32_t count;
