@@ -36,16 +36,51 @@ void main_user_thread(void){
 }
 
 void thread_a(void){
+  tIcedQTopic topic;
+  topic.name = "system";
+  topic.encoding = IcedEncodingString;
+
+  uint8_t* raw_message = (uint8_t*)"hey there!\n";
+
+
   while(true){
-    hal_io_serial_puts(&serial_usb, "Thread A\n\r");
-    for(volatile int i=0; i<480000*2;i++);
+    for(volatile int i=0; i<480000*5;i++);
+
+    //publish
+    hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
+    icedq_publish(&topic, "", raw_message, 11);
   }
 }
 
+uint8_t buffer[100];
+
 void thread_b(void){
+  tIcedQTopic topic;
+  topic.name = "system";
+  topic.encoding = IcedEncodingString;
+
+  tIcedQQueue in_queue;
+  in_queue.queue = buffer;
+  in_queue.head = 0;
+  in_queue.tail = 0;
+  in_queue.capacity = 100;
+
+  icedq_subscribe(&topic, "", &in_queue);
+
   while(true){
-    hal_io_serial_puts(&serial_usb, "Thread B\n\r");
-    for(volatile int i=0; i<480000*3;i++);
+    //wait for data
+    if( in_queue.head != in_queue.tail ){
+        for(volatile int i=0; i<480000*2;i++);
+
+        //consume messages
+        uint8_t item =  in_queue.queue[in_queue.head];
+        in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+
+        Serial.print("\n\r Consumed:");
+        //Serial.print(item);
+        Serial.print("\n\r");
+        hal_io_serial_putc(&serial_usb, item);
+    }
   }
 }
 
@@ -107,6 +142,7 @@ void system_init(void){
 	hal_radio_init();
 	faults_init();
 	scheduler_init();
+	icedq_init();
 }
 
 
@@ -136,8 +172,10 @@ void system_init(void){
 **/
 
 /*  There's now way I was getting that PendSV Handler code right
- *  by myself. Thanks to Adam Heinrich. So here's the License.
+ *  by myself. Thanks to Adam Heinrich. So here's the link and License.
  *    - Rafael
+ *
+ * https://github.com/adamheinrich/os.h/blob/master/src/os.c
  *
  * This file is part of os.h.
  *
@@ -156,12 +194,6 @@ void system_init(void){
  * You should have received a copy of the GNU General Public License
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#define CONTEXT_SIZE    16
-#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
-#define OFFSET_LR       13
-#define OFFSET_PC       14
-#define OFFSET_APSR     15
 
 tMiniProcess* active_proc;		//The active process
 
@@ -1185,6 +1217,112 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 
 
 
+
+#define ICEDQ_SUSCRIPTION_POOL_SIZE  ICEDQ_MAX_NUM_SUSCRIPTIONS
+
+typedef struct{
+	tIcedQSuscription list[ICEDQ_SUSCRIPTION_POOL_SIZE];
+	uint32_t count;
+}tSuscriptionPool;
+
+tSuscriptionPool suscription_pool;
+tIcedQSuscription* active_subscriptions[ICEDQ_SUSCRIPTION_POOL_SIZE];
+uint32_t num_of_active_suscriptions;
+
+/*
+*   Init IcedQ
+**/
+void icedq_init(){
+
+  //init suscription pool
+  for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
+    suscription_pool.list[i].free = true;
+  }
+
+}
+
+
+/*
+*   Publish to topic
+**/
+uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw_message_bytes, uint32_t message_len_in_bytes){
+
+  //route to suscribed queues
+  for(int i=0; i<num_of_active_suscriptions; i++){
+      //TODO:
+      //    Replace for a hash table lookup
+      if( strcmp(topic->name, active_subscriptions[i]->topic->name) == 0 ){
+
+        //TODO:
+        //  Change so routing keys do not require exact matches
+        //if( strcmp(routing_key, active_subscriptions[i]->routing_key) == 0 ){
+
+            //copy over raw bytes
+            for(int j=0; j<message_len_in_bytes; j++){
+                active_subscriptions[i]->registered_queue->queue[active_subscriptions[i]->registered_queue->tail] = raw_message_bytes[j];
+            		active_subscriptions[i]->registered_queue->tail = (active_subscriptions[i]->registered_queue->tail + 1) % active_subscriptions[i]->registered_queue->capacity;
+						}
+        //}
+      }
+  }
+}
+
+/*
+*   Subscribe
+**/
+uint32_t icedq_subscribe(tIcedQTopic* topic, const char* routing_key, tIcedQQueue* queue){
+
+    tIcedQSuscription* suscription = suscriptions_pool_get_one();
+
+    if(suscription ==  NULL)
+        return ICEDQ_NO_MORE_SUSCRIPTIONS_AVAILABLE;
+
+    suscription->topic = topic;
+    suscription->routing_key = routing_key;
+    suscription->registered_queue = queue;
+
+    active_subscriptions[num_of_active_suscriptions++] = suscription;
+
+    return ICEDQ_SUCCESS;
+}
+
+tIcedQSuscription* suscriptions_pool_get_one(void){
+  	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
+  		if( suscription_pool.list[i].free ){
+          suscription_pool.list[i].free = false;  //No longer free
+    			return &(suscription_pool.list[i]);
+      }
+  	}
+  	return NULL; //We're out of threads
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+
 typedef struct{
 	tMiniProcess* list[SCHEDULER_MAX_NUM_PROCESSES];
 	uint32_t capacity;
@@ -1286,7 +1424,7 @@ extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
 //This is where thread/processes data strutures
-//is allocated memory. All thread pointers passe around
+//are allocated memory. All thread pointers passe around
 //ultimately point to this.
 static tThreadPool thread_pool;
 
@@ -1452,7 +1590,7 @@ tMiniProcess* thread_pool_get_one(){
 			return &(thread_pool.list[i]);
 	}
 
-	return NULL;
+	return NULL; //We're out of threads
 }
 
 

@@ -28,7 +28,7 @@ extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
 //This is where thread/processes data strutures
-//is allocated memory. All thread pointers passe around
+//are allocated memory. All thread pointers passe around
 //ultimately point to this.
 static tThreadPool thread_pool;
 
@@ -194,5 +194,5 @@ tMiniProcess* thread_pool_get_one(){
 			return &(thread_pool.list[i]);
 	}
 
-	return NULL;
+	return NULL; //We're out of threads
 }

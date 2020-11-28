@@ -81,6 +81,13 @@
 #ifndef CONTEXT_SWTICHER_H
 #define CONTEXT_SWTICHER_H
 
+#define CONTEXT_SIZE    16
+#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
+#define OFFSET_LR       13
+#define OFFSET_PC       14
+#define OFFSET_APSR     15
+#define OFFSET_PC       14
+#define OFFSET_R0       8
 
 #endif
 
@@ -261,6 +268,44 @@ typedef struct{
 }CPUInfo;
 
 #endif
+
+
+
+#ifndef ICED_Q_H_
+#define ICED_Q_H_
+
+#define ICEDQ_MAX_BYTESTRING_LEN              32
+#define ICEDQ_MAX_NUM_SUSCRIPTIONS            100
+
+#define ICEDQ_SUCCESS                         1
+#define ICEDQ_NO_MORE_SUSCRIPTIONS_AVAILABLE  2
+
+typedef enum tIcedEncoding {
+  IcedEncodingInteger = 0,
+  IcedEncodingString = 0
+};
+
+typedef struct{
+  const char* name;
+  tIcedEncoding encoding;
+}tIcedQTopic;
+
+typedef struct{
+	uint8_t* queue;
+	uint32_t capacity;
+	volatile uint32_t head;  //These 2 are how processes synchronize, so make them visible to
+	volatile uint32_t tail;  //each other with volatile i.e. tell the compiler to not optimize them
+}tIcedQQueue;
+
+typedef struct{
+  tIcedQTopic* topic;
+  const char* routing_key;
+  tIcedQQueue* registered_queue;
+  bool free;
+}tIcedQSuscription;
+
+
+#endif /* ICED_Q_H_ */
 
 
 

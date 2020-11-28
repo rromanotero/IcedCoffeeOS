@@ -23,8 +23,10 @@
 **/
 
 /*  There's now way I was getting that PendSV Handler code right
- *  by myself. Thanks to Adam Heinrich. So here's the License.
+ *  by myself. Thanks to Adam Heinrich. So here's the link and License.
  *    - Rafael
+ *
+ * https://github.com/adamheinrich/os.h/blob/master/src/os.c
  *
  * This file is part of os.h.
  *
@@ -43,12 +45,6 @@
  * You should have received a copy of the GNU General Public License
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#define CONTEXT_SIZE    16
-#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
-#define OFFSET_LR       13
-#define OFFSET_PC       14
-#define OFFSET_APSR     15
 
 tMiniProcess* active_proc;		//The active process
 

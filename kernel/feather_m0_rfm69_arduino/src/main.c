@@ -36,16 +36,51 @@ void main_user_thread(void){
 }
 
 void thread_a(void){
+  tIcedQTopic topic;
+  topic.name = "system";
+  topic.encoding = IcedEncodingString;
+
+  uint8_t* raw_message = (uint8_t*)"hey there!\n";
+
+
   while(true){
-    hal_io_serial_puts(&serial_usb, "Thread A\n\r");
-    for(volatile int i=0; i<480000*2;i++);
+    for(volatile int i=0; i<480000*5;i++);
+
+    //publish
+    hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
+    icedq_publish(&topic, "", raw_message, 11);
   }
 }
 
+uint8_t buffer[100];
+
 void thread_b(void){
+  tIcedQTopic topic;
+  topic.name = "system";
+  topic.encoding = IcedEncodingString;
+
+  tIcedQQueue in_queue;
+  in_queue.queue = buffer;
+  in_queue.head = 0;
+  in_queue.tail = 0;
+  in_queue.capacity = 100;
+
+  icedq_subscribe(&topic, "", &in_queue);
+
   while(true){
-    hal_io_serial_puts(&serial_usb, "Thread B\n\r");
-    for(volatile int i=0; i<480000*3;i++);
+    //wait for data
+    if( in_queue.head != in_queue.tail ){
+        for(volatile int i=0; i<480000*2;i++);
+
+        //consume messages
+        uint8_t item =  in_queue.queue[in_queue.head];
+        in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+
+        Serial.print("\n\r Consumed:");
+        //Serial.print(item);
+        Serial.print("\n\r");
+        hal_io_serial_putc(&serial_usb, item);
+    }
   }
 }
 

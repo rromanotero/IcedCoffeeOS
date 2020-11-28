@@ -33,4 +33,5 @@ void system_init(void){
 	hal_radio_init();
 	faults_init();
 	scheduler_init();
+	icedq_init();
 }
