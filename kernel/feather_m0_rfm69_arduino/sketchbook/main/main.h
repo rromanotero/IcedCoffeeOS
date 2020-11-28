@@ -291,8 +291,8 @@ typedef struct{
 }tIcedQTopic;
 
 typedef struct{
-	uint8_t* queue;
-	uint32_t capacity;
+	volatile uint8_t* queue;
+	volatile uint32_t capacity;
 	volatile uint32_t head;  //These 2 are how processes synchronize, so make them visible to
 	volatile uint32_t tail;  //each other with volatile i.e. tell the compiler to not optimize them
 }tIcedQQueue;

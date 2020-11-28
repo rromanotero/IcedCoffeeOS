@@ -30,7 +30,7 @@ void main_user_thread(void){
   scheduler_thread_create( thread_led, "thread_led", 1024, ProcQueueReadyRealTime );
 
   while(true){
-    hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
+    //hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
     for(volatile int i=0; i<480000*5;i++);
   }
 }
@@ -69,7 +69,7 @@ void thread_b(void){
 
   while(true){
     //wait for data
-    if( in_queue.head != in_queue.tail ){
+    if( in_queue.tail - in_queue.head > 0){
         for(volatile int i=0; i<480000*2;i++);
 
         //consume messages
