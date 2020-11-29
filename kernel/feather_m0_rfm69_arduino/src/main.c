@@ -40,15 +40,16 @@ void thread_a(void){
   topic.name = "system";
   topic.encoding = IcedEncodingString;
 
-  uint8_t* raw_message = (uint8_t*)"hey there!\n";
+  uint8_t* raw_message = (uint8_t*)"hey there!";
 
+  for(volatile int i=0; i<480000*10;i++);
 
   while(true){
-    for(volatile int i=0; i<480000*5;i++);
+    for(volatile int i=0; i<4800;i++);
 
     //publish
     //hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
-    icedq_publish(&topic, "", raw_message, 11);
+    icedq_publish(&topic, "", raw_message, 10);
   }
 }
 
@@ -75,22 +76,44 @@ void thread_b(void){
   //    Serial.println("CONSUMER: Waiting to consume");
   //  }
 
-    if(in_queue.tail - in_queue.head > 0){
+    volatile int32_t head = in_queue.head;
+    volatile int32_t tail = in_queue.tail;
+    volatile int32_t fixed_tail = tail % in_queue.capacity;
+    volatile int32_t fixed_head = head % in_queue.capacity;
+    char items[100];
+
+    if(tail - head > 0){
+
+      Serial.println("CONSUMER: Found this many elements in queue:");
+      Serial.println(tail-head);
+
+      Serial.println("CONSUMER: fixed tail:");
+      Serial.println(fixed_tail);
+
+      Serial.println("CONSUMER: fixed head");
+      Serial.println(fixed_head);
+
+      Serial.println("CONSUMER: real tail:");
+      Serial.println(tail);
+
+      Serial.println("CONSUMER: real head");
+      Serial.println(head);
 
       //wait for data
-      while( in_queue.tail - in_queue.head > 0){
-
+      for(int i=0; i< tail-head; i++){
           //consume messages
-          uint8_t item =  in_queue.queue[in_queue.head];
-          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
-
-          Serial.println("CONSUMER: Consumed item:");
-          Serial.write(item);
-          Serial.println("");
+          items[i] =  in_queue.queue[fixed_head+i];
       }
 
-      Serial.println("CONSUMER: Size fo queue after consuming");
-      Serial.println(in_queue.tail - in_queue.head);
+      //Update head atomically
+      in_queue.head = in_queue.head + (tail-head);
+
+
+      Serial.println("CONSUMER: consumed the items: ");
+      for(int j=0; j<(tail-head); j++){
+        Serial.write(items[j]);
+      }
+      Serial.println("");
     }
   }
 }

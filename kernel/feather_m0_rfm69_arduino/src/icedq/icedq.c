@@ -39,38 +39,50 @@ uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw
         //  Change so routing keys do not require exact matches
         //if( strcmp(routing_key, active_subscriptions[i]->routing_key) == 0 ){
 
-					Serial.println("Matched a suscripion for topic");
-					Serial.println(topic->name);
-
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
-					uint32_t tail = q->tail;
-					uint32_t head = q->head;
-					uint32_t tail_after_publishing = tail + message_len_in_bytes;
+					volatile int32_t tail = q->tail;
+					volatile int32_t head = q->head;
 
-					Serial.println("Elements in queue:");
-					Serial.println(tail - head);
+					int32_t fixed_tail = tail % q->capacity;
+					int32_t fixed_head = head % q->capacity;
 
-					Serial.println("Queue capacity:");
-					Serial.println(q->capacity);
+					Serial.println("PRODUCER: fixed tail");
+					Serial.println(fixed_tail);
+					Serial.println("PRODUCER: fixed head");
+					Serial.println(fixed_head);
+					Serial.println("PRODUCER: real tail");
+					Serial.println(tail);
+					Serial.println("PRODUCER: real head");
+					Serial.println(head);
 
-					if( (tail_after_publishing - q->head) < q->capacity ){
+					Serial.println("PRODUCER: queue size after inserting elements (deciding)");
+					Serial.println((tail - head + message_len_in_bytes));
+
+
+					if( (tail - head + message_len_in_bytes) < q->capacity ){
+
+						Serial.println("PRODUCER: producing the content: ");
+						for(int j=0; j<message_len_in_bytes; j++){
+							Serial.write(raw_message_bytes[j]);
+						}
+						Serial.println("");
 
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
-								q->queue[q->tail+j] = raw_message_bytes[j];
-								Serial.println("Inserted element");
-								Serial.write(raw_message_bytes[j]);
+								q->queue[(fixed_tail+j)%q->capacity] = raw_message_bytes[j];
 						}
 						//Update tail at the end, so insertion is atomic
-						q->tail = (q->tail + message_len_in_bytes) % q->capacity;
+						q->tail = q->tail + message_len_in_bytes;
+
+						Serial.println("PRODUCER: real tail after update");
+						Serial.println(q->tail);
+						Serial.println("PRODUCER: real head after update");
+						Serial.println(q->head);
 
 					}else{
 						Serial.println("Queue FULL");
 					}
-
-					Serial.println("Elements in queue (after insertion):");
-					Serial.println(q->tail - q->head);
 
         //}
       }
