@@ -47,7 +47,7 @@ void thread_a(void){
     for(volatile int i=0; i<480000*5;i++);
 
     //publish
-    hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
+    //hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
     icedq_publish(&topic, "", raw_message, 11);
   }
 }
@@ -67,19 +67,30 @@ void thread_b(void){
 
   icedq_subscribe(&topic, "", &in_queue);
 
+
+  uint32_t counter = 0;
   while(true){
-    //wait for data
-    if( in_queue.tail - in_queue.head > 0){
-        for(volatile int i=0; i<480000*2;i++);
 
-        //consume messages
-        uint8_t item =  in_queue.queue[in_queue.head];
-        in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+  //  if(counter++ % 1000 == 0){
+  //    Serial.println("CONSUMER: Waiting to consume");
+  //  }
 
-        Serial.print("\n\r Consumed:");
-        //Serial.print(item);
-        Serial.print("\n\r");
-        hal_io_serial_putc(&serial_usb, item);
+    if(in_queue.tail - in_queue.head > 0){
+
+      //wait for data
+      while( in_queue.tail - in_queue.head > 0){
+
+          //consume messages
+          uint8_t item =  in_queue.queue[in_queue.head];
+          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+
+          Serial.println("CONSUMER: Consumed item:");
+          Serial.write(item);
+          Serial.println("");
+      }
+
+      Serial.println("CONSUMER: Size fo queue after consuming");
+      Serial.println(in_queue.tail - in_queue.head);
     }
   }
 }

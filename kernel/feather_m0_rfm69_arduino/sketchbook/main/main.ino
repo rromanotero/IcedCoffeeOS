@@ -47,7 +47,7 @@ void thread_a(void){
     for(volatile int i=0; i<480000*5;i++);
 
     //publish
-    hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
+    //hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
     icedq_publish(&topic, "", raw_message, 11);
   }
 }
@@ -67,19 +67,30 @@ void thread_b(void){
 
   icedq_subscribe(&topic, "", &in_queue);
 
+
+  uint32_t counter = 0;
   while(true){
-    //wait for data
-    if( in_queue.tail - in_queue.head > 0){
-        for(volatile int i=0; i<480000*2;i++);
 
-        //consume messages
-        uint8_t item =  in_queue.queue[in_queue.head];
-        in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+  //  if(counter++ % 1000 == 0){
+  //    Serial.println("CONSUMER: Waiting to consume");
+  //  }
 
-        Serial.print("\n\r Consumed:");
-        //Serial.print(item);
-        Serial.print("\n\r");
-        hal_io_serial_putc(&serial_usb, item);
+    if(in_queue.tail - in_queue.head > 0){
+
+      //wait for data
+      while( in_queue.tail - in_queue.head > 0){
+
+          //consume messages
+          uint8_t item =  in_queue.queue[in_queue.head];
+          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+
+          Serial.println("CONSUMER: Consumed item:");
+          Serial.write(item);
+          Serial.println("");
+      }
+
+      Serial.println("CONSUMER: Size fo queue after consuming");
+      Serial.println(in_queue.tail - in_queue.head);
     }
   }
 }
@@ -1257,11 +1268,39 @@ uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw
         //  Change so routing keys do not require exact matches
         //if( strcmp(routing_key, active_subscriptions[i]->routing_key) == 0 ){
 
-            //copy over raw bytes
-            for(int j=0; j<message_len_in_bytes; j++){
-                active_subscriptions[i]->registered_queue->queue[active_subscriptions[i]->registered_queue->tail] = raw_message_bytes[j];
-            		active_subscriptions[i]->registered_queue->tail = (active_subscriptions[i]->registered_queue->tail + 1) % active_subscriptions[i]->registered_queue->capacity;
+					Serial.println("Matched a suscripion for topic");
+					Serial.println(topic->name);
+
+					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
+					uint32_t tail = q->tail;
+					uint32_t head = q->head;
+					uint32_t tail_after_publishing = tail + message_len_in_bytes;
+
+					Serial.println("Elements in queue:");
+					Serial.println(tail - head);
+
+					Serial.println("Queue capacity:");
+					Serial.println(q->capacity);
+
+					if( (tail_after_publishing - q->head) < q->capacity ){
+
+						//if there's space,
+						//copy over raw bytes
+						for(int j=0; j<message_len_in_bytes; j++){
+								q->queue[q->tail+j] = raw_message_bytes[j];
+								Serial.println("Inserted element");
+								Serial.write(raw_message_bytes[j]);
 						}
+						//Update tail at the end, so insertion is atomic
+						q->tail = (q->tail + message_len_in_bytes) % q->capacity;
+
+					}else{
+						Serial.println("Queue FULL");
+					}
+
+					Serial.println("Elements in queue (after insertion):");
+					Serial.println(q->tail - q->head);
+
         //}
       }
   }
