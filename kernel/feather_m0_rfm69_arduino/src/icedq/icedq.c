@@ -41,63 +41,50 @@ uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw
         //if( strcmp(routing_key, active_subscriptions[i]->routing_key) == 0 ){
 
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
-					volatile int8_t tail = q->tail;
-					volatile int8_t head = q->head;
+					volatile uint32_t tail = q->tail;
+					volatile uint32_t head = q->head;
 
-					int8_t fixed_tail = tail % q->capacity;
-					int8_t fixed_head = head % q->capacity;
+					int32_t spaced_used;
+			    if(head > tail){
+			      //tail went around
+			      spaced_used = (q->capacity-head) + tail;
+			    }
+			    else{
+			      spaced_used = (tail - head);
+			    }
 
-					Serial.println("PRODUCER: fixed tail");
-					Serial.println(fixed_tail);
-					Serial.println("PRODUCER: fixed head");
-					Serial.println(fixed_head);
-					Serial.println("PRODUCER: real tail");
-					Serial.println(tail);
-					Serial.println("PRODUCER: real head");
-					Serial.println(head);
+					//Serial.print("Space used:");
+					//Serial.println(spaced_used);
 
-					int32_t bytes_to_use = 0;
+					//Serial.println("PRODUCER: tail:");
+		      //Serial.println(tail);
 
-					if(tail < 0 && head > 0){
-						//tail overflow to the negatives and head hasn't
-						bytes_to_use = (tail+128) + (127-head) + message_len_in_bytes;
-
-					}
-					else{
-						bytes_to_use = (tail - head + message_len_in_bytes);
-					}
+		      //Serial.println("PRODUCER: head");
+		      //Serial.println(head);
 
 
-					Serial.println("PRODUCER: queue size after inserting elements (deciding)");
-					Serial.println(bytes_to_use);
+					if( spaced_used + message_len_in_bytes < q->capacity ){
 
+						//Serial.println("PRODUCER: producing the content: ");
 
-					if( bytes_to_use < q->capacity ){
-
-						Serial.println("PRODUCER: producing the content: ");
-						for(int j=0; j<message_len_in_bytes; j++){
-							Serial.write(raw_message_bytes[j]);
-						}
-						Serial.println("");
+						//for(int j=0; j<message_len_in_bytes; j++){
+						//	Serial.write(raw_message_bytes[j]);
+						//}
+						//Serial.println("");
 
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
-								q->queue[(fixed_tail+j)%q->capacity] = raw_message_bytes[j];
+								q->queue[q->tail] = raw_message_bytes[j];
+								q->tail = (q->tail + 1) % q->capacity;
 						}
-						//Update tail at the end, so insertion is atomic
-						q->tail = q->tail + message_len_in_bytes;
 
-						Serial.println("PRODUCER: real tail after update");
-						Serial.println(q->tail);
-						Serial.println("PRODUCER: real head after update");
-						Serial.println(q->head);
+						//Serial.println("PRODUCER: NEW value of tail:");
+			      //Serial.println(q->tail);
 
 					}else{
 						Serial.println("Queue FULL");
 					}
-
-
 
         //}
       }
