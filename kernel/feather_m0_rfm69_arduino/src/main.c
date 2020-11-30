@@ -31,16 +31,11 @@ void main_user_thread(void){
 
   while(true){
     //hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
-    for(volatile int i=0; i<480000*5;i++);
+    for(volatile int i=0; i<480000*7;i++);
   }
 }
 
 void thread_a(void){
-  tIcedQTopic topic;
-  topic.name = "system";
-  topic.encoding = IcedEncodingString;
-
-
 
   //Let consumer go up
   for(volatile int i=0; i<480000*10;i++);
@@ -58,7 +53,7 @@ void thread_a(void){
     raw_message[3] = counter + '0';
     counter = (counter+1)%10;
 
-    icedq_publish(&topic, "", raw_message, 4);
+    icedq_publish("dummy_topic", raw_message, 4);
   }
 }
 
@@ -66,9 +61,6 @@ uint8_t buffer[100];
 char items[100];
 
 void thread_b(void){
-  tIcedQTopic topic;
-  topic.name = "system";
-  topic.encoding = IcedEncodingString;
 
   tIcedQQueue in_queue;
   in_queue.queue = buffer;
@@ -76,7 +68,7 @@ void thread_b(void){
   in_queue.tail = 0;
   in_queue.capacity = 100;
 
-  icedq_subscribe(&topic, "", &in_queue);
+  icedq_subscribe("dummy_topic", &in_queue);
 
 
   uint32_t counter = 0;
@@ -97,14 +89,14 @@ void thread_b(void){
 
     if(bytes_to_read > 0){
 
-      //Serial.println("CONSUMER: Found this many elements in queue:");
-      //Serial.println(bytes_to_read);
+      Serial.println("CONSUMER: Found this many elements in queue:");
+      Serial.println(bytes_to_read);
 
-      //Serial.println("CONSUMER: tail:");
-      //Serial.println(tail);
+      Serial.println("CONSUMER: tail:");
+      Serial.println(tail);
 
-      //Serial.println("CONSUMER: head");
-      //Serial.println(head);
+      Serial.println("CONSUMER: head");
+      Serial.println(head);
 
       for(int i=0; i< bytes_to_read; i++){
           //consume messages
@@ -127,7 +119,7 @@ void thread_b(void){
 void thread_led(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000;i++);
+    for(volatile int i=0; i<480000*2;i++);
   }
 }
 
