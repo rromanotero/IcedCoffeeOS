@@ -31,16 +31,11 @@ void main_user_thread(void){
 
   while(true){
     //hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
-    for(volatile int i=0; i<480000*5;i++);
+    for(volatile int i=0; i<480000*7;i++);
   }
 }
 
 void thread_a(void){
-  tIcedQTopic topic;
-  topic.name = "system";
-  topic.encoding = IcedEncodingString;
-
-
 
   //Let consumer go up
   for(volatile int i=0; i<480000*10;i++);
@@ -58,7 +53,7 @@ void thread_a(void){
     raw_message[3] = counter + '0';
     counter = (counter+1)%10;
 
-    icedq_publish(&topic, "", raw_message, 4);
+    icedq_publish("dummy_topic", raw_message, 4);
   }
 }
 
@@ -66,9 +61,6 @@ uint8_t buffer[100];
 char items[100];
 
 void thread_b(void){
-  tIcedQTopic topic;
-  topic.name = "system";
-  topic.encoding = IcedEncodingString;
 
   tIcedQQueue in_queue;
   in_queue.queue = buffer;
@@ -76,7 +68,7 @@ void thread_b(void){
   in_queue.tail = 0;
   in_queue.capacity = 100;
 
-  icedq_subscribe(&topic, "", &in_queue);
+  icedq_subscribe("dummy_topic", &in_queue);
 
 
   uint32_t counter = 0;
@@ -97,14 +89,14 @@ void thread_b(void){
 
     if(bytes_to_read > 0){
 
-      //Serial.println("CONSUMER: Found this many elements in queue:");
-      //Serial.println(bytes_to_read);
+      Serial.println("CONSUMER: Found this many elements in queue:");
+      Serial.println(bytes_to_read);
 
-      //Serial.println("CONSUMER: tail:");
-      //Serial.println(tail);
+      Serial.println("CONSUMER: tail:");
+      Serial.println(tail);
 
-      //Serial.println("CONSUMER: head");
-      //Serial.println(head);
+      Serial.println("CONSUMER: head");
+      Serial.println(head);
 
       for(int i=0; i< bytes_to_read; i++){
           //consume messages
@@ -127,7 +119,7 @@ void thread_b(void){
 void thread_led(void){
   while(true){
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000;i++);
+    for(volatile int i=0; i<480000*2;i++);
   }
 }
 
@@ -1256,7 +1248,26 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 
 
 
-
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
 #define ICEDQ_SUSCRIPTION_POOL_SIZE  ICEDQ_MAX_NUM_SUSCRIPTIONS
 
@@ -1269,35 +1280,40 @@ tSuscriptionPool suscription_pool;
 tIcedQSuscription* active_subscriptions[ICEDQ_SUSCRIPTION_POOL_SIZE];
 uint32_t num_of_active_suscriptions;
 
+
 /*
-*   Init IcedQ
+*   IcedQ Init
 **/
 void icedq_init(){
+	//init suscription pool
+	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++)
+	  suscription_pool.list[i].free = true;
 
-  //init suscription pool
-  for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
-    suscription_pool.list[i].free = true;
-  }
-
+	//Init active subscriptions
+	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++)
+		active_subscriptions[i] = NULL;
 }
 
 
 /*
-*   Publish to topic
+*   IcedQ Publish to topic
 **/
-uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw_message_bytes, uint32_t message_len_in_bytes){
+void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t message_len_in_bytes){
+	//TODO:
+	//	- Replace linear looking for topic for a table lookup
+	//	- Add Routing Key
+	//
 
-
-  //route to suscribed queues
   for(int i=0; i<num_of_active_suscriptions; i++){
-      //TODO:
-      //    Replace for a hash table lookup
-      if( strcmp(topic->name, active_subscriptions[i]->topic->name) == 0 ){
 
-        //TODO:
-        //  Change so routing keys do not require exact matches
-        //if( strcmp(routing_key, active_subscriptions[i]->routing_key) == 0 ){
+			Serial.print("MATCHING:");
+			Serial.print(topic);
+			Serial.print(active_subscriptions[i]->topic);
 
+			//Look for suscriptors
+      if( active_subscriptions[i] != NULL && strcmp(topic, active_subscriptions[i]->topic) == 0 ){
+
+					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
 					volatile uint32_t tail = q->tail;
 					volatile uint32_t head = q->head;
@@ -1311,24 +1327,24 @@ uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw
 			      spaced_used = (tail - head);
 			    }
 
-					//Serial.print("Space used:");
-					//Serial.println(spaced_used);
+					Serial.print("Space used:");
+					Serial.println(spaced_used);
 
-					//Serial.println("PRODUCER: tail:");
-		      //Serial.println(tail);
+					Serial.println("PRODUCER: tail:");
+					Serial.println(tail);
 
-		      //Serial.println("PRODUCER: head");
-		      //Serial.println(head);
-
+					Serial.println("PRODUCER: head");
+					Serial.println(head);
 
 					if( spaced_used + message_len_in_bytes < q->capacity ){
 
-						//Serial.println("PRODUCER: producing the content: ");
+						Serial.println("PRODUCER: producing the content: ");
 
-						//for(int j=0; j<message_len_in_bytes; j++){
-						//	Serial.write(raw_message_bytes[j]);
-						//}
-						//Serial.println("");
+						for(int j=0; j<message_len_in_bytes; j++){
+							Serial.write(raw_message_bytes[j]);
+						}
+						Serial.println("");
+
 
 						//if there's space,
 						//copy over raw bytes
@@ -1337,22 +1353,20 @@ uint32_t icedq_publish(tIcedQTopic* topic, const char* routing_key, uint8_t* raw
 								q->tail = (q->tail + 1) % q->capacity;
 						}
 
-						//Serial.println("PRODUCER: NEW value of tail:");
-			      //Serial.println(q->tail);
+						Serial.println("PRODUCER: NEW value of tail:");
+						Serial.println(q->tail);
 
 					}else{
-						Serial.println("Queue FULL");
+						//Queue full. Silently skip it.
 					}
-
-        //}
       }
   }
 }
 
 /*
-*   Subscribe
+*   IcedQ Subscribe
 **/
-uint32_t icedq_subscribe(tIcedQTopic* topic, const char* routing_key, tIcedQQueue* queue){
+uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 
     tIcedQSuscription* suscription = suscriptions_pool_get_one();
 
@@ -1360,7 +1374,6 @@ uint32_t icedq_subscribe(tIcedQTopic* topic, const char* routing_key, tIcedQQueu
         return ICEDQ_NO_MORE_SUSCRIPTIONS_AVAILABLE;
 
     suscription->topic = topic;
-    suscription->routing_key = routing_key;
     suscription->registered_queue = queue;
 
     active_subscriptions[num_of_active_suscriptions++] = suscription;
