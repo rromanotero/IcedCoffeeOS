@@ -95,7 +95,6 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 						}
 						Serial.println("");
 
-
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
@@ -105,11 +104,10 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
 						Serial.println("PRODUCER: NEW value of tail:");
 						Serial.println(q->tail);
-
 					}else{
 						//Queue full. Silently skip it.
 					}
-					
+
       }//end if suscriptor matching
   }//end for
 }

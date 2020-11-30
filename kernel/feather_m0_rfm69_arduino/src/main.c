@@ -37,22 +37,22 @@ void main_user_thread(void){
 void thread_a(void){
 
   //Let consumer go up
-  for(volatile int i=0; i<480000*10;i++);
+  for(volatile int i=0; i<480000*11;i++);
 
   uint32_t counter = 0;
 
   while(true){
-    for(volatile int i=0; i<4800;i++);
 
-
-    //publish
-    //hal_io_serial_puts(&serial_usb, "Publishing to IcedQ\n\r");
+    //Create message
+    //hey0, hey1, hey2, ...
     uint8_t raw_message[] = {'h','e','y','X'};
-
     raw_message[3] = counter + '0';
     counter = (counter+1)%10;
 
+    //Publish it
     icedq_publish("dummy_topic", raw_message, 4);
+
+    for(volatile int i=0; i<4800;i++);
   }
 }
 
@@ -61,18 +61,17 @@ char items[100];
 
 void thread_b(void){
 
+  //Init queue where Producer will publish to
   tIcedQQueue in_queue;
   in_queue.queue = buffer;
   in_queue.head = 0;
   in_queue.tail = 0;
   in_queue.capacity = 100;
 
+  //Subscribe to topic
   icedq_subscribe("dummy_topic", &in_queue);
 
-
-  uint32_t counter = 0;
   while(true){
-
 
     volatile uint32_t head = in_queue.head;
     volatile uint32_t tail = in_queue.tail;
@@ -103,8 +102,8 @@ void thread_b(void){
           in_queue.head = (in_queue.head + 1) % in_queue.capacity;
       }
 
-      //Serial.println("CONSUMER: New value of head");
-      //Serial.println(in_queue.head);
+      Serial.println("CONSUMER: New value of head");
+      Serial.println(in_queue.head);
 
       Serial.println("CONSUMER: consumed the items: ");
       for(int j=0; j<(bytes_to_read); j++){
