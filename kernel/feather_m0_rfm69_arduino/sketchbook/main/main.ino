@@ -27,11 +27,10 @@ void main_user_thread(void){
 
   scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( thread_b, "thread_b", 2048, ProcQueueReadyRealTime );
-  scheduler_thread_create( thread_led, "thread_led", 1024, ProcQueueReadyRealTime );
 
   while(true){
-    //hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
-    for(volatile int i=0; i<480000*7;i++);
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    for(volatile int i=0; i<480000*2;i++);
   }
 }
 
@@ -116,12 +115,6 @@ void thread_b(void){
   }
 }
 
-void thread_led(void){
-  while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000*2;i++);
-  }
-}
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
@@ -1359,8 +1352,9 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					}else{
 						//Queue full. Silently skip it.
 					}
-      }
-  }
+					
+      }//end if suscriptor matching
+  }//end for
 }
 
 /*

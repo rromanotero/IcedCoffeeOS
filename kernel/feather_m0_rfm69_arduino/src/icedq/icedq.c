@@ -109,8 +109,9 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					}else{
 						//Queue full. Silently skip it.
 					}
-      }
-  }
+					
+      }//end if suscriptor matching
+  }//end for
 }
 
 /*
