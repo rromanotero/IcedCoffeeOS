@@ -23,6 +23,8 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
+
+
 void main_user_thread(void){
 
   scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
@@ -50,9 +52,11 @@ void thread_a(void){
     counter = (counter+1)%10;
 
     //Publish it
+    spin_lock_acquire();
     icedq_publish("dummy_topic", raw_message, 4);
+    spin_lock_release();
 
-    for(volatile int i=0; i<4800;i++);
+    for(volatile int i=0; i<480;i++);
   }
 }
 
@@ -69,12 +73,17 @@ void thread_b(void){
   in_queue.capacity = 100;
 
   //Subscribe to topic
+  spin_lock_acquire();
   icedq_subscribe("dummy_topic", &in_queue);
+  spin_lock_release();
 
   while(true){
 
+
+    spin_lock_acquire();
     volatile uint32_t head = in_queue.head;
     volatile uint32_t tail = in_queue.tail;
+    spin_lock_release();
 
     uint32_t bytes_to_read;
     if(head > tail){
@@ -96,11 +105,13 @@ void thread_b(void){
       Serial.println("CONSUMER: head");
       Serial.println(head);
 
+      spin_lock_acquire();
       for(int i=0; i< bytes_to_read; i++){
           //consume messages
           items[i] = in_queue.queue[in_queue.head];
           in_queue.head = (in_queue.head + 1) % in_queue.capacity;
       }
+      spin_lock_release();
 
       Serial.println("CONSUMER: New value of head");
       Serial.println(in_queue.head);

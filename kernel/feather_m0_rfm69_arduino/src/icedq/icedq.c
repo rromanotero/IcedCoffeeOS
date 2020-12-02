@@ -53,7 +53,6 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 	//	- Replace linear looking for topic for a table lookup
 	//	- Add Routing Key
 	//
-
   for(int i=0; i<num_of_active_suscriptions; i++){
 
 			Serial.print("MATCHING:");
@@ -110,6 +109,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
       }//end if suscriptor matching
   }//end for
+
 }
 
 /*

@@ -436,6 +436,16 @@ typedef struct{
 
 
 
+
+#ifndef SPIN_LOCK_H_
+#define SPIN_LOCK_H_
+
+
+
+#endif
+
+
+
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
