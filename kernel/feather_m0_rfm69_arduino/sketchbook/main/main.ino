@@ -79,50 +79,16 @@ void thread_b(void){
 
   while(true){
 
-
-    spin_lock_acquire();
-    volatile uint32_t head = in_queue.head;
-    volatile uint32_t tail = in_queue.tail;
-    spin_lock_release();
-
-    uint32_t bytes_to_read;
-    if(head > tail){
-      //tail went around
-      bytes_to_read = (in_queue.capacity - head) + tail;
-    }
-    else{
-      bytes_to_read = (tail - head);
-    }
-
-    if(bytes_to_read > 0){
-
-      Serial.println("CONSUMER: Found this many elements in queue:");
-      Serial.println(bytes_to_read);
-
-      Serial.println("CONSUMER: tail:");
-      Serial.println(tail);
-
-      Serial.println("CONSUMER: head");
-      Serial.println(head);
-
       spin_lock_acquire();
-      for(int i=0; i< bytes_to_read; i++){
+      Serial.println("Contents of the WHOLE QUEUE:");
+      for(int i=0; i<in_queue.capacity; i++){
           //consume messages
-          items[i] = in_queue.queue[in_queue.head];
-          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+          Serial.write(in_queue.queue[i]);
       }
       spin_lock_release();
 
-      Serial.println("CONSUMER: New value of head");
-      Serial.println(in_queue.head);
-
-      Serial.println("CONSUMER: consumed the items: ");
-      for(int j=0; j<(bytes_to_read); j++){
-        Serial.write(items[j]);
-      }
-      Serial.println("");
-    }
   }
+
 }
 
 
