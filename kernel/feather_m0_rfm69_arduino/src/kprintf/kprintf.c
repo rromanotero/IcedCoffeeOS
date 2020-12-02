@@ -1,3 +1,4 @@
+
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
@@ -19,7 +20,10 @@
 *
 **/
 
-/* Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
+/* This is from here:
+*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf 
+*
+* Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,47 +38,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- /* Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* Definition of the family of printf functions.
-*
-*
-*   More details:
-*
-*      https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf
-*
- */
-
-#include <stdbool.h>
-#include <stdint.h>
-#include "kprintf.h"
-#include "hal.h"
-#include "system.h"
-
-static _Bool isdigit(unsigned char c) {
-    return ((unsigned char)(c - '0') < 10);
-}
 
 void local_putc( uint8_t c ){
-    hal_video_putc( c, SYSTEM_SCREEN_TEXT_SIZE, SYSTEM_SCREEN_TEXT_COLOR );
+    //No video yet
+    //hal_video_putc( c, SYSTEM_SCREEN_TEXT_SIZE, SYSTEM_SCREEN_TEXT_COLOR );
 }
 
 void debug_putc( uint8_t c ){
-    hal_io_serial_putc( SerialA, c );
+    hal_io_serial_putc( &serial_usb, c );
+}
+
+_Bool isdigit(unsigned char c) {
+    return ((unsigned char)(c - '0') < 10);
 }
 
 void kprintf(const char *format, ...) {
@@ -86,11 +61,15 @@ void kprintf(const char *format, ...) {
 
 void kprintf_debug(const char *format, ...) {
 
-    if( SYSTEM_DEBUG_ON == true ){
+    if( SYSTEM_DEBUG_ON ){
+        spin_lock_acquire();
+
         va_list args;
         va_start(args, format);
         vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
         va_end(args);
+
+        spin_lock_release();
     }
 }
 
@@ -106,15 +85,6 @@ int snprintf(char *buf, size_t size, const char *format, ...) {
     return len;
 }
 
-typedef struct Flags {
-    _Bool plus:1;	// Always include a '+' or '-' sign
-    _Bool left:1;	// left justified
-    _Bool alternate:1;	// 0x prefix
-    _Bool space:1;	// space if plus
-    _Bool zeropad:1;	// pad with zero
-    _Bool sign:1;	// unsigned/signed number
-    _Bool upper:1;	// use UPPER case
-} Flags;
 
 /* atoi - convert string to int
  * @ptr: pointer to string
@@ -131,11 +101,6 @@ int atoi(const char** ptr) {
     *ptr = s;
     return i;
 }
-
-typedef struct {
-    char *pos;
-    size_t size;
-} BufferState;
 
 /* cprint_int - Convert integer to string
  * @callback:	callback function to add char

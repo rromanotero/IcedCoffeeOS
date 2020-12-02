@@ -47,6 +47,7 @@ void icedq_init(){
 
 /*
 *   IcedQ Publish to topic
+*
 **/
 void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t message_len_in_bytes){
 	//TODO:
@@ -54,10 +55,6 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 	//	- Add Routing Key
 	//
   for(int i=0; i<num_of_active_suscriptions; i++){
-
-			Serial.print("MATCHING:");
-			Serial.print(topic);
-			Serial.print(active_subscriptions[i]->topic);
 
 			//Look for suscriptors
       if( active_subscriptions[i] != NULL && strcmp(topic, active_subscriptions[i]->topic) == 0 ){
@@ -67,7 +64,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					volatile uint32_t tail = q->tail;
 					volatile uint32_t head = q->head;
 
-					int32_t spaced_used;
+					uint32_t spaced_used;
 			    if(head > tail){
 			      //tail went around
 			      spaced_used = (q->capacity-head) + tail;
@@ -76,33 +73,13 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 			      spaced_used = (tail - head);
 			    }
 
-					Serial.print("Space used:");
-					Serial.println(spaced_used);
-
-					Serial.println("PRODUCER: tail:");
-					Serial.println(tail);
-
-					Serial.println("PRODUCER: head");
-					Serial.println(head);
-
-					if( spaced_used + message_len_in_bytes < q->capacity ){
-
-						Serial.println("PRODUCER: producing the content: ");
-
-						for(int j=0; j<message_len_in_bytes; j++){
-							Serial.write(raw_message_bytes[j]);
-						}
-						Serial.println("");
-
+					if( spaced_used + message_len_in_bytes <= q->capacity ){
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
 								q->queue[q->tail] = raw_message_bytes[j];
 								q->tail = (q->tail + 1) % q->capacity;
 						}
-
-						Serial.println("PRODUCER: NEW value of tail:");
-						Serial.println(q->tail);
 					}else{
 						//Queue full. Silently skip it.
 					}
@@ -114,6 +91,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
 /*
 *   IcedQ Subscribe
+*
 **/
 uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 

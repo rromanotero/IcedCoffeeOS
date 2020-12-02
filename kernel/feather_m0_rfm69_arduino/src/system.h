@@ -25,6 +25,10 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
+
+#define SYSTEM_DEBUG_ON             1   //1=Turn debug output ON, 0=Turn debug output OFF
+
+
 #define SYS_VERSION					       "3"
 #define SYS_NAME					         "IcedCoffeeOS"
 #define SYS_USERNAME_MAX_LENGTH		  10

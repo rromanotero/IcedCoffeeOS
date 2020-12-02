@@ -23,49 +23,43 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-
-
 void main_user_thread(void){
 
-  scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( thread_b, "thread_b", 2048, ProcQueueReadyRealTime );
+  scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
 
   while(true){
+    //blink away...
     hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     for(volatile int i=0; i<480000*2;i++);
   }
 }
 
-void thread_a(void){
-
-  //Let consumer go up
-  for(volatile int i=0; i<480000*11;i++);
-
+void producer(void){
   uint32_t counter = 0;
 
   while(true){
-
     //Create message
     //hey0, hey1, hey2, ...
-    uint8_t raw_message[] = {'h','e','y','X'};
+    uint8_t raw_message[] = {'h','e','y','X','\0','\0'};
     raw_message[3] = counter + '0';
     counter = (counter+1)%10;
 
     //Publish it
-    spin_lock_acquire();
     icedq_publish("dummy_topic", raw_message, 4);
-    spin_lock_release();
-
+    kprintf_debug("Produced the items: %s \n\r", raw_message); //<<-- Print inside lock just so when printed
+                                                               //     we can see a "produced" followe by a "consume"
     for(volatile int i=0; i<480;i++);
   }
 }
 
 uint8_t buffer[100];
-char items[100];
+uint8_t items[100];
 
-void thread_b(void){
+void consumer(void){
 
-  //Init queue where Producer will publish to
+  //Init queue where Producer
+  //will publish to
   tIcedQQueue in_queue;
   in_queue.queue = buffer;
   in_queue.head = 0;
@@ -73,22 +67,39 @@ void thread_b(void){
   in_queue.capacity = 100;
 
   //Subscribe to topic
-  spin_lock_acquire();
   icedq_subscribe("dummy_topic", &in_queue);
-  spin_lock_release();
 
   while(true){
+    //   ---  Consume  ----
+    //   ------------------
+    volatile uint32_t head = in_queue.head;
+    volatile uint32_t tail = in_queue.tail;
 
-      spin_lock_acquire();
-      Serial.println("Contents of the WHOLE QUEUE:");
-      for(int i=0; i<in_queue.capacity; i++){
-          //consume messages
-          Serial.write(in_queue.queue[i]);
+    uint32_t bytes_to_read;
+    if(head > tail){
+      //tail went around
+      bytes_to_read = (in_queue.capacity - head) + tail;
+    }
+    else{
+      bytes_to_read = (tail - head);
+    }
+
+    if(bytes_to_read > 0){
+
+      for(int i=0; i< bytes_to_read; i++){
+          //copy messages from queue to items
+          items[i] = in_queue.queue[in_queue.head];
+          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
       }
-      spin_lock_release();
 
-  }
+      kprintf_debug("Consumed the items: \n\r");
+      for(int j=0; j<(bytes_to_read); j++){
+        kprintf_debug( "%c", items[j] );
+      }
+      kprintf_debug("\n\r");
 
+    }//end if
+  }//end while
 }
 
 
