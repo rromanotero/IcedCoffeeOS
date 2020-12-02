@@ -26,5 +26,12 @@
 #ifndef CONTEXT_SWTICHER_H
 #define CONTEXT_SWTICHER_H
 
+#define CONTEXT_SIZE    16
+#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
+#define OFFSET_LR       13
+#define OFFSET_PC       14
+#define OFFSET_APSR     15
+#define OFFSET_PC       14
+#define OFFSET_R0       8
 
 #endif

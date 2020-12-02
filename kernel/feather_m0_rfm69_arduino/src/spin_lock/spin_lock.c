@@ -22,16 +22,17 @@
 *
 **/
 
-/**
-*	System Init
-*
-*	Initializes everything. Must be called before any other call
-*/
-void system_init(void){
-	hal_cpu_init();
-	hal_io_init();
-	hal_radio_init();
-	faults_init();
-	scheduler_init();
-	icedq_init();
+
+void spin_lock_acquire(){
+  //I need an actual spin lock here....
+  //disabling interrupts is outrageous =P
+  //
+  //LAter can aslo add a MUTEX so the thread goes to sleep
+  //instead of waiting.... pros and cons i guess...
+  __asm volatile ("cpsid  i");
+}
+
+void spin_lock_release()
+{
+  __asm volatile ("cpsie  i");
 }

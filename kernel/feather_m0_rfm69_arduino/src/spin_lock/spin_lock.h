@@ -22,16 +22,9 @@
 *
 **/
 
-/**
-*	System Init
-*
-*	Initializes everything. Must be called before any other call
-*/
-void system_init(void){
-	hal_cpu_init();
-	hal_io_init();
-	hal_radio_init();
-	faults_init();
-	scheduler_init();
-	icedq_init();
-}
+#ifndef SPIN_LOCK_H_
+#define SPIN_LOCK_H_
+
+
+
+#endif

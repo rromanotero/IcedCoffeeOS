@@ -25,36 +25,83 @@ extern tSerialPort serial_usb;
 
 void main_user_thread(void){
 
-  scheduler_thread_create( thread_a, "thread_a", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( thread_b, "thread_b", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( thread_led, "thread_led", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
 
   while(true){
-    hal_io_serial_puts(&serial_usb, "Main Thread (LED is in its own thread)\n\r");
-    for(volatile int i=0; i<480000*5;i++);
-  }
-}
-
-void thread_a(void){
-  while(true){
-    hal_io_serial_puts(&serial_usb, "Thread A\n\r");
+    //blink away...
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     for(volatile int i=0; i<480000*2;i++);
   }
 }
 
-void thread_b(void){
+void producer(void){
+  uint32_t counter = 0;
+
   while(true){
-    hal_io_serial_puts(&serial_usb, "Thread B\n\r");
-    for(volatile int i=0; i<480000*3;i++);
+    //Create message
+    //hey0, hey1, hey2, ...
+    uint8_t raw_message[] = {'h','e','y','X','\0','\0'};
+    raw_message[3] = counter + '0';
+    counter = (counter+1)%10;
+
+    //Publish it
+    icedq_publish("dummy_topic", raw_message, 4);
+    kprintf_debug("Produced the items: %s \n\r", raw_message); //<<-- Print inside lock just so when printed
+                                                               //     we can see a "produced" followe by a "consume"
+    for(volatile int i=0; i<480;i++);
   }
 }
 
-void thread_led(void){
+uint8_t buffer[100];
+uint8_t items[100];
+
+void consumer(void){
+
+  //Init queue where Producer
+  //will publish to
+  tIcedQQueue in_queue;
+  in_queue.queue = buffer;
+  in_queue.head = 0;
+  in_queue.tail = 0;
+  in_queue.capacity = 100;
+
+  //Subscribe to topic
+  icedq_subscribe("dummy_topic", &in_queue);
+
   while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000;i++);
-  }
+    //   ---  Consume  ----
+    //   ------------------
+    volatile uint32_t head = in_queue.head;
+    volatile uint32_t tail = in_queue.tail;
+
+    uint32_t bytes_to_read;
+    if(head > tail){
+      //tail went around
+      bytes_to_read = (in_queue.capacity - head) + tail;
+    }
+    else{
+      bytes_to_read = (tail - head);
+    }
+
+    if(bytes_to_read > 0){
+
+      for(int i=0; i< bytes_to_read; i++){
+          //copy messages from queue to items
+          items[i] = in_queue.queue[in_queue.head];
+          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
+      }
+
+      kprintf_debug("Consumed the items: \n\r");
+      for(int j=0; j<(bytes_to_read); j++){
+        kprintf_debug( "%c", items[j] );
+      }
+      kprintf_debug("\n\r");
+
+    }//end if
+  }//end while
 }
+
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
@@ -107,6 +154,7 @@ void system_init(void){
 	hal_radio_init();
 	faults_init();
 	scheduler_init();
+	icedq_init();
 }
 
 
@@ -136,8 +184,10 @@ void system_init(void){
 **/
 
 /*  There's now way I was getting that PendSV Handler code right
- *  by myself. Thanks to Adam Heinrich. So here's the License.
+ *  by myself. Thanks to Adam Heinrich. So here's the link and License.
  *    - Rafael
+ *
+ * https://github.com/adamheinrich/os.h/blob/master/src/os.c
  *
  * This file is part of os.h.
  *
@@ -156,12 +206,6 @@ void system_init(void){
  * You should have received a copy of the GNU General Public License
  * along with os.h.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#define CONTEXT_SIZE    16
-#define INITIAL_APSR    (1 << 24) //Bit 24 is the Thumb bit
-#define OFFSET_LR       13
-#define OFFSET_PC       14
-#define OFFSET_APSR     15
 
 tMiniProcess* active_proc;		//The active process
 
@@ -1184,6 +1228,537 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
 
 
 
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+#define ICEDQ_SUSCRIPTION_POOL_SIZE  ICEDQ_MAX_NUM_SUSCRIPTIONS
+
+typedef struct{
+	tIcedQSuscription list[ICEDQ_SUSCRIPTION_POOL_SIZE];
+	uint32_t count;
+}tSuscriptionPool;
+
+tSuscriptionPool suscription_pool;
+tIcedQSuscription* active_subscriptions[ICEDQ_SUSCRIPTION_POOL_SIZE];
+uint32_t num_of_active_suscriptions;
+
+
+/*
+*   IcedQ Init
+**/
+void icedq_init(){
+	//init suscription pool
+	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++)
+	  suscription_pool.list[i].free = true;
+
+	//Init active subscriptions
+	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++)
+		active_subscriptions[i] = NULL;
+}
+
+
+/*
+*   IcedQ Publish to topic
+*
+**/
+void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t message_len_in_bytes){
+	//TODO:
+	//	- Replace linear looking for topic for a table lookup
+	//	- Add Routing Key
+	//
+  for(int i=0; i<num_of_active_suscriptions; i++){
+
+			//Look for suscriptors
+      if( active_subscriptions[i] != NULL && strcmp(topic, active_subscriptions[i]->topic) == 0 ){
+
+					//Found one. Pubished to its queue.
+					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
+					volatile uint32_t tail = q->tail;
+					volatile uint32_t head = q->head;
+
+					uint32_t spaced_used;
+			    if(head > tail){
+			      //tail went around
+			      spaced_used = (q->capacity-head) + tail;
+			    }
+			    else{
+			      spaced_used = (tail - head);
+			    }
+
+					if( spaced_used + message_len_in_bytes <= q->capacity ){
+						//if there's space,
+						//copy over raw bytes
+						for(int j=0; j<message_len_in_bytes; j++){
+								q->queue[q->tail] = raw_message_bytes[j];
+								q->tail = (q->tail + 1) % q->capacity;
+						}
+					}else{
+						//Queue full. Silently skip it.
+					}
+
+      }//end if suscriptor matching
+  }//end for
+
+}
+
+/*
+*   IcedQ Subscribe
+*
+**/
+uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
+
+    tIcedQSuscription* suscription = suscriptions_pool_get_one();
+
+    if(suscription ==  NULL)
+        return ICEDQ_NO_MORE_SUSCRIPTIONS_AVAILABLE;
+
+    suscription->topic = topic;
+    suscription->registered_queue = queue;
+
+    active_subscriptions[num_of_active_suscriptions++] = suscription;
+
+    return ICEDQ_SUCCESS;
+}
+
+tIcedQSuscription* suscriptions_pool_get_one(void){
+  	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
+  		if( suscription_pool.list[i].free ){
+          suscription_pool.list[i].free = false;  //No longer free
+    			return &(suscription_pool.list[i]);
+      }
+  	}
+  	return NULL; //We're out of threads
+}
+
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+/* This is from here:
+*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf 
+*
+* Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+void local_putc( uint8_t c ){
+    //No video yet
+    //hal_video_putc( c, SYSTEM_SCREEN_TEXT_SIZE, SYSTEM_SCREEN_TEXT_COLOR );
+}
+
+void debug_putc( uint8_t c ){
+    hal_io_serial_putc( &serial_usb, c );
+}
+
+_Bool isdigit(unsigned char c) {
+    return ((unsigned char)(c - '0') < 10);
+}
+
+void kprintf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vcprintf((vcprintf_callback_t)local_putc, NULL, format, args);
+    va_end(args);
+}
+
+void kprintf_debug(const char *format, ...) {
+
+    if( SYSTEM_DEBUG_ON ){
+        spin_lock_acquire();
+
+        va_list args;
+        va_start(args, format);
+        vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
+        va_end(args);
+
+        spin_lock_release();
+    }
+}
+
+
+int snprintf(char *buf, size_t size, const char *format, ...) {
+    va_list args;
+    int len;
+
+    va_start(args, format);
+    len = vsnprintf(buf, size, format, args);
+    va_end(args);
+
+    return len;
+}
+
+
+/* atoi - convert string to int
+ * @ptr: pointer to string
+ *
+ * Returns converted int and leaves ptr pointing to the first character after
+ * the number.
+ */
+int atoi(const char** ptr) {
+    const char* s = *ptr;
+    int i = 0;
+    while(isdigit(*s)) {
+	i = i * 10 + (*s++ - '0');
+    }
+    *ptr = s;
+    return i;
+}
+
+/* cprint_int - Convert integer to string
+ * @callback:	callback function to add char
+ * @num:	number to convert
+ * @base:	must be 10 or 16
+ * @size:	number of bytes to fill
+ * @precision:	number of digits for floats
+ * @flags:	output flags
+ *
+ * Returns nothing.
+ */
+void cprint_int(vcprintf_callback_t callback, void *state, uint64_t num,
+		int base, int width, int precision, Flags flags) {
+    const char LOWER[] = "0123456789abcdef";
+    const char UPPER[] = "0123456789ABCDEF";
+    const char *digits = (flags.upper) ? UPPER : LOWER;
+    char tmp[20];
+
+    // Sanity check base
+    if (base != 8 && base != 10 && base != 16) return;
+
+    // Check for sign
+    _Bool negative = false;
+    if (flags.sign) {
+	int64_t t = num;
+	if (t < 0) {
+	    num = -t;
+	    negative = true;
+	}
+    }
+
+    // convert number in reverse order
+    int len = 0;
+    if (num == 0) { // special case
+	tmp[len++] = '0';
+    }
+    while(num > 0) {
+	tmp[len++] = digits[num % base];
+	num /= base;
+    }
+    // Correct presision if number too large
+    if (precision < len) precision = len;
+
+    // Account for sign and alternate form
+    if (negative || flags.plus) {
+	--width;
+    }
+    if (flags.alternate) {
+	width -= 2;
+    }
+
+    // Put sign if any
+    if (negative) {
+	callback('-', state);
+    } else if (flags.plus) {
+	callback(flags.space ? ' ' : '+', state);
+    }
+
+    // Put 0x prefix
+    if (flags.alternate) {
+	callback('0', state);
+	callback('x', state);
+    }
+
+    // Pad with ' ' if not left aligned
+    if (!flags.left) {
+	while(precision < width--) callback(flags.zeropad ? '0' : ' ', state);
+    }
+
+    // Pad with ' ' or '0' to precision
+    while(len < precision--) {
+	callback(flags.zeropad ? '0' : ' ', state);
+	--width;
+    }
+
+    // Put number
+    while(len > 0) {
+	callback(tmp[--len], state);
+	--width;
+    }
+
+    // fill remaining space (flags.left was set)
+    while(width-- > 0) callback(' ', state);
+}
+
+static void buffer_add(char c, BufferState *state) {
+    if (state->size > 0) {
+	*state->pos = c;
+	--state->size;
+    }
+    ++state->pos;
+}
+
+/* vcprintf - Format a string and call callback for each char
+ * @callback:	callback function to add char
+ * @format:	Format string for output
+ * @args:	Arguments for format string
+ *
+ * Returns nothing.
+ */
+void vcprintf(vcprintf_callback_t callback, void *state, const char* format,
+	     va_list args) {
+    while(*format != 0) {
+	// Copy normal chars 1:1
+	if (*format++ != '%') {
+	    callback(format[-1], state); // format has already advanced
+	    continue;
+	}
+
+	// Placeholder: %[flags][width][.precision][length]type
+	/* Flags:
+	 * '+': Always include a '+' or '-' sign for numeric types
+	 * '-': Left align output
+	 * '#': Alternate form, '0x' prefix for p and x
+	 * ' ': Include ' ' for postive numbers
+	 * '0': Pad with '0'
+	 */
+	Flags flags = {false, false, false, false, false, false, false};
+    repeat:
+	switch(*format++) {
+	case '+': flags.plus = true; goto repeat;
+	case '-': flags.left = true;  goto repeat;
+	case '#': flags.alternate = true; goto repeat;
+	case ' ': flags.space = true; goto repeat;
+	case '0': flags.zeropad = true; goto repeat;
+	default: --format; // undo ++
+	}
+	/* Width:
+	 * '[0-9]'+: use at least this many characters
+	 * '*'     : use int from 'args' as width
+	 */
+	int width = 0;
+	if (*format == '*') {
+	    ++format;
+	    width = va_arg(args, int);
+	    if (width < 0) width = 0;
+	} else if (isdigit(*format)) {
+	    width = atoi(&format);
+	}
+	/* Precision:
+	 * '[0-9]'+: use max this many characters for a string
+	 * '*'     : use int from 'args' as precision
+	 */
+	int precision = -1;
+	if (*format == '.') {
+	    ++format;
+	    if (*format == '*') {
+		++format;
+		precision = va_arg(args, int);
+		if (precision < 0) precision = 0;
+	    } else {
+		precision = atoi(&format);
+	    }
+	}
+	/* Length:
+	 * 'hh': [u]int8_t
+	 * 'h' : [u]int16_t
+	 * 'l' : [u]int32_t
+	 * 'll': [u]int64_t
+	 * 'z' : [s]size_t
+	 * 't' : ptrdiff_t
+	 */
+	int length = 4;
+	switch(*format++) {
+	case 'h':
+	    if (*format == 'h') {
+		++format; length = 1;
+	    } else {
+		length = sizeof(short);
+	    }
+	    break;
+	case 'l':
+	    if (*format == 'l') {
+		++format; length = sizeof(long long);
+	    } else {
+		length = sizeof(long);
+	    }
+	    break;
+	case 'z':
+	    length = sizeof(size_t);
+	    break;
+	case 't':
+	    length = sizeof(intptr_t);
+	    break;
+	default: --format; // undo ++
+	}
+	/* Type:
+	 * 'd', 'i': signed decimal
+	 * 'u'     : unsigned decimal
+	 * 'x', 'X': unsigned hexadecimal (UPPER case)
+	 * 'p'     : signed hexadecimal of a pointer
+	 * 'c'     : character
+	 * 's'     : string
+	 * '%'     : literal '%'
+	 */
+	int base = 10;
+	uint64_t num = 0;
+	switch(*format++) {
+	case 'd':
+	case 'i':
+	    switch(length) {
+	    case 1: num = (int8_t) va_arg(args, int); break;
+	    case 2: num = (int16_t)va_arg(args, int); break;
+	    case 4: num = (int32_t)va_arg(args, int); break;
+	    case 8: num = (int64_t)va_arg(args, int64_t); break;
+	    }
+	    flags.sign = true;
+	    if (precision == -1) precision = 0;
+	    cprint_int(callback, state, num, base, width, precision, flags);
+	    break;
+	case 'p':
+	    flags.alternate = true;
+	    if (precision == -1) precision = 2 * sizeof(void*);
+	case 'X': flags.upper = true;
+	case 'x': base = 16; flags.space = false; flags.zeropad = true;
+	case 'u':
+	    switch(length) {
+	    case 1: num = (uint8_t) va_arg(args, int); break;
+	    case 2: num = (uint16_t)va_arg(args, int); break;
+	    case 4: num = (uint32_t)va_arg(args, int); break;
+	    case 8: num = (uint64_t)va_arg(args, uint64_t); break;
+	    }
+	    if (precision == -1) precision = 0;
+	    cprint_int(callback, state, num, base, width, precision, flags);
+	    break;
+	case 'c':
+	    callback((char)va_arg(args, int), state);
+	    break;
+	case 's': {
+	    char* s = va_arg(args, char*);
+	    if (precision == -1) {
+		while(*s != 0) {
+		    callback(*s++, state);
+		}
+	    } else {
+		while(precision > 0 && *s != 0) {
+		    --precision;
+		    callback(*s++, state);
+		}
+	    }
+	    break;
+	}
+	case '%':
+	    callback('%', state);
+	    break;
+	default: // Unknown placeholder, rewind and copy '%' verbatim
+	    while(*format != '%') --format;
+	    callback(*format++, state);
+	}
+    }
+}
+
+/* vsnprintf - Format a string and place it in a buffer
+ * @buf:    Buffer for result
+ * @size:   Size of buffer including trailing '\0'
+ * @format: Format string for output
+ * @args:   Arguments for format string
+ *
+ * Returns the number of characters which would be generated for the given
+ * input, excluding the trailing '\0', as per ISO C99. If the result is
+ * greater than or equal to @size, the resulting string is truncated.
+ */
+int vsnprintf(char* buf, size_t size, const char* format, va_list args) {
+    BufferState state = (BufferState){buf, size};
+    vcprintf((vcprintf_callback_t)buffer_add, (void*)&state, format, args);
+    // terminate string if there is space in the buffer
+    buffer_add('\0', &state);
+    // always terminate string even if there was no space
+    buf[size - 1] = '\0';
+    return state.pos - buf - 1;
+}
+
+void cprintf(vcprintf_callback_t callback, void *state, const char* format,
+	     ...) {
+    va_list args;
+    va_start(args, format);
+    vcprintf(callback, state, format, args);
+    va_end(args);
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
 
 typedef struct{
 	tMiniProcess* list[SCHEDULER_MAX_NUM_PROCESSES];
@@ -1286,7 +1861,7 @@ extern void process_thread_delete(void);
 extern void idle_process_thread(void);
 
 //This is where thread/processes data strutures
-//is allocated memory. All thread pointers passe around
+//are allocated memory. All thread pointers passe around
 //ultimately point to this.
 static tThreadPool thread_pool;
 
@@ -1452,7 +2027,7 @@ tMiniProcess* thread_pool_get_one(){
 			return &(thread_pool.list[i]);
 	}
 
-	return NULL;
+	return NULL; //We're out of threads
 }
 
 
@@ -1494,6 +2069,47 @@ void process_thread_delete(){
   //Unimplemented
   while(1);
 
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+
+void spin_lock_acquire(){
+  //I need an actual spin lock here....
+  //disabling interrupts is outrageous =P
+  //
+  //LAter can aslo add a MUTEX so the thread goes to sleep
+  //instead of waiting.... pros and cons i guess...
+  __asm volatile ("cpsid  i");
+}
+
+void spin_lock_release()
+{
+  __asm volatile ("cpsie  i");
 }
 
 
