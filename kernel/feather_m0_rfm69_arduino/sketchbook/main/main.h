@@ -596,7 +596,26 @@ typedef struct{
 #ifndef SYSCALLS_H_
 #define SYSCALLS_H_
 
-#define SYSCALLS_QUEUE_SIZE  1000
+#define SYSCALLS_QUEUE_SIZE             1000
+#define SYSCALLS_REQUEST_SIZE_IN_BYTES  9 //syscall_num(1) + input (4) + output (4)
+
+#define SYSCALLS_RAW_REQUEST_NUM_OFFSET         0
+#define SYSCALLS_RAW_REQUEST_INPUT_OFFSET       1
+#define SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET      5
+
+typedef struct{
+  uint32_t arg0;
+  uint32_t arg1;
+  uint32_t arg2;
+  uint32_t arg3;
+}tSyscallInput;
+
+typedef struct{
+  uint32_t ret_val;
+  bool succeded;
+}tSyscallOutput;
+
+
 
 /**
 *   System call numbers

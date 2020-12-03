@@ -25,13 +25,51 @@ extern tSerialPort serial_usb;
 
 void main_user_thread(void){
 
-  scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+  //scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
+  //scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+
+  uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t request_num;
+  tSyscallInput input;
+  tSyscallOutput output;
 
   while(true){
+    request_num = 3;
+
+    input.arg0 = 7;
+    input.arg1 = 7;
+    input.arg2 = 7;
+    input.arg3 = 7;
+
+    raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
+    ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET] = (uint32_t)(&input);
+    ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET] = (uint32_t)(&output);
+
+
+    kprintf_debug("\n\rMaking syscall. Request num: %d, input addr: %x, output addr: %x \n\r",
+                  request_num,
+                  &input,
+                  &output
+                );
+
+    kprintf_debug("Reconstructed addresses. input addr: %x, output addr: %x \n\r",
+                  ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET],
+                  ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET]
+    );
+
+    tSyscallInput* in = &input;//(tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
+    tSyscallOutput* out = &output;//(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
+
+    kprintf_debug("Reconstructed PARAMS. arg0=%d, arg1=%d, arg2=%d, arg3=%d, \n\r\n\r",
+                  in->arg0, in->arg1, in->arg2, in->arg3
+    );
+
+
+    icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
     //blink away...
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000*2;i++);
+    //hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    for(volatile int i=0; i<480000*10;i++);
   }
 }
 
@@ -71,7 +109,7 @@ void consumer(void){
 
   while(true){
 
-    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer);
+    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer, 12);
 
     if(received > 0){
       kprintf_debug("Consumed the items: \n\r");
@@ -89,6 +127,9 @@ void ARDUINO_KERNEL_MAIN() {
   system_init();
 
   while(!hal_io_serial_is_ready(&serial_usb));
+
+  syscalls_init(); //<<--- CAN'T BE PLACED BEFORE while(!hal_io_serial_is_ready(&serial_usb));
+                   //      OR IT FAILS. I don't know why.
 
   scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
 
@@ -1279,7 +1320,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					uint32_t spaced_used;
 			    if(head > tail){
 			      //tail went around
-			      spaced_used = (q->capacity-head) + tail;
+			      spaced_used = ((q->capacity) - head) + tail;
 			    }
 			    else{
 			      spaced_used = (tail - head);
@@ -1289,9 +1330,13 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
-								q->queue[q->tail] = raw_message_bytes[j];
-								q->tail = (q->tail + 1) % q->capacity;
+								q->queue[q->tail+j] = raw_message_bytes[j];
 						}
+
+						//Update tail
+						//NOTE: It's important that this happens after all new elements
+						//			have been inserted. THIS MAKES PUBLISHING AN ITEM ATOMIC.
+						q->tail = (q->tail + message_len_in_bytes) % q->capacity;
 					}else{
 						//Queue full. Silently skip it.
 					}
@@ -1324,13 +1369,12 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 * 	Utils copy from Queue to buffer
 *		(just so this code is not repeatded everywhere)
 *
-*		Populates buffer with as many element are available in queue
+*		Populates buffer with as many element are available in queue or
+*   'max_items', whichever happens first.
 *
 *		Returns number of elements read.
 */
-uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
-		//   ---  Consume  ----
-		//   ------------------
+uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
 
@@ -1343,13 +1387,17 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
 			bytes_to_read = (tail - head);
 		}
 
+		//adjust for max_items
+		bytes_to_read = min(bytes_to_read, max_items);
+
 		if(bytes_to_read > 0){
 			for(int i=0; i< bytes_to_read; i++){
 					//copy messages from queue to items
-					buffer[i] = queue->queue[queue->head];
-					queue->head = (queue->head + 1) % queue->capacity;
+					buffer[i] = queue->queue[queue->head+i];
 			}
-		}//end if
+
+			queue->head = (queue->head + bytes_to_read) % queue->capacity;
+		}
 
 		return bytes_to_read;
 }
@@ -2240,37 +2288,56 @@ uint8_t syscalls_queue_buffer[SYSCALLS_QUEUE_SIZE];
 *   Syscalls Init
 */
 void syscalls_init(void){
-  //Init syscalls queue
+  //Init queue
   syscalls_queue.queue = syscalls_queue_buffer;
   syscalls_queue.head = 0;
   syscalls_queue.tail = 0;
   syscalls_queue.capacity = SYSCALLS_QUEUE_SIZE;
 
-  //Subscribe to topic
-  //TODO : Once routing keys are enabled, change this for
-  //       topic=system, routing_key=syscalls
-  icedq_subscribe("system.syscalls", &syscalls_queue);
+  //Begin syscall KThread
+  scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
-*   Syscalls Kernel Thread
+*   Syscalls KThread
 */
 void syscalls_kthread(void){
 
-    uint32_t arg0, arg1, arg2, arg3, syscall_num;
+    //Subscribe to topic
+    //TODO : Once routing keys are enabled, change this for
+    //       topic=system, routing_key=syscalls
+    icedq_subscribe("system.syscalls", &syscalls_queue);
+
+    uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+    uint8_t request_num;
+    tSyscallInput* input;
+    tSyscallOutput* output;
 
     while(true){
-      attend_syscall(&syscalls_queue, syscall_num, arg0, arg1, arg2, arg3);
+      uint8_t items = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+      if(items > 0){
+
+        if(items != SYSCALLS_REQUEST_SIZE_IN_BYTES){
+            faults_kernel_panic("Syscalls: malformed request");
+        }
+
+        request_num = raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
+        input = (tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
+        output =(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
+
+        attend_syscall(request_num, input, output);
+      }
     }
 
 }
 
-void attend_syscall( tIcedQQueue* syscalls_queue, uint32_t syscall_num, uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3){
-    kprintf_debug( " == \n\n Attending syscall num %d \n\n ===", syscall_num );
-    kprintf_debug( " == \n\n param0=%d, param1=%d, param2=%d, param3=%d,  \n\n ===", arg0, arg1, arg2, arg3 );
+void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
+    kprintf_debug( " \n\r == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
 
     //attend syscall
-    switch(syscall_num){
+    /*switch(syscall_num){
         case SVCDummy:
 
            break;
@@ -2278,7 +2345,7 @@ void attend_syscall( tIcedQQueue* syscalls_queue, uint32_t syscall_num, uint32_t
         //Error
         default:
             break;
-    }
+    }*/
 }
 
 

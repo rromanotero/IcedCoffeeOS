@@ -29,37 +29,56 @@ uint8_t syscalls_queue_buffer[SYSCALLS_QUEUE_SIZE];
 *   Syscalls Init
 */
 void syscalls_init(void){
-  //Init syscalls queue
+  //Init queue
   syscalls_queue.queue = syscalls_queue_buffer;
   syscalls_queue.head = 0;
   syscalls_queue.tail = 0;
   syscalls_queue.capacity = SYSCALLS_QUEUE_SIZE;
 
-  //Subscribe to topic
-  //TODO : Once routing keys are enabled, change this for
-  //       topic=system, routing_key=syscalls
-  icedq_subscribe("system.syscalls", &syscalls_queue);
+  //Begin syscall KThread
+  scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
-*   Syscalls Kernel Thread
+*   Syscalls KThread
 */
 void syscalls_kthread(void){
 
-    uint32_t arg0, arg1, arg2, arg3, syscall_num;
+    //Subscribe to topic
+    //TODO : Once routing keys are enabled, change this for
+    //       topic=system, routing_key=syscalls
+    icedq_subscribe("system.syscalls", &syscalls_queue);
+
+    uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+    uint8_t request_num;
+    tSyscallInput* input;
+    tSyscallOutput* output;
 
     while(true){
-      attend_syscall(&syscalls_queue, syscall_num, arg0, arg1, arg2, arg3);
+      uint8_t items = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+      if(items > 0){
+
+        if(items != SYSCALLS_REQUEST_SIZE_IN_BYTES){
+            faults_kernel_panic("Syscalls: malformed request");
+        }
+
+        request_num = raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
+        input = (tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
+        output =(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
+
+        attend_syscall(request_num, input, output);
+      }
     }
 
 }
 
-void attend_syscall( tIcedQQueue* syscalls_queue, uint32_t syscall_num, uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3){
-    kprintf_debug( " == \n\n Attending syscall num %d \n\n ===", syscall_num );
-    kprintf_debug( " == \n\n param0=%d, param1=%d, param2=%d, param3=%d,  \n\n ===", arg0, arg1, arg2, arg3 );
+void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
+    kprintf_debug( " \n\r == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
 
     //attend syscall
-    switch(syscall_num){
+    /*switch(syscall_num){
         case SVCDummy:
 
            break;
@@ -67,5 +86,5 @@ void attend_syscall( tIcedQQueue* syscalls_queue, uint32_t syscall_num, uint32_t
         //Error
         default:
             break;
-    }
+    }*/
 }

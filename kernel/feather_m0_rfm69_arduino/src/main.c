@@ -25,13 +25,51 @@ extern tSerialPort serial_usb;
 
 void main_user_thread(void){
 
-  scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+  //scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
+  //scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+
+  uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t request_num;
+  tSyscallInput input;
+  tSyscallOutput output;
 
   while(true){
+    request_num = 3;
+
+    input.arg0 = 7;
+    input.arg1 = 7;
+    input.arg2 = 7;
+    input.arg3 = 7;
+
+    raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
+    ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET] = (uint32_t)(&input);
+    ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET] = (uint32_t)(&output);
+
+
+    kprintf_debug("\n\rMaking syscall. Request num: %d, input addr: %x, output addr: %x \n\r",
+                  request_num,
+                  &input,
+                  &output
+                );
+
+    kprintf_debug("Reconstructed addresses. input addr: %x, output addr: %x \n\r",
+                  ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET],
+                  ((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET]
+    );
+
+    tSyscallInput* in = &input;//(tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
+    tSyscallOutput* out = &output;//(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
+
+    kprintf_debug("Reconstructed PARAMS. arg0=%d, arg1=%d, arg2=%d, arg3=%d, \n\r\n\r",
+                  in->arg0, in->arg1, in->arg2, in->arg3
+    );
+
+
+    icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
     //blink away...
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000*2;i++);
+    //hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    for(volatile int i=0; i<480000*10;i++);
   }
 }
 
@@ -71,7 +109,7 @@ void consumer(void){
 
   while(true){
 
-    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer);
+    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer, 12);
 
     if(received > 0){
       kprintf_debug("Consumed the items: \n\r");
@@ -89,6 +127,9 @@ void ARDUINO_KERNEL_MAIN() {
   system_init();
 
   while(!hal_io_serial_is_ready(&serial_usb));
+
+  syscalls_init(); //<<--- CAN'T BE PLACED BEFORE while(!hal_io_serial_is_ready(&serial_usb));
+                   //      OR IT FAILS. I don't know why.
 
   scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
 

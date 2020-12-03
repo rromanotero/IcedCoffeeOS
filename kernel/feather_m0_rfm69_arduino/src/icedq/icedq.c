@@ -67,7 +67,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					uint32_t spaced_used;
 			    if(head > tail){
 			      //tail went around
-			      spaced_used = (q->capacity-head) + tail;
+			      spaced_used = ((q->capacity) - head) + tail;
 			    }
 			    else{
 			      spaced_used = (tail - head);
@@ -77,9 +77,13 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
-								q->queue[q->tail] = raw_message_bytes[j];
-								q->tail = (q->tail + 1) % q->capacity;
+								q->queue[q->tail+j] = raw_message_bytes[j];
 						}
+
+						//Update tail
+						//NOTE: It's important that this happens after all new elements
+						//			have been inserted. THIS MAKES PUBLISHING AN ITEM ATOMIC.
+						q->tail = (q->tail + message_len_in_bytes) % q->capacity;
 					}else{
 						//Queue full. Silently skip it.
 					}
@@ -112,13 +116,12 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 * 	Utils copy from Queue to buffer
 *		(just so this code is not repeatded everywhere)
 *
-*		Populates buffer with as many element are available in queue
+*		Populates buffer with as many element are available in queue or
+*   'max_items', whichever happens first.
 *
 *		Returns number of elements read.
 */
-uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
-		//   ---  Consume  ----
-		//   ------------------
+uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
 
@@ -131,13 +134,17 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
 			bytes_to_read = (tail - head);
 		}
 
+		//adjust for max_items
+		bytes_to_read = min(bytes_to_read, max_items);
+
 		if(bytes_to_read > 0){
 			for(int i=0; i< bytes_to_read; i++){
 					//copy messages from queue to items
-					buffer[i] = queue->queue[queue->head];
-					queue->head = (queue->head + 1) % queue->capacity;
+					buffer[i] = queue->queue[queue->head+i];
 			}
-		}//end if
+
+			queue->head = (queue->head + bytes_to_read) % queue->capacity;
+		}
 
 		return bytes_to_read;
 }
