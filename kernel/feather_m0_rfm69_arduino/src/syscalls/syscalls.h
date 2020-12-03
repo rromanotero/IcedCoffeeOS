@@ -25,6 +25,9 @@
 #ifndef SYSCALLS_H_
 #define SYSCALLS_H_
 
+#define SYSCALLS_TOPIC    "system.syscalls"   //TODO : Once routing keys are enabled, change this for
+                                              //       topic=system, routing_key=syscalls
+
 #define SYSCALLS_QUEUE_SIZE             1000
 #define SYSCALLS_REQUEST_SIZE_IN_BYTES  9 //syscall_num(1) + input (4) + output (4)
 

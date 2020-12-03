@@ -25,7 +25,7 @@ extern tSerialPort serial_usb;
 
 void sample_kthread(void){
 
-  while(!hal_io_serial_is_ready(&serial_usb));
+  while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
   uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
   uint8_t request_num;
@@ -34,56 +34,14 @@ void sample_kthread(void){
 
   while(true){
     request_num = 17;
-
     input.arg0 = 1;
     input.arg1 = 2;
     input.arg2 = 3;
     input.arg3 = 4;
 
-    kprintf_debug("BEFORE input.arg2=%d",input.arg2);
-
-    raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
-    raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0] = ((uint32_t)(&input)>>8*0) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1] = ((uint32_t)(&input)>>8*1) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2] = ((uint32_t)(&input)>>8*2) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3] = ((uint32_t)(&input)>>8*3) & 0xff;
-
-    raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
-    raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0] = ((uint32_t)(&output)>>8*0) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1] = ((uint32_t)(&output)>>8*1) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2] = ((uint32_t)(&output)>>8*2) & 0xff;
-    raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3] = ((uint32_t)(&output)>>8*3) & 0xff;
-
-
-    kprintf_debug("AFTER input.arg2=%d",input.arg2);
-    kprintf_debug("RAW REQUEST:");
-    for(int i=0; i<9; i++)
-      kprintf_debug("%x ", raw_request[i]);
-    kprintf_debug("\n\r");
-
-    kprintf_debug("Making syscall. Request num: %d, input addr: %x, output addr: %x \n\r",
-                  request_num,
-                  &input,
-                  &output
-                );
-
-    kprintf_debug("Reconstructed addresses. input addr: %x, output addr: %x \n\r",
-                  (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3]<< 8*3),
-                  (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3)
-    );
-
-    tSyscallInput* in = &input;//(tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
-    tSyscallOutput* out = &output;//(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
-
-    kprintf_debug("Reconstructed PARAMS. arg0=%d, arg1=%d, arg2=%d, arg3=%d, \n\r\n\r",
-                  in->arg0, in->arg1, in->arg2, in->arg3
-    );
-
-
+    syscall_utils_raw_request_populate(raw_request, request_num, &input, &output);
     icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
 
-    //blink away...
-    //hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
     for(volatile int i=0; i<4800;i++);
   }
 }
@@ -1275,6 +1233,8 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
 					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
+
+					spin_lock_acquire();
 					volatile uint32_t tail = q->tail;
 					volatile uint32_t head = q->head;
 
@@ -1291,16 +1251,15 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
 						//if there's space,
 						//copy over raw bytes
-						spin_lock_acquire(); 
 						for(int j=0; j<message_len_in_bytes; j++){
 								q->queue[q->tail] = raw_message_bytes[j];
 								q->tail = (q->tail + 1) % q->capacity;
 						}
-						spin_lock_release();
 
 					}else{
 						//Queue full. Silently skip it.
 					}
+					spin_lock_release();
 
       }//end if suscriptor matching
   }//end for
@@ -1336,6 +1295,9 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 *		Returns number of elements read.
 */
 uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
+
+		spin_lock_acquire();
+
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
 
@@ -1353,15 +1315,14 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32
 
 		if(bytes_to_read > 0){
 
-			spin_lock_acquire();
 			for(int i=0; i< bytes_to_read; i++){
 					//copy messages from queue to items
 					buffer[i] = queue->queue[queue->head];
 					queue->head = (queue->head + 1) % queue->capacity;
-			spin_lock_release();
-
 			}
 		}
+		
+		spin_lock_release();
 
 		return bytes_to_read;
 }
@@ -2247,6 +2208,7 @@ static void align_to_eight_byte_boundary(void){
 
 tIcedQQueue syscalls_queue;
 uint8_t syscalls_queue_buffer[SYSCALLS_QUEUE_SIZE];
+uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
 
 /**
 *   Syscalls Init
@@ -2264,41 +2226,79 @@ void syscalls_init(void){
 
 /**
 *   Syscalls KThread
+*   (handles syscalls)
 */
 void syscalls_kthread(void){
 
     //Subscribe to topic
-    //TODO : Once routing keys are enabled, change this for
-    //       topic=system, routing_key=syscalls
-    icedq_subscribe("system.syscalls", &syscalls_queue);
-
-    uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
-    uint8_t request_num;
-    tSyscallInput* input;
-    tSyscallOutput* output;
+    icedq_subscribe(SYSCALLS_TOPIC, &syscalls_queue);
 
     while(true){
-      uint8_t items = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+      //consume (if any)
+      uint8_t bytes_read = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
 
-      if(items > 0){
+      if(bytes_read > 0){
 
-        if(items != SYSCALLS_REQUEST_SIZE_IN_BYTES){
+        if(bytes_read != SYSCALLS_REQUEST_SIZE_IN_BYTES){
+            // this works, because publishing and consuming
+            // are ATOMIC operations
             faults_kernel_panic("Syscalls: malformed request");
         }
 
-        request_num = raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
-        input = (tSyscallInput*)((raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3]<< 8*3));
-        output =(tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
+        uint8_t request_num = syscall_utils_raw_request_parse_request_num(raw_request);
+        tSyscallInput* input = syscall_utils_raw_request_parse_input(raw_request);
+        tSyscallOutput* output = syscall_utils_raw_request_parse_output(raw_request);
 
         attend_syscall(request_num, input, output);
       }
-    }
+    }//end while
+}
+
+/*
+*   Utils so this code is not repeated over and over
+*
+*   Populates a raw request, given the params of a request.
+*   (request number, a pointer to the req's input, a pointer to the req's output)
+*/
+void syscall_utils_raw_request_populate(uint8_t* raw_request, uint32_t request_num, tSyscallInput* input, tSyscallOutput* output ){
+
+  raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0] = ((uint32_t)(input)>>8*0) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1] = ((uint32_t)(input)>>8*1) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2] = ((uint32_t)(input)>>8*2) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3] = ((uint32_t)(input)>>8*3) & 0xff;
+
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0] = ((uint32_t)(output)>>8*0) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1] = ((uint32_t)(output)>>8*1) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2] = ((uint32_t)(output)>>8*2) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3] = ((uint32_t)(output)>>8*3) & 0xff;
 
 }
 
+/*
+*   Parses request number from a raw request
+*/
+inline uint32_t syscall_utils_raw_request_parse_request_num(uint8_t* raw_request){
+  return raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
+}
+
+/*
+*   Parse input from a raw request
+*/
+inline tSyscallInput* syscall_utils_raw_request_parse_input(uint8_t* raw_request){
+  return (tSyscallInput*)((raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3]<< 8*3));
+}
+
+/*
+*   Parse output from a raw request
+*/
+inline tSyscallOutput* syscall_utils_raw_request_parse_output(uint8_t* raw_request){
+  return (tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
+}
+
 void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
-    kprintf_debug( " \n\r == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r\n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
+    kprintf_debug( " == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
 
     //attend syscall
     /*switch(syscall_num){
