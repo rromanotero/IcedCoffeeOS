@@ -64,8 +64,8 @@ void syscalls_kthread(void){
         }
 
         request_num = raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
-        input = (tSyscallInput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_INPUT_OFFSET];
-        output =(tSyscallOutput*)((uint32_t*)raw_request)[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET];
+        input = (tSyscallInput*)((raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3]<< 8*3));
+        output =(tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
 
         attend_syscall(request_num, input, output);
       }
@@ -75,7 +75,7 @@ void syscalls_kthread(void){
 
 void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
     kprintf_debug( " \n\r == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r\n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
 
     //attend syscall
     /*switch(syscall_num){
