@@ -50,14 +50,12 @@ void syscalls_kthread(void){
     icedq_subscribe(SYSCALLS_TOPIC, &syscalls_queue);
 
     while(true){
-      //consume (if any)
       uint8_t bytes_read = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
 
       if(bytes_read > 0){
+        //A request was placed
 
         if(bytes_read != SYSCALLS_REQUEST_SIZE_IN_BYTES){
-            // this works, because publishing and consuming
-            // are ATOMIC operations
             faults_kernel_panic("Syscalls: malformed request");
         }
 

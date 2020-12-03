@@ -1234,7 +1234,9 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
 
-					spin_lock_acquire();
+					spin_lock_acquire();	//<<-- Some strange bugs if consuming from queue
+					 										//			and publishing to it are not mut exclusive
+
 					volatile uint32_t tail = q->tail;
 					volatile uint32_t head = q->head;
 
@@ -1296,7 +1298,8 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 */
 uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
 
-		spin_lock_acquire();
+		spin_lock_acquire(); //<<-- Some strange bugs if consuming from queue
+		 										//			and publishing to it are not mut exclusive
 
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
@@ -1321,7 +1324,7 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32
 					queue->head = (queue->head + 1) % queue->capacity;
 			}
 		}
-		
+
 		spin_lock_release();
 
 		return bytes_to_read;
@@ -2234,14 +2237,12 @@ void syscalls_kthread(void){
     icedq_subscribe(SYSCALLS_TOPIC, &syscalls_queue);
 
     while(true){
-      //consume (if any)
       uint8_t bytes_read = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
 
       if(bytes_read > 0){
+        //A request was placed
 
         if(bytes_read != SYSCALLS_REQUEST_SIZE_IN_BYTES){
-            // this works, because publishing and consuming
-            // are ATOMIC operations
             faults_kernel_panic("Syscalls: malformed request");
         }
 
