@@ -34,4 +34,5 @@ void system_init(void){
 	faults_init();
 	scheduler_init();
 	icedq_init();
+	syscalls_init(); 
 }

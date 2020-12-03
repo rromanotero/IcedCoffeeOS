@@ -23,10 +23,9 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void main_user_thread(void){
+void sample_kthread(void){
 
-  //scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
-  //scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+  while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
   uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
   uint8_t request_num;
@@ -85,69 +84,14 @@ void main_user_thread(void){
 
     //blink away...
     //hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<48000;i++);
+    for(volatile int i=0; i<4800;i++);
   }
 }
-
-void producer(void){
-  uint32_t counter = 0;
-
-  while(true){
-    //Create message
-    //hey0, hey1, hey2, ...
-    uint8_t raw_message[] = {'h','e','y','X','\0','\0'};
-    raw_message[3] = counter + '0';
-    counter = (counter+1)%10;
-
-    //Publish it
-    icedq_publish("dummy_topic", raw_message, 4);
-    kprintf_debug("Produced the items: %s \n\r", raw_message); //<<-- Print inside lock just so when printed
-                                                               //     we can see a "produced" followe by a "consume"
-    for(volatile int i=0; i<480;i++);
-  }
-}
-
-uint8_t queue_buffer[100];
-uint8_t consumed_buffer[25];
-
-void consumer(void){
-
-  //Init queue where Producer
-  //will publish to
-  tIcedQQueue queue;
-  queue.queue = queue_buffer;
-  queue.head = 0;
-  queue.tail = 0;
-  queue.capacity = 100;
-
-  //Subscribe to topic
-  icedq_subscribe("dummy_topic", &queue);
-
-  while(true){
-
-    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer, 12);
-
-    if(received > 0){
-      kprintf_debug("Consumed the items: \n\r");
-      for(int i=0; i<received; i++){
-        kprintf_debug( "%c", consumed_buffer[i] );
-      }
-      kprintf_debug("\n\r");
-    }
-
-  }//end while
-}
-
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  while(!hal_io_serial_is_ready(&serial_usb));
-
-  syscalls_init(); //<<--- CAN'T BE PLACED BEFORE while(!hal_io_serial_is_ready(&serial_usb));
-                   //      OR IT FAILS. I don't know why.
-
-  scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( sample_kthread, "sample_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 

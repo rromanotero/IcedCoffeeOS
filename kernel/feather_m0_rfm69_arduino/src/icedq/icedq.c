@@ -74,16 +74,16 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 			    }
 
 					if( spaced_used + message_len_in_bytes <= q->capacity ){
+
 						//if there's space,
 						//copy over raw bytes
+						spin_lock_acquire(); 
 						for(int j=0; j<message_len_in_bytes; j++){
-								q->queue[q->tail+j] = raw_message_bytes[j];
+								q->queue[q->tail] = raw_message_bytes[j];
+								q->tail = (q->tail + 1) % q->capacity;
 						}
+						spin_lock_release();
 
-						//Update tail
-						//NOTE: It's important that this happens after all new elements
-						//			have been inserted. THIS MAKES PUBLISHING AN ITEM ATOMIC.
-						q->tail = (q->tail + message_len_in_bytes) % q->capacity;
 					}else{
 						//Queue full. Silently skip it.
 					}
@@ -138,12 +138,15 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32
 		bytes_to_read = min(bytes_to_read, max_items);
 
 		if(bytes_to_read > 0){
+
+			spin_lock_acquire();
 			for(int i=0; i< bytes_to_read; i++){
 					//copy messages from queue to items
-					buffer[i] = queue->queue[queue->head+i];
-			}
+					buffer[i] = queue->queue[queue->head];
+					queue->head = (queue->head + 1) % queue->capacity;
+			spin_lock_release();
 
-			queue->head = (queue->head + bytes_to_read) % queue->capacity;
+			}
 		}
 
 		return bytes_to_read;
