@@ -53,52 +53,34 @@ void producer(void){
   }
 }
 
-uint8_t buffer[100];
-uint8_t items[100];
+uint8_t queue_buffer[100];
+uint8_t consumed_buffer[25];
 
 void consumer(void){
 
   //Init queue where Producer
   //will publish to
-  tIcedQQueue in_queue;
-  in_queue.queue = buffer;
-  in_queue.head = 0;
-  in_queue.tail = 0;
-  in_queue.capacity = 100;
+  tIcedQQueue queue;
+  queue.queue = queue_buffer;
+  queue.head = 0;
+  queue.tail = 0;
+  queue.capacity = 100;
 
   //Subscribe to topic
-  icedq_subscribe("dummy_topic", &in_queue);
+  icedq_subscribe("dummy_topic", &queue);
 
   while(true){
-    //   ---  Consume  ----
-    //   ------------------
-    volatile uint32_t head = in_queue.head;
-    volatile uint32_t tail = in_queue.tail;
 
-    uint32_t bytes_to_read;
-    if(head > tail){
-      //tail went around
-      bytes_to_read = (in_queue.capacity - head) + tail;
-    }
-    else{
-      bytes_to_read = (tail - head);
-    }
+    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer);
 
-    if(bytes_to_read > 0){
-
-      for(int i=0; i< bytes_to_read; i++){
-          //copy messages from queue to items
-          items[i] = in_queue.queue[in_queue.head];
-          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
-      }
-
+    if(received > 0){
       kprintf_debug("Consumed the items: \n\r");
-      for(int j=0; j<(bytes_to_read); j++){
-        kprintf_debug( "%c", items[j] );
+      for(int i=0; i<received; i++){
+        kprintf_debug( "%c", consumed_buffer[i] );
       }
       kprintf_debug("\n\r");
+    }
 
-    }//end if
   }//end while
 }
 
@@ -1338,6 +1320,40 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
     return ICEDQ_SUCCESS;
 }
 
+/*
+* 	Utils copy from Queue to buffer
+*		(just so this code is not repeatded everywhere)
+*
+*		Populates buffer with as many element are available in queue
+*
+*		Returns number of elements read.
+*/
+uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
+		//   ---  Consume  ----
+		//   ------------------
+		volatile uint32_t head = queue->head;
+		volatile uint32_t tail = queue->tail;
+
+		uint32_t bytes_to_read;
+		if(head > tail){
+			//tail went around
+			bytes_to_read = (queue->capacity - head) + tail;
+		}
+		else{
+			bytes_to_read = (tail - head);
+		}
+
+		if(bytes_to_read > 0){
+			for(int i=0; i< bytes_to_read; i++){
+					//copy messages from queue to items
+					buffer[i] = queue->queue[queue->head];
+					queue->head = (queue->head + 1) % queue->capacity;
+			}
+		}//end if
+
+		return bytes_to_read;
+}
+
 tIcedQSuscription* suscriptions_pool_get_one(void){
   	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
   		if( suscription_pool.list[i].free ){
@@ -2189,6 +2205,80 @@ static void align_to_eight_byte_boundary(void){
 	}
 
 	stack = (uint32_t*)address;
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+tIcedQQueue syscalls_queue;
+uint8_t syscalls_queue_buffer[SYSCALLS_QUEUE_SIZE];
+
+/**
+*   Syscalls Init
+*/
+void syscalls_init(void){
+  //Init syscalls queue
+  syscalls_queue.queue = syscalls_queue_buffer;
+  syscalls_queue.head = 0;
+  syscalls_queue.tail = 0;
+  syscalls_queue.capacity = SYSCALLS_QUEUE_SIZE;
+
+  //Subscribe to topic
+  //TODO : Once routing keys are enabled, change this for
+  //       topic=system, routing_key=syscalls
+  icedq_subscribe("system.syscalls", &syscalls_queue);
+}
+
+/**
+*   Syscalls Kernel Thread
+*/
+void syscalls_kthread(void){
+
+    uint32_t arg0, arg1, arg2, arg3, syscall_num;
+
+    while(true){
+      attend_syscall(&syscalls_queue, syscall_num, arg0, arg1, arg2, arg3);
+    }
+
+}
+
+void attend_syscall( tIcedQQueue* syscalls_queue, uint32_t syscall_num, uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3){
+    kprintf_debug( " == \n\n Attending syscall num %d \n\n ===", syscall_num );
+    kprintf_debug( " == \n\n param0=%d, param1=%d, param2=%d, param3=%d,  \n\n ===", arg0, arg1, arg2, arg3 );
+
+    //attend syscall
+    switch(syscall_num){
+        case SVCDummy:
+
+           break;
+
+        //Error
+        default:
+            break;
+    }
 }
 
 

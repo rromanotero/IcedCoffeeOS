@@ -108,6 +108,40 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
     return ICEDQ_SUCCESS;
 }
 
+/*
+* 	Utils copy from Queue to buffer
+*		(just so this code is not repeatded everywhere)
+*
+*		Populates buffer with as many element are available in queue
+*
+*		Returns number of elements read.
+*/
+uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer){
+		//   ---  Consume  ----
+		//   ------------------
+		volatile uint32_t head = queue->head;
+		volatile uint32_t tail = queue->tail;
+
+		uint32_t bytes_to_read;
+		if(head > tail){
+			//tail went around
+			bytes_to_read = (queue->capacity - head) + tail;
+		}
+		else{
+			bytes_to_read = (tail - head);
+		}
+
+		if(bytes_to_read > 0){
+			for(int i=0; i< bytes_to_read; i++){
+					//copy messages from queue to items
+					buffer[i] = queue->queue[queue->head];
+					queue->head = (queue->head + 1) % queue->capacity;
+			}
+		}//end if
+
+		return bytes_to_read;
+}
+
 tIcedQSuscription* suscriptions_pool_get_one(void){
   	for(uint32_t i=0; i<ICEDQ_SUSCRIPTION_POOL_SIZE; i++){
   		if( suscription_pool.list[i].free ){

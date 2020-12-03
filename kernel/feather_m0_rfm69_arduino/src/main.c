@@ -53,52 +53,34 @@ void producer(void){
   }
 }
 
-uint8_t buffer[100];
-uint8_t items[100];
+uint8_t queue_buffer[100];
+uint8_t consumed_buffer[25];
 
 void consumer(void){
 
   //Init queue where Producer
   //will publish to
-  tIcedQQueue in_queue;
-  in_queue.queue = buffer;
-  in_queue.head = 0;
-  in_queue.tail = 0;
-  in_queue.capacity = 100;
+  tIcedQQueue queue;
+  queue.queue = queue_buffer;
+  queue.head = 0;
+  queue.tail = 0;
+  queue.capacity = 100;
 
   //Subscribe to topic
-  icedq_subscribe("dummy_topic", &in_queue);
+  icedq_subscribe("dummy_topic", &queue);
 
   while(true){
-    //   ---  Consume  ----
-    //   ------------------
-    volatile uint32_t head = in_queue.head;
-    volatile uint32_t tail = in_queue.tail;
 
-    uint32_t bytes_to_read;
-    if(head > tail){
-      //tail went around
-      bytes_to_read = (in_queue.capacity - head) + tail;
-    }
-    else{
-      bytes_to_read = (tail - head);
-    }
+    uint8_t received = icedq_utils_queue_to_buffer(&queue, consumed_buffer);
 
-    if(bytes_to_read > 0){
-
-      for(int i=0; i< bytes_to_read; i++){
-          //copy messages from queue to items
-          items[i] = in_queue.queue[in_queue.head];
-          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
-      }
-
+    if(received > 0){
       kprintf_debug("Consumed the items: \n\r");
-      for(int j=0; j<(bytes_to_read); j++){
-        kprintf_debug( "%c", items[j] );
+      for(int i=0; i<received; i++){
+        kprintf_debug( "%c", consumed_buffer[i] );
       }
       kprintf_debug("\n\r");
+    }
 
-    }//end if
   }//end while
 }
 
