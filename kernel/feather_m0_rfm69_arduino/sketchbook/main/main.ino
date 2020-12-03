@@ -23,92 +23,33 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-void main_user_thread(void){
+void sample_kthread(void){
 
-  scheduler_thread_create( producer, "producer", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( consumer, "consumer", 2048, ProcQueueReadyRealTime );
+  while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
+
+  uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t request_num;
+  tSyscallInput input;
+  tSyscallOutput output;
 
   while(true){
-    //blink away...
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    for(volatile int i=0; i<480000*2;i++);
+    request_num = 17;
+    input.arg0 = 1;
+    input.arg1 = 2;
+    input.arg2 = 3;
+    input.arg3 = 4;
+
+    syscall_utils_raw_request_populate(raw_request, request_num, &input, &output);
+    icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+    for(volatile int i=0; i<4800;i++);
   }
 }
-
-void producer(void){
-  uint32_t counter = 0;
-
-  while(true){
-    //Create message
-    //hey0, hey1, hey2, ...
-    uint8_t raw_message[] = {'h','e','y','X','\0','\0'};
-    raw_message[3] = counter + '0';
-    counter = (counter+1)%10;
-
-    //Publish it
-    icedq_publish("dummy_topic", raw_message, 4);
-    kprintf_debug("Produced the items: %s \n\r", raw_message); //<<-- Print inside lock just so when printed
-                                                               //     we can see a "produced" followe by a "consume"
-    for(volatile int i=0; i<480;i++);
-  }
-}
-
-uint8_t buffer[100];
-uint8_t items[100];
-
-void consumer(void){
-
-  //Init queue where Producer
-  //will publish to
-  tIcedQQueue in_queue;
-  in_queue.queue = buffer;
-  in_queue.head = 0;
-  in_queue.tail = 0;
-  in_queue.capacity = 100;
-
-  //Subscribe to topic
-  icedq_subscribe("dummy_topic", &in_queue);
-
-  while(true){
-    //   ---  Consume  ----
-    //   ------------------
-    volatile uint32_t head = in_queue.head;
-    volatile uint32_t tail = in_queue.tail;
-
-    uint32_t bytes_to_read;
-    if(head > tail){
-      //tail went around
-      bytes_to_read = (in_queue.capacity - head) + tail;
-    }
-    else{
-      bytes_to_read = (tail - head);
-    }
-
-    if(bytes_to_read > 0){
-
-      for(int i=0; i< bytes_to_read; i++){
-          //copy messages from queue to items
-          items[i] = in_queue.queue[in_queue.head];
-          in_queue.head = (in_queue.head + 1) % in_queue.capacity;
-      }
-
-      kprintf_debug("Consumed the items: \n\r");
-      for(int j=0; j<(bytes_to_read); j++){
-        kprintf_debug( "%c", items[j] );
-      }
-      kprintf_debug("\n\r");
-
-    }//end if
-  }//end while
-}
-
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  while(!hal_io_serial_is_ready(&serial_usb));
-
-  scheduler_thread_create( main_user_thread, "main_user_thread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( sample_kthread, "sample_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 
@@ -155,6 +96,7 @@ void system_init(void){
 	faults_init();
 	scheduler_init();
 	icedq_init();
+	syscalls_init(); 
 }
 
 
@@ -1291,28 +1233,35 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 
 					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
+
+					spin_lock_acquire();	//<<-- Some strange bugs if consuming from queue
+					 										//			and publishing to it are not mut exclusive
+
 					volatile uint32_t tail = q->tail;
 					volatile uint32_t head = q->head;
 
 					uint32_t spaced_used;
 			    if(head > tail){
 			      //tail went around
-			      spaced_used = (q->capacity-head) + tail;
+			      spaced_used = ((q->capacity) - head) + tail;
 			    }
 			    else{
 			      spaced_used = (tail - head);
 			    }
 
 					if( spaced_used + message_len_in_bytes <= q->capacity ){
+
 						//if there's space,
 						//copy over raw bytes
 						for(int j=0; j<message_len_in_bytes; j++){
 								q->queue[q->tail] = raw_message_bytes[j];
 								q->tail = (q->tail + 1) % q->capacity;
 						}
+
 					}else{
 						//Queue full. Silently skip it.
 					}
+					spin_lock_release();
 
       }//end if suscriptor matching
   }//end for
@@ -1336,6 +1285,49 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
     active_subscriptions[num_of_active_suscriptions++] = suscription;
 
     return ICEDQ_SUCCESS;
+}
+
+/*
+* 	Utils copy from Queue to buffer
+*		(just so this code is not repeatded everywhere)
+*
+*		Populates buffer with as many element are available in queue or
+*   'max_items', whichever happens first.
+*
+*		Returns number of elements read.
+*/
+uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
+
+		spin_lock_acquire(); //<<-- Some strange bugs if consuming from queue
+		 										//			and publishing to it are not mut exclusive
+
+		volatile uint32_t head = queue->head;
+		volatile uint32_t tail = queue->tail;
+
+		uint32_t bytes_to_read;
+		if(head > tail){
+			//tail went around
+			bytes_to_read = (queue->capacity - head) + tail;
+		}
+		else{
+			bytes_to_read = (tail - head);
+		}
+
+		//adjust for max_items
+		bytes_to_read = min(bytes_to_read, max_items);
+
+		if(bytes_to_read > 0){
+
+			for(int i=0; i< bytes_to_read; i++){
+					//copy messages from queue to items
+					buffer[i] = queue->queue[queue->head];
+					queue->head = (queue->head + 1) % queue->capacity;
+			}
+		}
+
+		spin_lock_release();
+
+		return bytes_to_read;
 }
 
 tIcedQSuscription* suscriptions_pool_get_one(void){
@@ -2189,6 +2181,136 @@ static void align_to_eight_byte_boundary(void){
 	}
 
 	stack = (uint32_t*)address;
+}
+
+
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   and adapted from MiniOS:
+*   (https://github.com/rromanotero/minios).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
+
+tIcedQQueue syscalls_queue;
+uint8_t syscalls_queue_buffer[SYSCALLS_QUEUE_SIZE];
+uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+
+/**
+*   Syscalls Init
+*/
+void syscalls_init(void){
+  //Init queue
+  syscalls_queue.queue = syscalls_queue_buffer;
+  syscalls_queue.head = 0;
+  syscalls_queue.tail = 0;
+  syscalls_queue.capacity = SYSCALLS_QUEUE_SIZE;
+
+  //Begin syscall KThread
+  scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
+}
+
+/**
+*   Syscalls KThread
+*   (handles syscalls)
+*/
+void syscalls_kthread(void){
+
+    //Subscribe to topic
+    icedq_subscribe(SYSCALLS_TOPIC, &syscalls_queue);
+
+    while(true){
+      uint8_t bytes_read = icedq_utils_queue_to_buffer(&syscalls_queue, raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+      if(bytes_read > 0){
+        //A request was placed
+
+        if(bytes_read != SYSCALLS_REQUEST_SIZE_IN_BYTES){
+            faults_kernel_panic("Syscalls: malformed request");
+        }
+
+        uint8_t request_num = syscall_utils_raw_request_parse_request_num(raw_request);
+        tSyscallInput* input = syscall_utils_raw_request_parse_input(raw_request);
+        tSyscallOutput* output = syscall_utils_raw_request_parse_output(raw_request);
+
+        attend_syscall(request_num, input, output);
+      }
+    }//end while
+}
+
+/*
+*   Utils so this code is not repeated over and over
+*
+*   Populates a raw request, given the params of a request.
+*   (request number, a pointer to the req's input, a pointer to the req's output)
+*/
+void syscall_utils_raw_request_populate(uint8_t* raw_request, uint32_t request_num, tSyscallInput* input, tSyscallOutput* output ){
+
+  raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET] = request_num;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0] = ((uint32_t)(input)>>8*0) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1] = ((uint32_t)(input)>>8*1) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2] = ((uint32_t)(input)>>8*2) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3] = ((uint32_t)(input)>>8*3) & 0xff;
+
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0] = ((uint32_t)(output)>>8*0) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1] = ((uint32_t)(output)>>8*1) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2] = ((uint32_t)(output)>>8*2) & 0xff;
+  raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3] = ((uint32_t)(output)>>8*3) & 0xff;
+
+}
+
+/*
+*   Parses request number from a raw request
+*/
+inline uint32_t syscall_utils_raw_request_parse_request_num(uint8_t* raw_request){
+  return raw_request[SYSCALLS_RAW_REQUEST_NUM_OFFSET];
+}
+
+/*
+*   Parse input from a raw request
+*/
+inline tSyscallInput* syscall_utils_raw_request_parse_input(uint8_t* raw_request){
+  return (tSyscallInput*)((raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_INPUT_OFFSET+3]<< 8*3));
+}
+
+/*
+*   Parse output from a raw request
+*/
+inline tSyscallOutput* syscall_utils_raw_request_parse_output(uint8_t* raw_request){
+  return (tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
+}
+
+void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
+    kprintf_debug( " == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
+
+    //attend syscall
+    /*switch(syscall_num){
+        case SVCDummy:
+
+           break;
+
+        //Error
+        default:
+            break;
+    }*/
 }
 
 
