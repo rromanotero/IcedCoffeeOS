@@ -60,27 +60,28 @@ uint32_t hal_io_pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin
 	switch (pio_port)
 	{
 		case PioA:
-      if(pin_number == 2) pio_pin->internal_pin = 4;
-      else if(pin_number == 4) pio_pin->internal_pin = 9;
-      else if(pin_number == 5) pio_pin->internal_pin = 10;
+      if(pin_number == 2) pio_pin->internal_pin = 14;
+      else if(pin_number == 4) pio_pin->internal_pin = 17;
+      else if(pin_number == 5) pio_pin->internal_pin = 18;
       else if(pin_number == 8) pio_pin->internal_pin = 13;
-      else if(pin_number == 10) pio_pin->internal_pin = 15;
-      else if(pin_number == 11) pio_pin->internal_pin = 16;
-      else if(pin_number == 12) pio_pin->internal_pin = 21;
-      else if(pin_number == 16) pio_pin->internal_pin = 25;
-      else if(pin_number == 17) pio_pin->internal_pin = 26;
-      else if(pin_number == 18) pio_pin->internal_pin = 27;
-      else if(pin_number == 19) pio_pin->internal_pin = 28;
-      else if(pin_number == 20) pio_pin->internal_pin = 29;
-      else if(pin_number == 22) pio_pin->internal_pin = 31;
-      else if(pin_number == 23) pio_pin->internal_pin = 32;
+      else if(pin_number == 10) pio_pin->internal_pin = 1;
+      else if(pin_number == 11) pio_pin->internal_pin = 0;
+      else if(pin_number == 12) pio_pin->internal_pin = 22;
+      else if(pin_number == 15) pio_pin->internal_pin = 5;
+      else if(pin_number == 16) pio_pin->internal_pin = 11;
+      else if(pin_number == 17) pio_pin->internal_pin = 13;
+      else if(pin_number == 18) pio_pin->internal_pin = 10;
+      else if(pin_number == 19) pio_pin->internal_pin = 12;
+      else if(pin_number == 20) pio_pin->internal_pin = 6;
+      else if(pin_number == 22) pio_pin->internal_pin = 20;
+      else if(pin_number == 23) pio_pin->internal_pin = 21;
       else status = HAL_IO_PIO_PIN_NOT_FOUND;
 
 			break;
 		case PioB:
-      if(pin_number == 2) pio_pin->internal_pin = 47;
-      else if(pin_number == 8) pio_pin->internal_pin = 7;
-      else if(pin_number == 9) pio_pin->internal_pin = 8;
+      if(pin_number == 2) pio_pin->internal_pin = 19;
+      else if(pin_number == 8) pio_pin->internal_pin = 15;
+      else if(pin_number == 9) pio_pin->internal_pin = 16;
       else status = HAL_IO_PIO_PIN_NOT_FOUND;
 
       break;

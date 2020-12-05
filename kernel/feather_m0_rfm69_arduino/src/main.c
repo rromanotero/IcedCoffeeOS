@@ -23,7 +23,31 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
+tPioPin led_left_r;
+tPioPin led_left_g;
+tPioPin led_left_b;
+
 void sample_kthread(void){
+
+  //
+  //Each pin has a 2.2K resistor
+  //
+  hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
+  hal_io_pio_create_pin(&led_left_g, PioA, 16, PioOutput);
+  hal_io_pio_create_pin(&led_left_b, PioA, 19, PioOutput);
+
+  while(true){
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    hal_io_pio_write(&led_left_r, true);
+    hal_io_pio_write(&led_left_g, false);
+    hal_io_pio_write(&led_left_b, false);
+    hal_cpu_delay(1000);
+    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    hal_io_pio_write(&led_left_r, true);
+    hal_io_pio_write(&led_left_g, true);
+    hal_io_pio_write(&led_left_b, true);
+    hal_cpu_delay(1000);
+  }
 
   while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
