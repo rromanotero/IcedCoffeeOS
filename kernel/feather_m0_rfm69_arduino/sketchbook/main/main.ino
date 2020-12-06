@@ -29,7 +29,10 @@ tPioPin led_left_b;
 
 void sample_kthread(void){
 
-  hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
+  //
+  //Each pin has a 2.2K resistor
+  //
+  /*hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
   hal_io_pio_create_pin(&led_left_g, PioA, 16, PioOutput);
   hal_io_pio_create_pin(&led_left_b, PioA, 19, PioOutput);
 
@@ -44,27 +47,18 @@ void sample_kthread(void){
     hal_io_pio_write(&led_left_g, true);
     hal_io_pio_write(&led_left_b, true);
     hal_cpu_delay(1000);
-  }
+  }*/
 
   while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
-  uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
-  uint8_t request_num;
-  tSyscallInput input;
-  tSyscallOutput output;
+  pio_create_pin(&led_pin, PioA, 8, PioOutput);
 
   while(true){
-    request_num = 17;
-    input.arg0 = 1;
-    input.arg1 = 2;
-    input.arg2 = 3;
-    input.arg3 = 4;
-
-    syscall_utils_raw_request_populate(raw_request, request_num, &input, &output);
-    icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-
-    for(volatile int i=0; i<4800;i++);
+    bool curr_val = pio_read(&led_pin);
+    pio_write(&led_pin, !curr_val);
+    hal_cpu_delay(1000);
   }
+
 }
 
 void ARDUINO_KERNEL_MAIN() {
@@ -1365,6 +1359,83 @@ tIcedQSuscription* suscriptions_pool_get_one(void){
 
 
 
+
+uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number, tPioDir dir){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  iql_request_num = (uint32_t)(SyscallPioCreatePin);
+  iql_input.arg0 = (uint32_t)(pio_pin);
+  iql_input.arg1 = (uint32_t)(pio_port);
+  iql_input.arg2 = (uint32_t)(pin_number);
+  iql_input.arg3 = (uint32_t)(dir);
+
+  //kprintf_debug("SYSCALL BEGIN. req_num: %d, arg0: %d, arg1: %d, arg2: %d, arg3: %d \n\r",
+  //            iql_request_num,
+  //            iql_input.arg0,
+  //            iql_input.arg1,
+  //            iql_input.arg2,
+  //            iql_input.arg3);
+  //kprintf_debug("raw_request addr: %x \n\r", iql_raw_request);
+  //kprintf_debug("input addr: %x \n\r", iql_input);
+  //kprintf_debug("output addr: %x \n\r", iql_output);
+
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  iql_output.output_ready = false;
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+  while(!iql_output.output_ready);
+
+  //kprintf_debug("SYSCALL MADE \n\r");
+  //kprintf_debug("raw_request addr: %x \n\r", iql_raw_request);
+  //kprintf_debug("input addr: %x \n\r", iql_input);
+  //kprintf_debug("output addr: %x \n\r", iql_output);
+
+  //kprintf_debug("SYSCALL COMPLETED. ret_val: %d \n\r", iql_output.ret_val);
+
+  return iql_output.ret_val;
+}
+
+void pio_write(tPioPin* pio_pin, bool state){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  iql_request_num = (uint32_t)(SyscallPioWrite);
+  iql_input.arg0 = (uint32_t)(pio_pin);
+  iql_input.arg1 = (uint32_t)(state);
+
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  iql_output.output_ready = false;
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+  while(!iql_output.output_ready);
+}
+
+bool pio_read(tPioPin* pio_pin){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  iql_request_num = (uint32_t)(SyscallPioRead);
+  iql_input.arg0 = (uint32_t)(pio_pin);
+
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  iql_output.output_ready = false;
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+  while(!iql_output.output_ready);
+
+  return iql_output.ret_val;
+}
+
+
+
+
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
@@ -2277,6 +2348,36 @@ void syscalls_kthread(void){
     }//end while
 }
 
+void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
+    kprintf_debug( " == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+
+    //attend syscall
+    switch(request_num){
+        case SyscallSleep:
+
+           break;
+        case SyscallPioCreatePin:
+            out->ret_val =  hal_io_pio_create_pin((tPioPin*)(in->arg0), (tPioPort)(in->arg1), (uint32_t)(in->arg2), (tPioDir)in->arg3);
+            out->output_ready = true;
+            break;
+        case SyscallPioWrite:
+            hal_io_pio_write((tPioPin*)(in->arg0), (bool)(in->arg1));
+            out->output_ready = true;
+            break;
+        case SyscallPioRead:
+            out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
+            out->output_ready = true;
+            break;
+
+        //Error
+        default:
+            //Ignore syscall
+            out->output_ready = true;
+            break;
+    }
+}
+
 /*
 *   Utils so this code is not repeated over and over
 *
@@ -2317,22 +2418,6 @@ inline tSyscallInput* syscall_utils_raw_request_parse_input(uint8_t* raw_request
 */
 inline tSyscallOutput* syscall_utils_raw_request_parse_output(uint8_t* raw_request){
   return (tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
-}
-
-void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
-
-    //attend syscall
-    /*switch(syscall_num){
-        case SVCDummy:
-
-           break;
-
-        //Error
-        default:
-            break;
-    }*/
 }
 
 

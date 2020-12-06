@@ -32,7 +32,7 @@ void sample_kthread(void){
   //
   //Each pin has a 2.2K resistor
   //
-  hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
+  /*hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
   hal_io_pio_create_pin(&led_left_g, PioA, 16, PioOutput);
   hal_io_pio_create_pin(&led_left_b, PioA, 19, PioOutput);
 
@@ -47,27 +47,18 @@ void sample_kthread(void){
     hal_io_pio_write(&led_left_g, true);
     hal_io_pio_write(&led_left_b, true);
     hal_cpu_delay(1000);
-  }
+  }*/
 
   while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
-  uint8_t raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
-  uint8_t request_num;
-  tSyscallInput input;
-  tSyscallOutput output;
+  pio_create_pin(&led_pin, PioA, 8, PioOutput);
 
   while(true){
-    request_num = 17;
-    input.arg0 = 1;
-    input.arg1 = 2;
-    input.arg2 = 3;
-    input.arg3 = 4;
-
-    syscall_utils_raw_request_populate(raw_request, request_num, &input, &output);
-    icedq_publish("system.syscalls", raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-
-    for(volatile int i=0; i<4800;i++);
+    bool curr_val = pio_read(&led_pin);
+    pio_write(&led_pin, !curr_val);
+    hal_cpu_delay(1000);
   }
+
 }
 
 void ARDUINO_KERNEL_MAIN() {

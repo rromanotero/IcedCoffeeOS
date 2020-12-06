@@ -68,6 +68,36 @@ void syscalls_kthread(void){
     }//end while
 }
 
+void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
+    kprintf_debug( " == Attending syscall num %d ===", request_num );
+    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+
+    //attend syscall
+    switch(request_num){
+        case SyscallSleep:
+
+           break;
+        case SyscallPioCreatePin:
+            out->ret_val =  hal_io_pio_create_pin((tPioPin*)(in->arg0), (tPioPort)(in->arg1), (uint32_t)(in->arg2), (tPioDir)in->arg3);
+            out->output_ready = true;
+            break;
+        case SyscallPioWrite:
+            hal_io_pio_write((tPioPin*)(in->arg0), (bool)(in->arg1));
+            out->output_ready = true;
+            break;
+        case SyscallPioRead:
+            out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
+            out->output_ready = true;
+            break;
+
+        //Error
+        default:
+            //Ignore syscall
+            out->output_ready = true;
+            break;
+    }
+}
+
 /*
 *   Utils so this code is not repeated over and over
 *
@@ -108,20 +138,4 @@ inline tSyscallInput* syscall_utils_raw_request_parse_input(uint8_t* raw_request
 */
 inline tSyscallOutput* syscall_utils_raw_request_parse_output(uint8_t* raw_request){
   return (tSyscallOutput*)((raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+0]<< 8*0) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+1]<< 8*1) + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+2]<< 8*2)  + (raw_request[SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET+3]<< 8*3));
-}
-
-void attend_syscall( uint32_t request_num, tSyscallInput* input, tSyscallOutput* output){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", input->arg0, input->arg1, input->arg2, input->arg3 );
-
-    //attend syscall
-    /*switch(syscall_num){
-        case SVCDummy:
-
-           break;
-
-        //Error
-        default:
-            break;
-    }*/
 }

@@ -333,6 +333,16 @@ typedef struct{
 
 
 
+
+#ifndef ICEDQLIB_H_
+#define ICEDQLIB_H_
+
+
+
+#endif /* ICEDQLIB_H_ */
+
+
+
 /**
 *   This file is part of IcedCoffeeOS
 *   (https://github.com/rromanotero/IcedCoffeeOS).
@@ -599,6 +609,16 @@ typedef struct{
 #define SYSCALLS_TOPIC    "system.syscalls"   //TODO : Once routing keys are enabled, change this for
                                               //       topic=system, routing_key=syscalls
 
+/**
+*   System call numbers
+*/
+enum{
+    SyscallSleep                    = 0,
+    SyscallPioCreatePin             = 1,
+    SyscallPioWrite                 = 2,
+    SyscallPioRead                  = 3
+};
+
 #define SYSCALLS_QUEUE_SIZE             1000
 #define SYSCALLS_REQUEST_SIZE_IN_BYTES  9 //syscall_num(1) + input (4) + output (4)
 
@@ -607,25 +627,16 @@ typedef struct{
 #define SYSCALLS_RAW_REQUEST_OUTPUT_OFFSET      5
 
 typedef struct{
-  uint32_t arg0;
-  uint32_t arg1;
-  uint32_t arg2;
-  uint32_t arg3;
+  volatile uint32_t arg0;
+  volatile uint32_t arg1;
+  volatile uint32_t arg2;
+  volatile uint32_t arg3;
 }tSyscallInput;
 
 typedef struct{
-  uint32_t ret_val;
-  bool succeded;
+  volatile uint32_t ret_val;
+  volatile bool output_ready;
 }tSyscallOutput;
-
-
-
-/**
-*   System call numbers
-*/
-enum{
-    SVCDummy                = 0,
-};
 
 
 #endif /* SYSCALLS_H_ */
