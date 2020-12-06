@@ -23,39 +23,36 @@
 extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
 extern tSerialPort serial_usb;
 
-tPioPin led_left_r;
-tPioPin led_left_g;
-tPioPin led_left_b;
+tPioPin led_pin_onboard;
+tPioPin led_pin_r;
+tPioPin led_pin_g;
+tPioPin led_pin_b;
 
 void sample_kthread(void){
+
+  //while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
 
   //
   //Each pin has a 2.2K resistor
   //
-  /*hal_io_pio_create_pin(&led_left_r, PioA, 18, PioOutput);
-  hal_io_pio_create_pin(&led_left_g, PioA, 16, PioOutput);
-  hal_io_pio_create_pin(&led_left_b, PioA, 19, PioOutput);
+  pio_create_pin(&led_pin_onboard, PioA, 8, PioOutput);
+  pio_create_pin(&led_pin_r, PioA, 18, PioOutput);
+  pio_create_pin(&led_pin_g, PioA, 16, PioOutput);
+  pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_io_pio_write(&led_left_r, true);
-    hal_io_pio_write(&led_left_g, false);
-    hal_io_pio_write(&led_left_b, false);
+    pio_write(&led_pin, !pio_read(&led_pin));
+    pio_write(&led_pin_r, true);
+    pio_write(&led_pin_g, false);
+    pio_write(&led_pin_b, false);
+
     hal_cpu_delay(1000);
-    hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
-    hal_io_pio_write(&led_left_r, true);
-    hal_io_pio_write(&led_left_g, true);
-    hal_io_pio_write(&led_left_b, true);
-    hal_cpu_delay(1000);
-  }*/
 
-  while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
+    pio_write(&led_pin, !pio_read(&led_pin));
+    pio_write(&led_pin_r, true);
+    pio_write(&led_pin_g, true);
+    pio_write(&led_pin_b, true);
 
-  pio_create_pin(&led_pin, PioA, 8, PioOutput);
-
-  while(true){
-    bool curr_val = pio_read(&led_pin);
-    pio_write(&led_pin, !curr_val);
     hal_cpu_delay(1000);
   }
 
@@ -1358,7 +1355,26 @@ tIcedQSuscription* suscriptions_pool_get_one(void){
 
 
 
-
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
 uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number, tPioDir dir){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
@@ -1366,34 +1382,23 @@ uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number
   tSyscallInput iql_input;
   tSyscallOutput iql_output;
 
+  //Setup request
   iql_request_num = (uint32_t)(SyscallPioCreatePin);
   iql_input.arg0 = (uint32_t)(pio_pin);
   iql_input.arg1 = (uint32_t)(pio_port);
   iql_input.arg2 = (uint32_t)(pin_number);
   iql_input.arg3 = (uint32_t)(dir);
-
-  //kprintf_debug("SYSCALL BEGIN. req_num: %d, arg0: %d, arg1: %d, arg2: %d, arg3: %d \n\r",
-  //            iql_request_num,
-  //            iql_input.arg0,
-  //            iql_input.arg1,
-  //            iql_input.arg2,
-  //            iql_input.arg3);
-  //kprintf_debug("raw_request addr: %x \n\r", iql_raw_request);
-  //kprintf_debug("input addr: %x \n\r", iql_input);
-  //kprintf_debug("output addr: %x \n\r", iql_output);
-
   syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
 
+  //mark output as not ready
   iql_output.output_ready = false;
+
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
 
-  //kprintf_debug("SYSCALL MADE \n\r");
-  //kprintf_debug("raw_request addr: %x \n\r", iql_raw_request);
-  //kprintf_debug("input addr: %x \n\r", iql_input);
-  //kprintf_debug("output addr: %x \n\r", iql_output);
-
-  //kprintf_debug("SYSCALL COMPLETED. ret_val: %d \n\r", iql_output.ret_val);
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 
   return iql_output.ret_val;
 }
@@ -1404,15 +1409,21 @@ void pio_write(tPioPin* pio_pin, bool state){
   tSyscallInput iql_input;
   tSyscallOutput iql_output;
 
+  //Setup request
   iql_request_num = (uint32_t)(SyscallPioWrite);
   iql_input.arg0 = (uint32_t)(pio_pin);
   iql_input.arg1 = (uint32_t)(state);
-
   syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
 
+  //mark output as not ready
   iql_output.output_ready = false;
+
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 }
 
 bool pio_read(tPioPin* pio_pin){
@@ -1421,14 +1432,20 @@ bool pio_read(tPioPin* pio_pin){
   tSyscallInput iql_input;
   tSyscallOutput iql_output;
 
+  //Setup request
   iql_request_num = (uint32_t)(SyscallPioRead);
   iql_input.arg0 = (uint32_t)(pio_pin);
-
   syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
 
+  //mark output as not ready
   iql_output.output_ready = false;
+
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 
   return iql_output.ret_val;
 }
@@ -2318,6 +2335,9 @@ void syscalls_init(void){
 
   //Begin syscall KThread
   scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
+
+  //Begin Yield Kthread
+  scheduler_thread_create( syscalls_kthread, "yield_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
@@ -2354,9 +2374,6 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
 
     //attend syscall
     switch(request_num){
-        case SyscallSleep:
-
-           break;
         case SyscallPioCreatePin:
             out->ret_val =  hal_io_pio_create_pin((tPioPin*)(in->arg0), (tPioPort)(in->arg1), (uint32_t)(in->arg2), (tPioDir)in->arg3);
             out->output_ready = true;

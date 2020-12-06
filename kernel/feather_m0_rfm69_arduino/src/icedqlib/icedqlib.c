@@ -36,9 +36,12 @@ uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number
   //mark output as not ready
   iql_output.output_ready = false;
 
-  //Call and wait for output to be ready
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 
   return iql_output.ret_val;
 }
@@ -58,9 +61,12 @@ void pio_write(tPioPin* pio_pin, bool state){
   //mark output as not ready
   iql_output.output_ready = false;
 
-  //Call and wait for output to be ready
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 }
 
 bool pio_read(tPioPin* pio_pin){
@@ -77,9 +83,12 @@ bool pio_read(tPioPin* pio_pin){
   //mark output as not ready
   iql_output.output_ready = false;
 
-  //Call and wait for output to be ready
+  //make syscall
   icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
-  while(!iql_output.output_ready);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    hal_cpu_lowpty_softint_trigger();  //yield()
 
   return iql_output.ret_val;
 }

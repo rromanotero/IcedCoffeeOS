@@ -32,10 +32,9 @@
 *   System call numbers
 */
 enum{
-    SyscallSleep                    = 0,
-    SyscallPioCreatePin             = 1,
-    SyscallPioWrite                 = 2,
-    SyscallPioRead                  = 3
+    SyscallPioCreatePin             = 0,
+    SyscallPioWrite                 = 1,
+    SyscallPioRead                  = 2
 };
 
 #define SYSCALLS_QUEUE_SIZE             1000

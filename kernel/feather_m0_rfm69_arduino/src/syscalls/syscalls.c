@@ -38,6 +38,9 @@ void syscalls_init(void){
 
   //Begin syscall KThread
   scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
+
+  //Begin Yield Kthread
+  scheduler_thread_create( syscalls_kthread, "yield_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
@@ -74,9 +77,6 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
 
     //attend syscall
     switch(request_num){
-        case SyscallSleep:
-
-           break;
         case SyscallPioCreatePin:
             out->ret_val =  hal_io_pio_create_pin((tPioPin*)(in->arg0), (tPioPort)(in->arg1), (uint32_t)(in->arg2), (tPioDir)in->arg3);
             out->output_ready = true;
