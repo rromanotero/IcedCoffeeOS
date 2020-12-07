@@ -637,7 +637,9 @@ typedef struct{
 enum{
     SyscallPioCreatePin             = 0,
     SyscallPioWrite                 = 1,
-    SyscallPioRead                  = 2
+    SyscallPioRead                  = 2,
+    SyscallAdcCreateChannel         = 3,
+    SyscallAdcRead                  = 4
 };
 
 #define SYSCALLS_QUEUE_SIZE             1000

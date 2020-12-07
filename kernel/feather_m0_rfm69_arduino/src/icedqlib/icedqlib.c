@@ -18,6 +18,56 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+uint32_t adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcCreateChannel);
+  iql_input.arg0 = (uint32_t)(adc);
+  iql_input.arg1 = (uint32_t)(id);
+  iql_input.arg2 = (uint32_t)(io_type);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
+uint32_t adc_read(tAdcChannel* adc){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcRead);
+  iql_input.arg0 = (uint32_t)(adc);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
 
 uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number, tPioDir dir){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];

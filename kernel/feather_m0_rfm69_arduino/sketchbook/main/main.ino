@@ -26,16 +26,22 @@ tPioPin led_pin_r;
 tPioPin led_pin_g;
 tPioPin led_pin_b;
 
+volatile int32_t light_intensity;
+volatile int32_t inverse_light_intensity;
+
 void light_intensity_print_kthread(void){
 
   //Light sensor
   tAdcChannel light_sensor_adc;
-  hal_io_adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
+  adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
 
   while(true){
-    kprintf_debug("Light Sensor = %d \n\r", hal_io_adc_read(&light_sensor_adc));
+    light_intensity = adc_read(&light_sensor_adc);
+    inverse_light_intensity = 1024 - light_intensity;
 
-    hal_cpu_delay(200);
+    kprintf_debug("Light Intensity = %d \n\r", light_intensity);
+    kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
+    hal_cpu_delay(100);
   }
 
 }
@@ -49,22 +55,44 @@ void led_blink_kthread(void){
   pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
+    //pio_write(&led_pin, !pio_read(&led_pin));
+
+    if(light_intensity < 60){
+      //red
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, false);
+    }
+    else if(light_intensity < 70){
+      //Purple
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, true);
+    }
+    else if(light_intensity < 130){
+      //White
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, true);
+    }
+    else{
+      //Green
+      pio_write(&led_pin_r, false);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, false);
+    }
+
+    hal_cpu_delay(inverse_light_intensity/2);
+
+    pio_write(&led_pin_r, false);
     pio_write(&led_pin_g, false);
     pio_write(&led_pin_b, false);
 
-    hal_cpu_delay(1000);
-
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
-    pio_write(&led_pin_g, true);
-    pio_write(&led_pin_b, true);
-
-    hal_cpu_delay(1000);
+    hal_cpu_delay(inverse_light_intensity/2 );
   }
 
 }
+
 
 void ARDUINO_KERNEL_MAIN() {
   system_init();
@@ -1387,6 +1415,56 @@ tIcedQSuscription* suscriptions_pool_get_one(void){
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+uint32_t adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcCreateChannel);
+  iql_input.arg0 = (uint32_t)(adc);
+  iql_input.arg1 = (uint32_t)(id);
+  iql_input.arg2 = (uint32_t)(io_type);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
+uint32_t adc_read(tAdcChannel* adc){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcRead);
+  iql_input.arg0 = (uint32_t)(adc);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
 
 uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number, tPioDir dir){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
@@ -2417,7 +2495,14 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
             out->output_ready = true;
             break;
-
+        case SyscallAdcCreateChannel:
+            out->ret_val = hal_io_adc_create_channel((tAdcChannel*)(in->arg0), (tAdcId)(in->arg1), (tIoType)(in->arg2));
+            out->output_ready = true;
+            break;
+        case SyscallAdcRead:
+            out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
         //Error
         default:
             //Ignore syscall

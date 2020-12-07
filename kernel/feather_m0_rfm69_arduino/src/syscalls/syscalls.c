@@ -91,7 +91,14 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
             out->output_ready = true;
             break;
-
+        case SyscallAdcCreateChannel:
+            out->ret_val = hal_io_adc_create_channel((tAdcChannel*)(in->arg0), (tAdcId)(in->arg1), (tIoType)(in->arg2));
+            out->output_ready = true;
+            break;
+        case SyscallAdcRead:
+            out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
         //Error
         default:
             //Ignore syscall
