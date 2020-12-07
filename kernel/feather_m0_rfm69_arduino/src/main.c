@@ -30,6 +30,17 @@ volatile int32_t light_intensity;
 volatile int32_t inverse_light_intensity;
 
 void light_intensity_print_kthread(void){
+  //  Wiring diagram
+  //
+  //           Vcc
+  //           |
+  //    PHOTO-TRANSISTOR
+  //           |
+  //           +------ 10K RESISTOR ---- ADC 0
+  //           |
+  //      560K RESISTOR
+  //           |
+  //          GND
 
   //Light sensor
   tAdcChannel light_sensor_adc;
