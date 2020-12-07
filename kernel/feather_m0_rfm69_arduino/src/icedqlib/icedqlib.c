@@ -41,7 +41,8 @@ uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
+
 
   return iql_output.ret_val;
 }
@@ -66,7 +67,7 @@ void pio_write(tPioPin* pio_pin, bool state){
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
 }
 
 bool pio_read(tPioPin* pio_pin){
@@ -88,7 +89,11 @@ bool pio_read(tPioPin* pio_pin){
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
 
   return iql_output.ret_val;
+}
+
+void icedqlib_yield(void){
+  context_switcher_trigger(); //yield()
 }

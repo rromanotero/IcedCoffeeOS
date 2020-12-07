@@ -21,7 +21,7 @@
 **/
 
 /* This is from here:
-*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf 
+*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf
 *
 * Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
  *
@@ -61,15 +61,17 @@ void kprintf(const char *format, ...) {
 
 void kprintf_debug(const char *format, ...) {
 
+    tLock lock;
+
     if( SYSTEM_DEBUG_ON ){
-        spin_lock_acquire();
+        spin_lock_acquire(&lock);
 
         va_list args;
         va_start(args, format);
         vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
         va_end(args);
 
-        spin_lock_release();
+        spin_lock_release(&lock);
     }
 }
 

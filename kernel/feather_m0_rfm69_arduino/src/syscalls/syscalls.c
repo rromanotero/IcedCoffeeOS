@@ -39,8 +39,6 @@ void syscalls_init(void){
   //Begin syscall KThread
   scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
 
-  //Begin Yield Kthread
-  scheduler_thread_create( syscalls_kthread, "yield_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
@@ -67,6 +65,10 @@ void syscalls_kthread(void){
         tSyscallOutput* output = syscall_utils_raw_request_parse_output(raw_request);
 
         attend_syscall(request_num, input, output);
+      }
+      else{
+          //yield()
+          context_switcher_trigger();
       }
     }//end while
 }
