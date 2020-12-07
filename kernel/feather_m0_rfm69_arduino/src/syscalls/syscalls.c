@@ -39,8 +39,6 @@ void syscalls_init(void){
   //Begin syscall KThread
   scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
 
-  //Begin Yield Kthread
-  scheduler_thread_create( syscalls_kthread, "yield_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
@@ -68,6 +66,10 @@ void syscalls_kthread(void){
 
         attend_syscall(request_num, input, output);
       }
+      else{
+          //yield()
+          context_switcher_trigger();
+      }
     }//end while
 }
 
@@ -89,7 +91,14 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
             out->output_ready = true;
             break;
-
+        case SyscallAdcCreateChannel:
+            out->ret_val = hal_io_adc_create_channel((tAdcChannel*)(in->arg0), (tAdcId)(in->arg1), (tIoType)(in->arg2));
+            out->output_ready = true;
+            break;
+        case SyscallAdcRead:
+            out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
         //Error
         default:
             //Ignore syscall

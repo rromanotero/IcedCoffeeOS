@@ -20,48 +20,96 @@
 **/
 #include "main.h"
 
-extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
-extern tSerialPort serial_usb;
+extern tPioPin led_pin;
 
-tPioPin led_pin_onboard;
 tPioPin led_pin_r;
 tPioPin led_pin_g;
 tPioPin led_pin_b;
 
-void sample_kthread(void){
+volatile int32_t light_intensity;
+volatile int32_t inverse_light_intensity;
 
-  //while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
+void light_intensity_print_kthread(void){
+  //  Wiring diagram
+  //
+  //           Vcc
+  //           |
+  //    PHOTO-TRANSISTOR
+  //           |
+  //           +------ 10K RESISTOR ---- ADC 0
+  //           |
+  //      560K RESISTOR
+  //           |
+  //          GND
 
+  //Light sensor
+  tAdcChannel light_sensor_adc;
+  adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
+
+  while(true){
+    light_intensity = adc_read(&light_sensor_adc);
+    inverse_light_intensity = 1024 - light_intensity;
+
+    kprintf_debug("Light Intensity = %d \n\r", light_intensity);
+    kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
+    hal_cpu_delay(100);
+  }
+
+}
+
+void led_blink_kthread(void){
   //
   //Each pin has a 2.2K resistor
   //
-  pio_create_pin(&led_pin_onboard, PioA, 8, PioOutput);
   pio_create_pin(&led_pin_r, PioA, 18, PioOutput);
   pio_create_pin(&led_pin_g, PioA, 16, PioOutput);
   pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
+    //pio_write(&led_pin, !pio_read(&led_pin));
+
+    if(light_intensity < 60){
+      //red
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, false);
+    }
+    else if(light_intensity < 70){
+      //Purple
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, true);
+    }
+    else if(light_intensity < 130){
+      //White
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, true);
+    }
+    else{
+      //Green
+      pio_write(&led_pin_r, false);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, false);
+    }
+
+    hal_cpu_delay(inverse_light_intensity/2);
+
+    pio_write(&led_pin_r, false);
     pio_write(&led_pin_g, false);
     pio_write(&led_pin_b, false);
 
-    hal_cpu_delay(1000);
-
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
-    pio_write(&led_pin_g, true);
-    pio_write(&led_pin_b, true);
-
-    hal_cpu_delay(1000);
+    hal_cpu_delay(inverse_light_intensity/2 );
   }
 
 }
 
+
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  scheduler_thread_create( sample_kthread, "sample_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 
@@ -1247,7 +1295,9 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
 
-					spin_lock_acquire();	//<<-- Some strange bugs if consuming from queue
+					tLock lock;
+
+					spin_lock_acquire(&lock);	//<<-- Some strange bugs if consuming from queue
 					 										//			and publishing to it are not mut exclusive
 
 					volatile uint32_t tail = q->tail;
@@ -1274,7 +1324,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					}else{
 						//Queue full. Silently skip it.
 					}
-					spin_lock_release();
+					spin_lock_release(&lock);
 
       }//end if suscriptor matching
   }//end for
@@ -1311,8 +1361,9 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 */
 uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
 
-		spin_lock_acquire(); //<<-- Some strange bugs if consuming from queue
-		 										//			and publishing to it are not mut exclusive
+	 	tLock lock;
+		spin_lock_acquire(&lock); //<<-- Some strange bugs if consuming from queue
+		 													//			and publishing to it are not mut exclusive
 
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
@@ -1338,7 +1389,7 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32
 			}
 		}
 
-		spin_lock_release();
+		spin_lock_release(&lock);
 
 		return bytes_to_read;
 }
@@ -1375,6 +1426,56 @@ tIcedQSuscription* suscriptions_pool_get_one(void){
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+uint32_t adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcCreateChannel);
+  iql_input.arg0 = (uint32_t)(adc);
+  iql_input.arg1 = (uint32_t)(id);
+  iql_input.arg2 = (uint32_t)(io_type);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
+uint32_t adc_read(tAdcChannel* adc){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallAdcRead);
+  iql_input.arg0 = (uint32_t)(adc);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+
+  return iql_output.ret_val;
+}
+
 
 uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number, tPioDir dir){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
@@ -1398,7 +1499,8 @@ uint32_t pio_create_pin(tPioPin* pio_pin, tPioPort pio_port, uint32_t pin_number
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
+
 
   return iql_output.ret_val;
 }
@@ -1423,7 +1525,7 @@ void pio_write(tPioPin* pio_pin, bool state){
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
 }
 
 bool pio_read(tPioPin* pio_pin){
@@ -1445,9 +1547,13 @@ bool pio_read(tPioPin* pio_pin){
 
   //wait for output to be ready
   while(!iql_output.output_ready)
-    hal_cpu_lowpty_softint_trigger();  //yield()
+    icedqlib_yield();
 
   return iql_output.ret_val;
+}
+
+void icedqlib_yield(void){
+  context_switcher_trigger(); //yield()
 }
 
 
@@ -1475,7 +1581,7 @@ bool pio_read(tPioPin* pio_pin){
 **/
 
 /* This is from here:
-*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf 
+*   https://github.com/mrvn/RaspberryPi-baremetal/tree/master/005-the-fine-printf
 *
 * Copyright (C) 2007-2015 Goswin von Brederlow <goswin-v-b@web.de>
  *
@@ -1515,15 +1621,17 @@ void kprintf(const char *format, ...) {
 
 void kprintf_debug(const char *format, ...) {
 
+    tLock lock;
+
     if( SYSTEM_DEBUG_ON ){
-        spin_lock_acquire();
+        spin_lock_acquire(&lock);
 
         va_list args;
         va_start(args, format);
         vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
         va_end(args);
 
-        spin_lock_release();
+        spin_lock_release(&lock);
     }
 }
 
@@ -2199,19 +2307,29 @@ void process_thread_delete(){
 *
 **/
 
-
-void spin_lock_acquire(){
+void spin_lock_acquire(tLock* lock){
   //I need an actual spin lock here....
   //disabling interrupts is outrageous =P
   //
   //LAter can aslo add a MUTEX so the thread goes to sleep
   //instead of waiting.... pros and cons i guess...
-  __asm volatile ("cpsid  i");
+  uint32_t primask;
+	__asm volatile (
+		"mrs	%0, PRIMASK\n\t"
+		"cpsid	i\n\t"
+		: "=r" (primask)
+  );
+
+	lock->primask = primask; 
 }
 
-void spin_lock_release()
+void spin_lock_release(tLock* lock)
 {
-  __asm volatile ("cpsie  i");
+  __asm volatile (
+		"msr	PRIMASK, %0\n\t"
+		:
+    : "r" (lock->primask)
+  );
 }
 
 
@@ -2336,8 +2454,6 @@ void syscalls_init(void){
   //Begin syscall KThread
   scheduler_thread_create( syscalls_kthread, "syscalls_kthread", 1024, ProcQueueReadyRealTime );
 
-  //Begin Yield Kthread
-  scheduler_thread_create( syscalls_kthread, "yield_kthread", 1024, ProcQueueReadyRealTime );
 }
 
 /**
@@ -2365,6 +2481,10 @@ void syscalls_kthread(void){
 
         attend_syscall(request_num, input, output);
       }
+      else{
+          //yield()
+          context_switcher_trigger();
+      }
     }//end while
 }
 
@@ -2386,7 +2506,14 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             out->ret_val = hal_io_pio_read((tPioPin*)(in->arg0));
             out->output_ready = true;
             break;
-
+        case SyscallAdcCreateChannel:
+            out->ret_val = hal_io_adc_create_channel((tAdcChannel*)(in->arg0), (tAdcId)(in->arg1), (tIoType)(in->arg2));
+            out->output_ready = true;
+            break;
+        case SyscallAdcRead:
+            out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
         //Error
         default:
             //Ignore syscall

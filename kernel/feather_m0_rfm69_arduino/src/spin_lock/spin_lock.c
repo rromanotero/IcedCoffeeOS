@@ -22,17 +22,27 @@
 *
 **/
 
-
-void spin_lock_acquire(){
+void spin_lock_acquire(tLock* lock){
   //I need an actual spin lock here....
   //disabling interrupts is outrageous =P
   //
   //LAter can aslo add a MUTEX so the thread goes to sleep
   //instead of waiting.... pros and cons i guess...
-  __asm volatile ("cpsid  i");
+  uint32_t primask;
+	__asm volatile (
+		"mrs	%0, PRIMASK\n\t"
+		"cpsid	i\n\t"
+		: "=r" (primask)
+  );
+
+	lock->primask = primask; 
 }
 
-void spin_lock_release()
+void spin_lock_release(tLock* lock)
 {
-  __asm volatile ("cpsie  i");
+  __asm volatile (
+		"msr	PRIMASK, %0\n\t"
+		:
+    : "r" (lock->primask)
+  );
 }

@@ -20,48 +20,96 @@
 **/
 #include "hal.h"
 
-extern tPioPin led_pin;         //Defined as part of the HAL (in HAL IO)
-extern tSerialPort serial_usb;
+extern tPioPin led_pin;
 
-tPioPin led_pin_onboard;
 tPioPin led_pin_r;
 tPioPin led_pin_g;
 tPioPin led_pin_b;
 
-void sample_kthread(void){
+volatile int32_t light_intensity;
+volatile int32_t inverse_light_intensity;
 
-  //while(!hal_io_serial_is_ready(&serial_usb)); /// <<--- WAIT FOR USER
+void light_intensity_print_kthread(void){
+  //  Wiring diagram
+  //
+  //           Vcc
+  //           |
+  //    PHOTO-TRANSISTOR
+  //           |
+  //           +------ 10K RESISTOR ---- ADC 0
+  //           |
+  //      560K RESISTOR
+  //           |
+  //          GND
 
+  //Light sensor
+  tAdcChannel light_sensor_adc;
+  adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
+
+  while(true){
+    light_intensity = adc_read(&light_sensor_adc);
+    inverse_light_intensity = 1024 - light_intensity;
+
+    kprintf_debug("Light Intensity = %d \n\r", light_intensity);
+    kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
+    hal_cpu_delay(100);
+  }
+
+}
+
+void led_blink_kthread(void){
   //
   //Each pin has a 2.2K resistor
   //
-  pio_create_pin(&led_pin_onboard, PioA, 8, PioOutput);
   pio_create_pin(&led_pin_r, PioA, 18, PioOutput);
   pio_create_pin(&led_pin_g, PioA, 16, PioOutput);
   pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
+    //pio_write(&led_pin, !pio_read(&led_pin));
+
+    if(light_intensity < 60){
+      //red
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, false);
+    }
+    else if(light_intensity < 70){
+      //Purple
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, false);
+      pio_write(&led_pin_b, true);
+    }
+    else if(light_intensity < 130){
+      //White
+      pio_write(&led_pin_r, true);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, true);
+    }
+    else{
+      //Green
+      pio_write(&led_pin_r, false);
+      pio_write(&led_pin_g, true);
+      pio_write(&led_pin_b, false);
+    }
+
+    hal_cpu_delay(inverse_light_intensity/2);
+
+    pio_write(&led_pin_r, false);
     pio_write(&led_pin_g, false);
     pio_write(&led_pin_b, false);
 
-    hal_cpu_delay(1000);
-
-    pio_write(&led_pin, !pio_read(&led_pin));
-    pio_write(&led_pin_r, true);
-    pio_write(&led_pin_g, true);
-    pio_write(&led_pin_b, true);
-
-    hal_cpu_delay(1000);
+    hal_cpu_delay(inverse_light_intensity/2 );
   }
 
 }
 
+
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  scheduler_thread_create( sample_kthread, "sample_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 

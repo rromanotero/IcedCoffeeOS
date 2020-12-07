@@ -62,7 +62,9 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					//Found one. Pubished to its queue.
 					tIcedQQueue* q = active_subscriptions[i]->registered_queue;
 
-					spin_lock_acquire();	//<<-- Some strange bugs if consuming from queue
+					tLock lock;
+
+					spin_lock_acquire(&lock);	//<<-- Some strange bugs if consuming from queue
 					 										//			and publishing to it are not mut exclusive
 
 					volatile uint32_t tail = q->tail;
@@ -89,7 +91,7 @@ void icedq_publish(const char* topic, uint8_t* raw_message_bytes, uint32_t messa
 					}else{
 						//Queue full. Silently skip it.
 					}
-					spin_lock_release();
+					spin_lock_release(&lock);
 
       }//end if suscriptor matching
   }//end for
@@ -126,8 +128,9 @@ uint32_t icedq_subscribe(const char* topic, tIcedQQueue* queue){
 */
 uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32_t max_items){
 
-		spin_lock_acquire(); //<<-- Some strange bugs if consuming from queue
-		 										//			and publishing to it are not mut exclusive
+	 	tLock lock;
+		spin_lock_acquire(&lock); //<<-- Some strange bugs if consuming from queue
+		 													//			and publishing to it are not mut exclusive
 
 		volatile uint32_t head = queue->head;
 		volatile uint32_t tail = queue->tail;
@@ -153,7 +156,7 @@ uint32_t icedq_utils_queue_to_buffer(tIcedQQueue* queue, uint8_t* buffer, uint32
 			}
 		}
 
-		spin_lock_release();
+		spin_lock_release(&lock);
 
 		return bytes_to_read;
 }

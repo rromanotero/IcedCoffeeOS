@@ -25,6 +25,8 @@
 #ifndef SPIN_LOCK_H_
 #define SPIN_LOCK_H_
 
-
+typedef struct{
+	uint32_t primask;
+}tLock;
 
 #endif
