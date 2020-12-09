@@ -20,6 +20,7 @@
 **/
 #include "hal.h"
 
+DFRobotVL53L0X sensor;
 extern tPioPin led_pin;
 
 tPioPin led_pin_r;
@@ -28,6 +29,29 @@ tPioPin led_pin_b;
 
 volatile int32_t light_intensity;
 volatile int32_t inverse_light_intensity;
+
+void distance_kthread(void){
+
+  //join i2c bus (address optional for master)
+  Wire.begin();
+  //Set I2C sub-device address
+  sensor.begin(0x50);
+  //Set to Back-to-back mode and high precision mode
+  sensor.setMode(Continuous,Low);
+  //Laser rangefinder begins to work
+  sensor.start();
+
+  while(true){
+    //Get the distance
+    uint32_t distance_cm = (uint32_t)(sensor.getDistance())/10;
+    kprintf_debug("Distance: %d \n\r", distance_cm);
+    kprintf_debug("Ambient Light: %d \n\r", sensor.getAmbientCount());
+    //The delay is added to demonstrate the effect, and if you do not add the delay,
+    //it will not affect the measurement accuracy
+    hal_cpu_delay(500);
+  }
+
+}
 
 void light_intensity_print_kthread(void){
   //  Wiring diagram
@@ -108,8 +132,9 @@ void led_blink_kthread(void){
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
+  //scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
+  // /scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( distance_kthread, "distance_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
 
