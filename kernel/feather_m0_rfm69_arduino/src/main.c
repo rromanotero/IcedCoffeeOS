@@ -183,7 +183,7 @@ void ARDUINO_KERNEL_MAIN() {
 
   scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( distance_kthread, "distance_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( distance_kthread, "distance_kthread", 4096, ProcQueueReadyRealTime );
 
   while(true);
 
