@@ -20,35 +20,70 @@
 **/
 #include "main.h"
 
-DFRobotVL53L0X sensor;
+DFRobotVL53L0X vl53l0;
 extern tPioPin led_pin;
 
 tPioPin led_pin_r;
 tPioPin led_pin_g;
 tPioPin led_pin_b;
 
+tPioPin d_sensor_front_pin;
+tPioPin d_sensor_middle_left_pin;
+tPioPin d_sensor_middle_right_pin;
+tPioPin d_sensor_back_left_pin;
+tPioPin d_sensor_back_right_pin;
+
 volatile int32_t light_intensity;
 volatile int32_t inverse_light_intensity;
 
 void distance_kthread(void){
 
-  //join i2c bus (address optional for master)
+  hal_io_pio_create_pin(&d_sensor_front_pin, PioB, 9, PioOutput);
+  hal_io_pio_create_pin(&d_sensor_middle_left_pin, PioA, 20, PioOutput);
+  hal_io_pio_create_pin(&d_sensor_middle_right_pin, PioB, 2, PioOutput);
+  hal_io_pio_create_pin(&d_sensor_back_left_pin, PioA, 4, PioOutput);
+  hal_io_pio_create_pin(&d_sensor_back_right_pin, PioA, 5, PioOutput);
+
+  //Reset all sensors
+  hal_io_pio_write(&d_sensor_front_pin, false);
+  hal_io_pio_write(&d_sensor_middle_left_pin, false);
+  hal_io_pio_write(&d_sensor_middle_right_pin, false);
+  hal_io_pio_write(&d_sensor_back_left_pin, false);
+  hal_io_pio_write(&d_sensor_back_right_pin, false);
+
+  hal_cpu_delay(10);
+
   Wire.begin();
-  //Set I2C sub-device address
-  sensor.begin(0x50);
-  //Set to Back-to-back mode and high precision mode
-  sensor.setMode(Continuous,Low);
-  //Laser rangefinder begins to work
-  sensor.start();
+
+  // -- Bring them ON with a new adddress one by one --
+
+  hal_io_pio_write(&d_sensor_front_pin, true); //enable
+  vl53l0.begin(0x10);
+  vl53l0.setMode(Continuous,Low);
+  vl53l0.start();
+
+  DFRobotVL53L0X vl53l0_middle_left;
+  hal_io_pio_write(&d_sensor_middle_left_pin, true); //enable
+  vl53l0_middle_left.begin(0x11);
+  vl53l0_middle_left.setMode(Continuous,Low);
+  vl53l0_middle_left.start();
+
+  DFRobotVL53L0X vl53l0_middle_right;
+  hal_io_pio_write(&d_sensor_middle_right_pin, true); //enable
+  vl53l0_middle_right.begin(0x12);
+  vl53l0_middle_right.setMode(Continuous,Low);
+  vl53l0_middle_right.start();
+
+  hal_cpu_delay(100);
 
   while(true){
     //Get the distance
-    uint32_t distance_cm = (uint32_t)(sensor.getDistance())/10;
-    kprintf_debug("Distance: %d \n\r", distance_cm);
-    kprintf_debug("Ambient Light: %d \n\r", sensor.getAmbientCount());
-    //The delay is added to demonstrate the effect, and if you do not add the delay,
-    //it will not affect the measurement accuracy
-    hal_cpu_delay(500);
+    kprintf_debug("Front: %d \n\r", (uint32_t)(vl53l0.getDistance()));
+    kprintf_debug("Middle left: %d \n\r", (uint32_t)(vl53l0_middle_left.getDistance()));
+    kprintf_debug("Middle right: %d \n\r", (uint32_t)(vl53l0_middle_right.getDistance()));
+
+    //kprintf_debug("Ambient Light: %d \n\r", sensor.getAmbientCount());
+    hal_cpu_delay(300);
   }
 
 }
@@ -74,14 +109,28 @@ void light_intensity_print_kthread(void){
     light_intensity = adc_read(&light_sensor_adc);
     inverse_light_intensity = 1024 - light_intensity;
 
-    kprintf_debug("Light Intensity = %d \n\r", light_intensity);
-    kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
-    hal_cpu_delay(100);
+    //kprintf_debug("Light Intensity = %d \n\r", light_intensity);
+    //kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
+    hal_cpu_delay(5000);
   }
 
 }
 
 void led_blink_kthread(void){
+  //  Light sensor Wiring diagram
+  //
+  //           Vcc
+  //           |
+  //    PHOTO-TRANSISTOR
+  //           |
+  //           +------ 10K RESISTOR ---- ADC 0
+  //           |
+  //      560K RESISTOR
+  //           |
+  //          GND
+
+
+
   //
   //Each pin has a 2.2K resistor
   //
@@ -132,8 +181,8 @@ void led_blink_kthread(void){
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  //scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
-  // /scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( distance_kthread, "distance_kthread", 1024, ProcQueueReadyRealTime );
 
   while(true);
@@ -158,7 +207,7 @@ void ARDUINO_KERNEL_MAIN() {
  * @https://github.com/DFRobot/DFRobot_VL53L0X
  */
 
-VL53L0X_DetailedData_t DetailedData;
+//VL53L0X_DetailedData_t _DetailedData;
 
 
 DFRobotVL53L0X::DFRobotVL53L0X()
@@ -171,7 +220,7 @@ DFRobotVL53L0X::~DFRobotVL53L0X()
 void DFRobotVL53L0X::begin(uint8_t i2c_addr=0x29){
   uint8_t val1;
   hal_cpu_delay(1500);
-  DetailedData.I2cDevAddr = I2C_DevAddr;
+  _DetailedData.I2cDevAddr = I2C_DevAddr;
   DataInit();
   setDeviceAddress(i2c_addr);
   val1 = readByteData(VL53L0X_REG_IDENTIFICATION_REVISION_ID);
@@ -179,7 +228,7 @@ void DFRobotVL53L0X::begin(uint8_t i2c_addr=0x29){
   kprintf_debug("Revision ID: %x", val1);
 
   val1 = readByteData(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
-  kprintf_debug("Device ID: %d", val1); 
+  kprintf_debug("Device ID: %x", val1);
   kprintf_debug("\n\r");
 
 }
@@ -212,7 +261,7 @@ void DFRobotVL53L0X::writeData(unsigned char Reg ,unsigned char *buf,
 }
 
 void DFRobotVL53L0X::writeByteData(unsigned char Reg, unsigned char byte){
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write(Reg);              // sends one byte
 	Wire.write((uint8_t)byte);
 	Wire.endTransmission();     // stop transmitting
@@ -220,14 +269,14 @@ void DFRobotVL53L0X::writeByteData(unsigned char Reg, unsigned char byte){
 
 void DFRobotVL53L0X::readData(unsigned char Reg, unsigned char Num){
 
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write((uint8_t)Reg);              // sends one byte
 	Wire.endTransmission();    // stop transmitting
-    Wire.requestFrom((uint8_t)DetailedData.I2cDevAddr, (uint8_t)Num);
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)Num);
 
 	for(int i=0;i<Num;i++)
 	{
-		DetailedData.originalData[i] = Wire.read();
+		_DetailedData.originalData[i] = Wire.read();
 		hal_cpu_delay(1);
 	}
 }
@@ -235,10 +284,10 @@ void DFRobotVL53L0X::readData(unsigned char Reg, unsigned char Num){
 
 uint8_t DFRobotVL53L0X::readByteData(unsigned char Reg){
 	uint8_t data;
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write((uint8_t)Reg);              // sends one byte
 	Wire.endTransmission();    // stop transmitting
-    Wire.requestFrom((uint8_t)DetailedData.I2cDevAddr, (uint8_t)1);
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)1);
 	data = Wire.read();
 	return data;
 }
@@ -249,7 +298,7 @@ void DFRobotVL53L0X::start(){
 	uint8_t StartStopByte = VL53L0X_REG_SYSRANGE_MODE_START_STOP;
 	uint32_t LoopNb;
 
-	DeviceMode = DetailedData.mode;
+	DeviceMode = _DetailedData.mode;
 
 	writeByteData(0x80, 0x01);
 	writeByteData(0xFF, 0x01);
@@ -286,19 +335,19 @@ void DFRobotVL53L0X::start(){
 
 void DFRobotVL53L0X::readVL53L0X(){
 	readData(VL53L0X_REG_RESULT_RANGE_STATUS, 12);
-	DetailedData.ambientCount = ((DetailedData.originalData[6] & 0xFF) << 8) |
-									(DetailedData.originalData[7] & 0xFF);
-	DetailedData.signalCount = ((DetailedData.originalData[8] & 0xFF) << 8) |
-									(DetailedData.originalData[9] & 0xFF);
-	DetailedData.distance = ((DetailedData.originalData[10] & 0xFF) << 8) |
-								(DetailedData.originalData[11] & 0xFF);
-	DetailedData.status = ((DetailedData.originalData[0] & 0x78) >> 3);
+	_DetailedData.ambientCount = ((_DetailedData.originalData[6] & 0xFF) << 8) |
+									(_DetailedData.originalData[7] & 0xFF);
+	_DetailedData.signalCount = ((_DetailedData.originalData[8] & 0xFF) << 8) |
+									(_DetailedData.originalData[9] & 0xFF);
+	_DetailedData.distance = ((_DetailedData.originalData[10] & 0xFF) << 8) |
+								(_DetailedData.originalData[11] & 0xFF);
+	_DetailedData.status = ((_DetailedData.originalData[0] & 0x78) >> 3);
 }
 
 void DFRobotVL53L0X::setDeviceAddress(uint8_t newAddr){
 	newAddr &= 0x7F;
 	writeByteData(VL53L0X_REG_I2C_SLAVE_DEVICE_ADDRESS, newAddr);
-	DetailedData.I2cDevAddr = newAddr;
+	_DetailedData.I2cDevAddr = newAddr;
 }
 
 
@@ -308,14 +357,14 @@ void DFRobotVL53L0X::highPrecisionEnable(FunctionalState NewState){
 }
 
 void DFRobotVL53L0X::setMode(ModeState mode, PrecisionState precision){
-	DetailedData.mode = mode;
+	_DetailedData.mode = mode;
 	if(precision == High){
 		highPrecisionEnable(ENABLE);
-		DetailedData.precision = precision;
+		_DetailedData.precision = precision;
 	}
 	else{
 		highPrecisionEnable(DISABLE);
-		DetailedData.precision = precision;
+		_DetailedData.precision = precision;
 	}
 }
 
@@ -333,29 +382,29 @@ void DFRobotVL53L0X::stop(){
 
 float DFRobotVL53L0X::getDistance(){
 	readVL53L0X();
-	if(DetailedData.distance == 20)
-		DetailedData.distance = _distance;
+	if(_DetailedData.distance == 20)
+		_DetailedData.distance = _distance;
 	else
-		_distance = DetailedData.distance;
-	if(DetailedData.precision == High)
-		return DetailedData.distance/4.0;
+		_distance = _DetailedData.distance;
+	if(_DetailedData.precision == High)
+		return _DetailedData.distance/4.0;
 	else
-		return DetailedData.distance;
+		return _DetailedData.distance;
 }
 
 uint16_t DFRobotVL53L0X::getAmbientCount(){
 	readVL53L0X();
-	return DetailedData.ambientCount;
+	return _DetailedData.ambientCount;
 }
 
 uint16_t DFRobotVL53L0X::getSignalCount(){
 	readVL53L0X();
-	return DetailedData.signalCount;
+	return _DetailedData.signalCount;
 }
 
 uint8_t DFRobotVL53L0X::getStatus(){
 	readVL53L0X();
-	return DetailedData.status;
+	return _DetailedData.status;
 }
 
 
@@ -2729,8 +2778,8 @@ void syscalls_kthread(void){
 }
 
 void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+    //kprintf_debug( " == Attending syscall num %d ===", request_num );
+    //kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
 
     //attend syscall
     switch(request_num){

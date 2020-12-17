@@ -44,17 +44,6 @@
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 typedef enum {High = 0, Low = !High} PrecisionState;
 typedef enum {Single = 0, Continuous = !Single} ModeState;
-typedef struct {
-	unsigned char I2cDevAddr;
-	uint8_t mode;
-	uint8_t precision; //precision
-	unsigned char originalData[16];
-	uint16_t ambientCount;//Environment quantity
-	uint16_t signalCount;//A semaphore
-	uint16_t distance;
-	uint8_t status;
-}VL53L0X_DetailedData_t;
-extern VL53L0X_DetailedData_t DetailedData;
 
 
 class DFRobotVL53L0X
@@ -72,6 +61,16 @@ class DFRobotVL53L0X
 		uint8_t getStatus();
 	private:
 		uint16_t _distance;
+		struct {
+			unsigned char I2cDevAddr;
+			uint8_t mode;
+			uint8_t precision; //precision
+			unsigned char originalData[16];
+			uint16_t ambientCount;//Environment quantity
+			uint16_t signalCount;//A semaphore
+			uint16_t distance;
+			uint8_t status;
+		}_DetailedData;
 		void writeByteData(unsigned char Reg, unsigned char byte);
 		uint8_t readByteData(unsigned char Reg);
 		void writeData(unsigned char Reg ,unsigned char *buf, unsigned char Num);

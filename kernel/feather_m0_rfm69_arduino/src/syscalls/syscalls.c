@@ -74,8 +74,8 @@ void syscalls_kthread(void){
 }
 
 void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+    //kprintf_debug( " == Attending syscall num %d ===", request_num );
+    //kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
 
     //attend syscall
     switch(request_num){

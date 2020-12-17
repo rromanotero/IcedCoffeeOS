@@ -12,7 +12,7 @@
  */
 
 #include "DFRobot_VL53L0X.h"
-VL53L0X_DetailedData_t DetailedData;
+//VL53L0X_DetailedData_t _DetailedData;
 
 
 DFRobotVL53L0X::DFRobotVL53L0X()
@@ -25,7 +25,7 @@ DFRobotVL53L0X::~DFRobotVL53L0X()
 void DFRobotVL53L0X::begin(uint8_t i2c_addr=0x29){
   uint8_t val1;
   hal_cpu_delay(1500);
-  DetailedData.I2cDevAddr = I2C_DevAddr;
+  _DetailedData.I2cDevAddr = I2C_DevAddr;
   DataInit();
   setDeviceAddress(i2c_addr);
   val1 = readByteData(VL53L0X_REG_IDENTIFICATION_REVISION_ID);
@@ -33,7 +33,7 @@ void DFRobotVL53L0X::begin(uint8_t i2c_addr=0x29){
   kprintf_debug("Revision ID: %x", val1);
 
   val1 = readByteData(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
-  kprintf_debug("Device ID: %d", val1); 
+  kprintf_debug("Device ID: %x", val1);
   kprintf_debug("\n\r");
 
 }
@@ -66,7 +66,7 @@ void DFRobotVL53L0X::writeData(unsigned char Reg ,unsigned char *buf,
 }
 
 void DFRobotVL53L0X::writeByteData(unsigned char Reg, unsigned char byte){
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write(Reg);              // sends one byte
 	Wire.write((uint8_t)byte);
 	Wire.endTransmission();     // stop transmitting
@@ -74,14 +74,14 @@ void DFRobotVL53L0X::writeByteData(unsigned char Reg, unsigned char byte){
 
 void DFRobotVL53L0X::readData(unsigned char Reg, unsigned char Num){
 
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write((uint8_t)Reg);              // sends one byte
 	Wire.endTransmission();    // stop transmitting
-    Wire.requestFrom((uint8_t)DetailedData.I2cDevAddr, (uint8_t)Num);
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)Num);
 
 	for(int i=0;i<Num;i++)
 	{
-		DetailedData.originalData[i] = Wire.read();
+		_DetailedData.originalData[i] = Wire.read();
 		hal_cpu_delay(1);
 	}
 }
@@ -89,10 +89,10 @@ void DFRobotVL53L0X::readData(unsigned char Reg, unsigned char Num){
 
 uint8_t DFRobotVL53L0X::readByteData(unsigned char Reg){
 	uint8_t data;
-	Wire.beginTransmission(DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
 	Wire.write((uint8_t)Reg);              // sends one byte
 	Wire.endTransmission();    // stop transmitting
-    Wire.requestFrom((uint8_t)DetailedData.I2cDevAddr, (uint8_t)1);
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)1);
 	data = Wire.read();
 	return data;
 }
@@ -103,7 +103,7 @@ void DFRobotVL53L0X::start(){
 	uint8_t StartStopByte = VL53L0X_REG_SYSRANGE_MODE_START_STOP;
 	uint32_t LoopNb;
 
-	DeviceMode = DetailedData.mode;
+	DeviceMode = _DetailedData.mode;
 
 	writeByteData(0x80, 0x01);
 	writeByteData(0xFF, 0x01);
@@ -140,19 +140,19 @@ void DFRobotVL53L0X::start(){
 
 void DFRobotVL53L0X::readVL53L0X(){
 	readData(VL53L0X_REG_RESULT_RANGE_STATUS, 12);
-	DetailedData.ambientCount = ((DetailedData.originalData[6] & 0xFF) << 8) |
-									(DetailedData.originalData[7] & 0xFF);
-	DetailedData.signalCount = ((DetailedData.originalData[8] & 0xFF) << 8) |
-									(DetailedData.originalData[9] & 0xFF);
-	DetailedData.distance = ((DetailedData.originalData[10] & 0xFF) << 8) |
-								(DetailedData.originalData[11] & 0xFF);
-	DetailedData.status = ((DetailedData.originalData[0] & 0x78) >> 3);
+	_DetailedData.ambientCount = ((_DetailedData.originalData[6] & 0xFF) << 8) |
+									(_DetailedData.originalData[7] & 0xFF);
+	_DetailedData.signalCount = ((_DetailedData.originalData[8] & 0xFF) << 8) |
+									(_DetailedData.originalData[9] & 0xFF);
+	_DetailedData.distance = ((_DetailedData.originalData[10] & 0xFF) << 8) |
+								(_DetailedData.originalData[11] & 0xFF);
+	_DetailedData.status = ((_DetailedData.originalData[0] & 0x78) >> 3);
 }
 
 void DFRobotVL53L0X::setDeviceAddress(uint8_t newAddr){
 	newAddr &= 0x7F;
 	writeByteData(VL53L0X_REG_I2C_SLAVE_DEVICE_ADDRESS, newAddr);
-	DetailedData.I2cDevAddr = newAddr;
+	_DetailedData.I2cDevAddr = newAddr;
 }
 
 
@@ -162,14 +162,14 @@ void DFRobotVL53L0X::highPrecisionEnable(FunctionalState NewState){
 }
 
 void DFRobotVL53L0X::setMode(ModeState mode, PrecisionState precision){
-	DetailedData.mode = mode;
+	_DetailedData.mode = mode;
 	if(precision == High){
 		highPrecisionEnable(ENABLE);
-		DetailedData.precision = precision;
+		_DetailedData.precision = precision;
 	}
 	else{
 		highPrecisionEnable(DISABLE);
-		DetailedData.precision = precision;
+		_DetailedData.precision = precision;
 	}
 }
 
@@ -187,27 +187,27 @@ void DFRobotVL53L0X::stop(){
 
 float DFRobotVL53L0X::getDistance(){
 	readVL53L0X();
-	if(DetailedData.distance == 20)
-		DetailedData.distance = _distance;
+	if(_DetailedData.distance == 20)
+		_DetailedData.distance = _distance;
 	else
-		_distance = DetailedData.distance;
-	if(DetailedData.precision == High)
-		return DetailedData.distance/4.0;
+		_distance = _DetailedData.distance;
+	if(_DetailedData.precision == High)
+		return _DetailedData.distance/4.0;
 	else
-		return DetailedData.distance;
+		return _DetailedData.distance;
 }
 
 uint16_t DFRobotVL53L0X::getAmbientCount(){
 	readVL53L0X();
-	return DetailedData.ambientCount;
+	return _DetailedData.ambientCount;
 }
 
 uint16_t DFRobotVL53L0X::getSignalCount(){
 	readVL53L0X();
-	return DetailedData.signalCount;
+	return _DetailedData.signalCount;
 }
 
 uint8_t DFRobotVL53L0X::getStatus(){
 	readVL53L0X();
-	return DetailedData.status;
+	return _DetailedData.status;
 }
