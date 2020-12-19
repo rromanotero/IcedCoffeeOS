@@ -230,7 +230,7 @@ void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
 *	Writes a character to the specified Serial port
 *
 */
-void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
+void hal_io_serial_putc( tSerialPort* serial_port, char c ){
   switch( serial_port->id ){
     case SerialA: serial_port->internal_driver_a->write(c); break;
     case SerialB: serial_port->internal_driver_b->write(c); break;

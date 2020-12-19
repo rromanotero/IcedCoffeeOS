@@ -21,43 +21,92 @@
 #include "main.h"
 
 extern tPioPin led_pin;
+volatile int32_t light_intensity = 0;
 
-tPioPin led_pin_r;
-tPioPin led_pin_g;
-tPioPin led_pin_b;
+void distance_kthread(void){
 
-volatile int32_t light_intensity;
-volatile int32_t inverse_light_intensity;
+  DFRobotVL53L0X vl53l0_front;
+  DFRobotVL53L0X vl53l0_middle_left;
+  DFRobotVL53L0X vl53l0_middle_right;
+  DFRobotVL53L0X vl53l0_back_left;
+  DFRobotVL53L0X vl53l0_back_right;
 
-void light_intensity_print_kthread(void){
-  //  Wiring diagram
-  //
-  //           Vcc
-  //           |
-  //    PHOTO-TRANSISTOR
-  //           |
-  //           +------ 10K RESISTOR ---- ADC 0
-  //           |
-  //      560K RESISTOR
-  //           |
-  //          GND
+  tPioPin d_sensor_front_pin;
+  tPioPin d_sensor_middle_left_pin;
+  tPioPin d_sensor_middle_right_pin;
+  tPioPin d_sensor_back_left_pin;
+  tPioPin d_sensor_back_right_pin;
 
-  //Light sensor
-  tAdcChannel light_sensor_adc;
-  adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
+  pio_create_pin(&d_sensor_front_pin, PioB, 9, PioOutput);
+  pio_create_pin(&d_sensor_middle_left_pin, PioA, 20, PioOutput);
+  pio_create_pin(&d_sensor_middle_right_pin, PioB, 2, PioOutput);
+  pio_create_pin(&d_sensor_back_left_pin, PioA, 4, PioOutput);
+  pio_create_pin(&d_sensor_back_right_pin, PioA, 5, PioOutput);
+
+  //Reset all sensors
+  pio_write(&d_sensor_front_pin, false);
+  pio_write(&d_sensor_middle_left_pin, false);
+  pio_write(&d_sensor_middle_right_pin, false);
+  pio_write(&d_sensor_back_left_pin, false);
+  pio_write(&d_sensor_back_right_pin, false);
+
+  hal_cpu_delay(10);
+
+  Wire.begin();
+
+  // -- Bring them ON with a new adddress one by one --
+  pio_write(&d_sensor_front_pin, true); //enable
+  vl53l0_front.begin(0x10);
+  vl53l0_front.setMode(Continuous,Low);
+  vl53l0_front.start();
+
+  pio_write(&d_sensor_middle_left_pin, true); //enable
+  vl53l0_middle_left.begin(0x11);
+  vl53l0_middle_left.setMode(Continuous,Low);
+  vl53l0_middle_left.start();
+
+  pio_write(&d_sensor_middle_right_pin, true); //enable
+  vl53l0_middle_right.begin(0x12);
+  vl53l0_middle_right.setMode(Continuous,Low);
+  vl53l0_middle_right.start();
+
+  pio_write(&d_sensor_back_left_pin, true); //enable
+  vl53l0_back_left.begin(0x13);
+  vl53l0_back_left.setMode(Continuous,Low);
+  vl53l0_back_left.start();
+
+  pio_write(&d_sensor_back_right_pin, true); //enable
+  vl53l0_back_right.begin(0x14);
+  vl53l0_back_right.setMode(Continuous,Low);
+  vl53l0_back_right.start();
+
+  hal_cpu_delay(100);
 
   while(true){
-    light_intensity = adc_read(&light_sensor_adc);
-    inverse_light_intensity = 1024 - light_intensity;
+    //Get distances
+    kprintf_debug("Front: %d \n\r", (uint32_t)(vl53l0_front.getDistance()));
+    kprintf_debug("Middle left: %d \n\r", (uint32_t)(vl53l0_middle_left.getDistance()));
+    kprintf_debug("Middle right: %d \n\r", (uint32_t)(vl53l0_middle_right.getDistance()));
+    kprintf_debug("Back left: %d \n\r", (uint32_t)(vl53l0_back_left.getDistance()));
+    kprintf_debug("Back right: %d \n\r", (uint32_t)(vl53l0_back_right.getDistance()));
 
-    kprintf_debug("Light Intensity = %d \n\r", light_intensity);
-    kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
-    hal_cpu_delay(100);
+    light_intensity =  (uint32_t)(vl53l0_back_right.getAmbientCount());
+
+    hal_cpu_delay(50);
   }
 
 }
 
+
 void led_blink_kthread(void){
+
+  tPioPin led_pin_r;
+  tPioPin led_pin_g;
+  tPioPin led_pin_b;
+
+  //wait for light reads to begin
+  while(light_intensity==0);
+
   //
   //Each pin has a 2.2K resistor
   //
@@ -66,21 +115,20 @@ void led_blink_kthread(void){
   pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    //pio_write(&led_pin, !pio_read(&led_pin));
 
-    if(light_intensity < 60){
+    if(light_intensity > 1000){
       //red
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, false);
       pio_write(&led_pin_b, false);
     }
-    else if(light_intensity < 70){
+    else if(light_intensity > 50){
       //Purple
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, false);
       pio_write(&led_pin_b, true);
     }
-    else if(light_intensity < 130){
+    else if(light_intensity > 5){
       //White
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, true);
@@ -93,13 +141,14 @@ void led_blink_kthread(void){
       pio_write(&led_pin_b, false);
     }
 
-    hal_cpu_delay(inverse_light_intensity/2);
+    hal_cpu_delay(100+light_intensity);
 
     pio_write(&led_pin_r, false);
     pio_write(&led_pin_g, false);
     pio_write(&led_pin_b, false);
 
-    hal_cpu_delay(inverse_light_intensity/2 );
+    hal_cpu_delay(100+light_intensity);
+
   }
 
 }
@@ -109,13 +158,228 @@ void ARDUINO_KERNEL_MAIN() {
   system_init();
 
   scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
+  scheduler_thread_create( distance_kthread, "distance_kthread", 4096, ProcQueueReadyRealTime );
 
   while(true);
 
   //Exit so we don't
   //loop over and over
   exit(0);
+}
+
+
+
+/*!
+ * @file DFRobot_VL53L0X.cpp
+ * @brief DFRobot's Laser rangefinder library
+ * @n This example provides the VL53L0X laser rangefinder API function
+ * @copyright	[DFRobot](http://www.dfrobot.com), 2016
+ * @copyright	GNU Lesser General Public License
+
+ * @author [LiXin]
+ * @version  V1.0
+ * @date  2017-8-21
+ * @https://github.com/DFRobot/DFRobot_VL53L0X
+ */
+
+//VL53L0X_DetailedData_t _DetailedData;
+
+
+DFRobotVL53L0X::DFRobotVL53L0X()
+{}
+
+DFRobotVL53L0X::~DFRobotVL53L0X()
+{}
+
+
+void DFRobotVL53L0X::begin(uint8_t i2c_addr=0x29){
+  uint8_t val1;
+  hal_cpu_delay(1500);
+  _DetailedData.I2cDevAddr = I2C_DevAddr;
+  DataInit();
+  setDeviceAddress(i2c_addr);
+  val1 = readByteData(VL53L0X_REG_IDENTIFICATION_REVISION_ID);
+  kprintf_debug("\n\r");
+  kprintf_debug("Revision ID: %x", val1);
+
+  val1 = readByteData(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
+  kprintf_debug("Device ID: %x", val1);
+  kprintf_debug("\n\r");
+
+}
+
+void DFRobotVL53L0X::DataInit(){
+	uint8_t data;
+#ifdef ESD_2V8
+	data = readByteData(VL53L0X_REG_VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV);
+	data = (data & 0xFE) | 0x01;
+	writeByteData(VL53L0X_REG_VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV, data);
+#endif
+	writeByteData(0x88, 0x00);
+	writeByteData(0x80, 0x01);
+	writeByteData(0xFF, 0x01);
+	writeByteData(0x00, 0x00);
+	readByteData(0x91);
+	writeByteData(0x91, 0x3c);
+	writeByteData(0x00, 0x01);
+	writeByteData(0xFF, 0x00);
+	writeByteData(0x80, 0x00);
+}
+
+
+void DFRobotVL53L0X::writeData(unsigned char Reg ,unsigned char *buf,
+	unsigned char Num){
+   for(unsigned char i=0;i<Num;i++)
+   {
+	   writeByteData(Reg++, buf[i]);
+   }
+}
+
+void DFRobotVL53L0X::writeByteData(unsigned char Reg, unsigned char byte){
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.write(Reg);              // sends one byte
+	Wire.write((uint8_t)byte);
+	Wire.endTransmission();     // stop transmitting
+}
+
+void DFRobotVL53L0X::readData(unsigned char Reg, unsigned char Num){
+
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.write((uint8_t)Reg);              // sends one byte
+	Wire.endTransmission();    // stop transmitting
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)Num);
+
+	for(int i=0;i<Num;i++)
+	{
+		_DetailedData.originalData[i] = Wire.read();
+		hal_cpu_delay(1);
+	}
+}
+
+
+uint8_t DFRobotVL53L0X::readByteData(unsigned char Reg){
+	uint8_t data;
+	Wire.beginTransmission(_DetailedData.I2cDevAddr); // transmit to device #8
+	Wire.write((uint8_t)Reg);              // sends one byte
+	Wire.endTransmission();    // stop transmitting
+    Wire.requestFrom((uint8_t)_DetailedData.I2cDevAddr, (uint8_t)1);
+	data = Wire.read();
+	return data;
+}
+
+void DFRobotVL53L0X::start(){
+	uint8_t DeviceMode;
+	uint8_t Byte;
+	uint8_t StartStopByte = VL53L0X_REG_SYSRANGE_MODE_START_STOP;
+	uint32_t LoopNb;
+
+	DeviceMode = _DetailedData.mode;
+
+	writeByteData(0x80, 0x01);
+	writeByteData(0xFF, 0x01);
+	writeByteData(0x00, 0x00);
+	writeByteData(0x91, 0x3c);
+	writeByteData(0x00, 0x01);
+	writeByteData(0xFF, 0x00);
+	writeByteData(0x80, 0x00);
+
+	switch(DeviceMode){
+		case VL53L0X_DEVICEMODE_SINGLE_RANGING:
+			writeByteData(VL53L0X_REG_SYSRANGE_START, 0x01);
+			Byte = StartStopByte;
+			/* Wait until start bit has been cleared */
+			LoopNb = 0;
+			do {
+				if (LoopNb > 0) Byte = readByteData(VL53L0X_REG_SYSRANGE_START);
+				LoopNb = LoopNb + 1;
+			} while (((Byte & StartStopByte) == StartStopByte) &&
+						(LoopNb < VL53L0X_DEFAULT_MAX_LOOP));
+			break;
+		case VL53L0X_DEVICEMODE_CONTINUOUS_RANGING:
+			/* Back-to-back mode */
+			/* Check if need to apply interrupt settings */
+			//VL53L0X_CheckAndLoadInterruptSettings(Dev, 1);中断检查?
+			writeByteData(VL53L0X_REG_SYSRANGE_START, VL53L0X_REG_SYSRANGE_MODE_BACKTOBACK);
+			break;
+		default:
+			/* Selected mode not supported */
+			kprintf_debug("---Selected mode not supported---");
+      kprintf_debug("\n\r");
+	}
+}
+
+void DFRobotVL53L0X::readVL53L0X(){
+	readData(VL53L0X_REG_RESULT_RANGE_STATUS, 12);
+	_DetailedData.ambientCount = ((_DetailedData.originalData[6] & 0xFF) << 8) |
+									(_DetailedData.originalData[7] & 0xFF);
+	_DetailedData.signalCount = ((_DetailedData.originalData[8] & 0xFF) << 8) |
+									(_DetailedData.originalData[9] & 0xFF);
+	_DetailedData.distance = ((_DetailedData.originalData[10] & 0xFF) << 8) |
+								(_DetailedData.originalData[11] & 0xFF);
+	_DetailedData.status = ((_DetailedData.originalData[0] & 0x78) >> 3);
+}
+
+void DFRobotVL53L0X::setDeviceAddress(uint8_t newAddr){
+	newAddr &= 0x7F;
+	writeByteData(VL53L0X_REG_I2C_SLAVE_DEVICE_ADDRESS, newAddr);
+	_DetailedData.I2cDevAddr = newAddr;
+}
+
+
+void DFRobotVL53L0X::highPrecisionEnable(FunctionalState NewState){
+	writeByteData(VL53L0X_REG_SYSTEM_RANGE_CONFIG,
+		NewState);
+}
+
+void DFRobotVL53L0X::setMode(ModeState mode, PrecisionState precision){
+	_DetailedData.mode = mode;
+	if(precision == High){
+		highPrecisionEnable(ENABLE);
+		_DetailedData.precision = precision;
+	}
+	else{
+		highPrecisionEnable(DISABLE);
+		_DetailedData.precision = precision;
+	}
+}
+
+
+
+void DFRobotVL53L0X::stop(){
+	writeByteData(VL53L0X_REG_SYSRANGE_START, VL53L0X_REG_SYSRANGE_MODE_SINGLESHOT);
+
+	writeByteData(0xFF, 0x01);
+	writeByteData(0x00, 0x00);
+	writeByteData(0x91, 0x00);
+	writeByteData(0x00, 0x01);
+	writeByteData(0xFF, 0x00);
+}
+
+float DFRobotVL53L0X::getDistance(){
+	readVL53L0X();
+	if(_DetailedData.distance == 20)
+		_DetailedData.distance = _distance;
+	else
+		_distance = _DetailedData.distance;
+	if(_DetailedData.precision == High)
+		return _DetailedData.distance/4.0;
+	else
+		return _DetailedData.distance;
+}
+
+uint16_t DFRobotVL53L0X::getAmbientCount(){
+	readVL53L0X();
+	return _DetailedData.ambientCount;
+}
+
+uint16_t DFRobotVL53L0X::getSignalCount(){
+	readVL53L0X();
+	return _DetailedData.signalCount;
+}
+
+uint8_t DFRobotVL53L0X::getStatus(){
+	readVL53L0X();
+	return _DetailedData.status;
 }
 
 
@@ -924,7 +1188,7 @@ void hal_io_serial_puts( tSerialPort* serial_port, char* str ){
 *	Writes a character to the specified Serial port
 *
 */
-void hal_io_serial_putc( tSerialPort* serial_port, uint8_t c ){
+void hal_io_serial_putc( tSerialPort* serial_port, char c ){
   switch( serial_port->id ){
     case SerialA: serial_port->internal_driver_a->write(c); break;
     case SerialB: serial_port->internal_driver_b->write(c); break;
@@ -1426,6 +1690,29 @@ tIcedQSuscription* suscriptions_pool_get_one(void){
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+void serial_putc(tSerialPort* serial_port, char* str){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallSerialPutc);
+  iql_input.arg0 = (uint32_t)(serial_port);
+  iql_input.arg1 = (uint32_t)(str);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+}
+
 uint32_t adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
   uint8_t iql_request_num;
@@ -1599,13 +1886,13 @@ void icedqlib_yield(void){
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-void local_putc( uint8_t c ){
+void local_putc( char* c ){
     //No video yet
     //hal_video_putc( c, SYSTEM_SCREEN_TEXT_SIZE, SYSTEM_SCREEN_TEXT_COLOR );
 }
 
-void debug_putc( uint8_t c ){
-    hal_io_serial_putc( &serial_usb, c );
+void debug_putc( char* c ){
+    serial_putc( &serial_usb, c );
 }
 
 _Bool isdigit(unsigned char c) {
@@ -1621,17 +1908,17 @@ void kprintf(const char *format, ...) {
 
 void kprintf_debug(const char *format, ...) {
 
-    tLock lock;
+    //tLock lock;
 
     if( SYSTEM_DEBUG_ON ){
-        spin_lock_acquire(&lock);
+        //spin_lock_acquire(&lock);
 
         va_list args;
         va_start(args, format);
         vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
         va_end(args);
 
-        spin_lock_release(&lock);
+        //spin_lock_release(&lock);
     }
 }
 
@@ -2489,8 +2776,8 @@ void syscalls_kthread(void){
 }
 
 void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+    //kprintf_debug( " == Attending syscall num %d ===", request_num );
+    //kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
 
     //attend syscall
     switch(request_num){
@@ -2512,6 +2799,10 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             break;
         case SyscallAdcRead:
             out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
+        case SyscallSerialPutc:
+            hal_io_serial_putc((tSerialPort*)(in->arg0), (char)(in->arg1));
             out->output_ready = true;
             break;
         //Error

@@ -74,8 +74,8 @@ void syscalls_kthread(void){
 }
 
 void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* out){
-    kprintf_debug( " == Attending syscall num %d ===", request_num );
-    kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
+    //kprintf_debug( " == Attending syscall num %d ===", request_num );
+    //kprintf_debug( " == param0=%d, param1=%d, param2=%d, param3=%d === \n\r", in->arg0, in->arg1, in->arg2, in->arg3 );
 
     //attend syscall
     switch(request_num){
@@ -97,6 +97,10 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             break;
         case SyscallAdcRead:
             out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
+            out->output_ready = true;
+            break;
+        case SyscallSerialPutc:
+            hal_io_serial_putc((tSerialPort*)(in->arg0), (char)(in->arg1));
             out->output_ready = true;
             break;
         //Error

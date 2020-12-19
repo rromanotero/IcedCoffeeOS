@@ -18,6 +18,29 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+void serial_putc(tSerialPort* serial_port, char* str){
+  uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
+  uint8_t iql_request_num;
+  tSyscallInput iql_input;
+  tSyscallOutput iql_output;
+
+  //Setup request
+  iql_request_num = (uint32_t)(SyscallSerialPutc);
+  iql_input.arg0 = (uint32_t)(serial_port);
+  iql_input.arg1 = (uint32_t)(str);
+  syscall_utils_raw_request_populate(iql_raw_request, iql_request_num, &iql_input, &iql_output);
+
+  //mark output as not ready
+  iql_output.output_ready = false;
+
+  //make syscall
+  icedq_publish("system.syscalls", iql_raw_request, SYSCALLS_REQUEST_SIZE_IN_BYTES);
+
+  //wait for output to be ready
+  while(!iql_output.output_ready)
+    icedqlib_yield();
+}
+
 uint32_t adc_create_channel(tAdcChannel* adc, tAdcId id, tIoType io_type){
   uint8_t iql_raw_request[SYSCALLS_REQUEST_SIZE_IN_BYTES];
   uint8_t iql_request_num;
