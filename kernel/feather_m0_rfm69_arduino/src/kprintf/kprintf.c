@@ -39,13 +39,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-void local_putc( uint8_t c ){
+void local_putc( char* c ){
     //No video yet
     //hal_video_putc( c, SYSTEM_SCREEN_TEXT_SIZE, SYSTEM_SCREEN_TEXT_COLOR );
 }
 
-void debug_putc( uint8_t c ){
-    hal_io_serial_putc( &serial_usb, c );
+void debug_putc( char* c ){
+    serial_putc( &serial_usb, c );
 }
 
 _Bool isdigit(unsigned char c) {
@@ -61,17 +61,17 @@ void kprintf(const char *format, ...) {
 
 void kprintf_debug(const char *format, ...) {
 
-    tLock lock;
+    //tLock lock;
 
     if( SYSTEM_DEBUG_ON ){
-        spin_lock_acquire(&lock);
+        //spin_lock_acquire(&lock);
 
         va_list args;
         va_start(args, format);
         vcprintf((vcprintf_callback_t)debug_putc, NULL, format, args);
         va_end(args);
 
-        spin_lock_release(&lock);
+        //spin_lock_release(&lock);
     }
 }
 

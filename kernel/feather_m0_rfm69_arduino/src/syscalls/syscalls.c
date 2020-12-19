@@ -99,6 +99,10 @@ void attend_syscall( uint32_t request_num, tSyscallInput* in, tSyscallOutput* ou
             out->ret_val = hal_io_adc_read((tAdcChannel*)(in->arg0));
             out->output_ready = true;
             break;
+        case SyscallSerialPutc:
+            hal_io_serial_putc((tSerialPort*)(in->arg0), (char)(in->arg1));
+            out->output_ready = true;
+            break;
         //Error
         default:
             //Ignore syscall

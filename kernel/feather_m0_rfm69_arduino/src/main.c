@@ -20,116 +20,92 @@
 **/
 #include "hal.h"
 
-DFRobotVL53L0X vl53l0;
 extern tPioPin led_pin;
-
-tPioPin led_pin_r;
-tPioPin led_pin_g;
-tPioPin led_pin_b;
-
-tPioPin d_sensor_front_pin;
-tPioPin d_sensor_middle_left_pin;
-tPioPin d_sensor_middle_right_pin;
-tPioPin d_sensor_back_left_pin;
-tPioPin d_sensor_back_right_pin;
-
-volatile int32_t light_intensity;
-volatile int32_t inverse_light_intensity;
+volatile int32_t light_intensity = 0;
 
 void distance_kthread(void){
 
-  hal_io_pio_create_pin(&d_sensor_front_pin, PioB, 9, PioOutput);
-  hal_io_pio_create_pin(&d_sensor_middle_left_pin, PioA, 20, PioOutput);
-  hal_io_pio_create_pin(&d_sensor_middle_right_pin, PioB, 2, PioOutput);
-  hal_io_pio_create_pin(&d_sensor_back_left_pin, PioA, 4, PioOutput);
-  hal_io_pio_create_pin(&d_sensor_back_right_pin, PioA, 5, PioOutput);
+  DFRobotVL53L0X vl53l0_front;
+  DFRobotVL53L0X vl53l0_middle_left;
+  DFRobotVL53L0X vl53l0_middle_right;
+  DFRobotVL53L0X vl53l0_back_left;
+  DFRobotVL53L0X vl53l0_back_right;
+
+  tPioPin d_sensor_front_pin;
+  tPioPin d_sensor_middle_left_pin;
+  tPioPin d_sensor_middle_right_pin;
+  tPioPin d_sensor_back_left_pin;
+  tPioPin d_sensor_back_right_pin;
+
+  pio_create_pin(&d_sensor_front_pin, PioB, 9, PioOutput);
+  pio_create_pin(&d_sensor_middle_left_pin, PioA, 20, PioOutput);
+  pio_create_pin(&d_sensor_middle_right_pin, PioB, 2, PioOutput);
+  pio_create_pin(&d_sensor_back_left_pin, PioA, 4, PioOutput);
+  pio_create_pin(&d_sensor_back_right_pin, PioA, 5, PioOutput);
 
   //Reset all sensors
-  hal_io_pio_write(&d_sensor_front_pin, false);
-  hal_io_pio_write(&d_sensor_middle_left_pin, false);
-  hal_io_pio_write(&d_sensor_middle_right_pin, false);
-  hal_io_pio_write(&d_sensor_back_left_pin, false);
-  hal_io_pio_write(&d_sensor_back_right_pin, false);
+  pio_write(&d_sensor_front_pin, false);
+  pio_write(&d_sensor_middle_left_pin, false);
+  pio_write(&d_sensor_middle_right_pin, false);
+  pio_write(&d_sensor_back_left_pin, false);
+  pio_write(&d_sensor_back_right_pin, false);
 
   hal_cpu_delay(10);
 
   Wire.begin();
 
   // -- Bring them ON with a new adddress one by one --
+  pio_write(&d_sensor_front_pin, true); //enable
+  vl53l0_front.begin(0x10);
+  vl53l0_front.setMode(Continuous,Low);
+  vl53l0_front.start();
 
-  hal_io_pio_write(&d_sensor_front_pin, true); //enable
-  vl53l0.begin(0x10);
-  vl53l0.setMode(Continuous,Low);
-  vl53l0.start();
-
-  DFRobotVL53L0X vl53l0_middle_left;
-  hal_io_pio_write(&d_sensor_middle_left_pin, true); //enable
+  pio_write(&d_sensor_middle_left_pin, true); //enable
   vl53l0_middle_left.begin(0x11);
   vl53l0_middle_left.setMode(Continuous,Low);
   vl53l0_middle_left.start();
 
-  DFRobotVL53L0X vl53l0_middle_right;
-  hal_io_pio_write(&d_sensor_middle_right_pin, true); //enable
+  pio_write(&d_sensor_middle_right_pin, true); //enable
   vl53l0_middle_right.begin(0x12);
   vl53l0_middle_right.setMode(Continuous,Low);
   vl53l0_middle_right.start();
 
+  pio_write(&d_sensor_back_left_pin, true); //enable
+  vl53l0_back_left.begin(0x13);
+  vl53l0_back_left.setMode(Continuous,Low);
+  vl53l0_back_left.start();
+
+  pio_write(&d_sensor_back_right_pin, true); //enable
+  vl53l0_back_right.begin(0x14);
+  vl53l0_back_right.setMode(Continuous,Low);
+  vl53l0_back_right.start();
+
   hal_cpu_delay(100);
 
   while(true){
-    //Get the distance
-    kprintf_debug("Front: %d \n\r", (uint32_t)(vl53l0.getDistance()));
+    //Get distances
+    kprintf_debug("Front: %d \n\r", (uint32_t)(vl53l0_front.getDistance()));
     kprintf_debug("Middle left: %d \n\r", (uint32_t)(vl53l0_middle_left.getDistance()));
     kprintf_debug("Middle right: %d \n\r", (uint32_t)(vl53l0_middle_right.getDistance()));
+    kprintf_debug("Back left: %d \n\r", (uint32_t)(vl53l0_back_left.getDistance()));
+    kprintf_debug("Back right: %d \n\r", (uint32_t)(vl53l0_back_right.getDistance()));
 
-    //kprintf_debug("Ambient Light: %d \n\r", sensor.getAmbientCount());
-    hal_cpu_delay(300);
+    light_intensity =  (uint32_t)(vl53l0_back_right.getAmbientCount());
+
+    hal_cpu_delay(50);
   }
 
 }
 
-void light_intensity_print_kthread(void){
-  //  Wiring diagram
-  //
-  //           Vcc
-  //           |
-  //    PHOTO-TRANSISTOR
-  //           |
-  //           +------ 10K RESISTOR ---- ADC 0
-  //           |
-  //      560K RESISTOR
-  //           |
-  //          GND
-
-  //Light sensor
-  tAdcChannel light_sensor_adc;
-  adc_create_channel(&light_sensor_adc, AdcA, IoPoll);
-
-  while(true){
-    light_intensity = adc_read(&light_sensor_adc);
-    inverse_light_intensity = 1024 - light_intensity;
-
-    //kprintf_debug("Light Intensity = %d \n\r", light_intensity);
-    //kprintf_debug("Light Intensity (inversed) = %d \n\r", inverse_light_intensity);
-    hal_cpu_delay(5000);
-  }
-
-}
 
 void led_blink_kthread(void){
-  //  Light sensor Wiring diagram
-  //
-  //           Vcc
-  //           |
-  //    PHOTO-TRANSISTOR
-  //           |
-  //           +------ 10K RESISTOR ---- ADC 0
-  //           |
-  //      560K RESISTOR
-  //           |
-  //          GND
 
+  tPioPin led_pin_r;
+  tPioPin led_pin_g;
+  tPioPin led_pin_b;
 
+  //wait for light reads to begin
+  while(light_intensity==0);
 
   //
   //Each pin has a 2.2K resistor
@@ -139,21 +115,20 @@ void led_blink_kthread(void){
   pio_create_pin(&led_pin_b, PioA, 19, PioOutput);
 
   while(true){
-    //pio_write(&led_pin, !pio_read(&led_pin));
 
-    if(light_intensity < 60){
+    if(light_intensity > 1000){
       //red
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, false);
       pio_write(&led_pin_b, false);
     }
-    else if(light_intensity < 70){
+    else if(light_intensity > 50){
       //Purple
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, false);
       pio_write(&led_pin_b, true);
     }
-    else if(light_intensity < 130){
+    else if(light_intensity > 5){
       //White
       pio_write(&led_pin_r, true);
       pio_write(&led_pin_g, true);
@@ -166,13 +141,14 @@ void led_blink_kthread(void){
       pio_write(&led_pin_b, false);
     }
 
-    hal_cpu_delay(inverse_light_intensity/2);
+    hal_cpu_delay(100+light_intensity);
 
     pio_write(&led_pin_r, false);
     pio_write(&led_pin_g, false);
     pio_write(&led_pin_b, false);
 
-    hal_cpu_delay(inverse_light_intensity/2 );
+    hal_cpu_delay(100+light_intensity);
+
   }
 
 }
@@ -182,7 +158,6 @@ void ARDUINO_KERNEL_MAIN() {
   system_init();
 
   scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
-  scheduler_thread_create( light_intensity_print_kthread, "light_intensity_print_kthread", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( distance_kthread, "distance_kthread", 4096, ProcQueueReadyRealTime );
 
   while(true);

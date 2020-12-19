@@ -726,7 +726,8 @@ enum{
     SyscallPioWrite                 = 1,
     SyscallPioRead                  = 2,
     SyscallAdcCreateChannel         = 3,
-    SyscallAdcRead                  = 4
+    SyscallAdcRead                  = 4,
+    SyscallSerialPutc               = 5
 };
 
 #define SYSCALLS_QUEUE_SIZE             1000
