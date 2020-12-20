@@ -26,6 +26,7 @@ volatile int32_t light_intensity = 0;
 void motor_kthread(void){
 
 
+
   while(true){
       kprintf_debug("Motor thread");
       hal_cpu_delay(1000);
