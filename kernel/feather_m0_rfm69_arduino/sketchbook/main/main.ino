@@ -23,6 +23,16 @@
 extern tPioPin led_pin;
 volatile int32_t light_intensity = 0;
 
+void motor_kthread(void){
+
+
+  while(true){
+      kprintf_debug("Motor thread");
+      hal_cpu_delay(1000);
+  }
+
+}
+
 void distance_kthread(void){
 
   DFRobotVL53L0X vl53l0_front;
@@ -105,7 +115,9 @@ void led_blink_kthread(void){
   tPioPin led_pin_b;
 
   //wait for light reads to begin
-  while(light_intensity==0);
+  while(light_intensity==0){
+    icedqlib_yield();
+  }
 
   //
   //Each pin has a 2.2K resistor
@@ -157,8 +169,9 @@ void led_blink_kthread(void){
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( distance_kthread, "distance_kthread", 4096, ProcQueueReadyRealTime );
+  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 512, ProcQueueReadyRealTime );
+  scheduler_thread_create( motor_kthread, "motor_kthread", 512, ProcQueueReadyRealTime );
 
   while(true);
 
@@ -168,6 +181,27 @@ void ARDUINO_KERNEL_MAIN() {
 }
 
 
+
+/**
+*   This file is part of IcedCoffeeOS
+*   (https://github.com/rromanotero/IcedCoffeeOS).
+*
+*   Copyright (c) 2020 Rafael Roman Otero.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+**/
 
 /*!
  * @file DFRobot_VL53L0X.cpp

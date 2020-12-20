@@ -105,7 +105,9 @@ void led_blink_kthread(void){
   tPioPin led_pin_b;
 
   //wait for light reads to begin
-  while(light_intensity==0);
+  while(light_intensity==0){
+    icedqlib_yield();
+  }
 
   //
   //Each pin has a 2.2K resistor
@@ -157,8 +159,8 @@ void led_blink_kthread(void){
 void ARDUINO_KERNEL_MAIN() {
   system_init();
 
-  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 1024, ProcQueueReadyRealTime );
   scheduler_thread_create( distance_kthread, "distance_kthread", 4096, ProcQueueReadyRealTime );
+  scheduler_thread_create( led_blink_kthread, "led_blink_kthread", 512, ProcQueueReadyRealTime );
 
   while(true);
 
