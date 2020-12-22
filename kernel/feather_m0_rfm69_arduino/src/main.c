@@ -25,6 +25,20 @@ volatile int32_t light_intensity = 0;
 
 void motor_kthread(void){
 
+  tPioPin l298n_a;
+  tPioPin l298n_b;
+  tPioPin l298n_c;
+  tPioPin l298n_d;
+
+  pio_create_pin(&l298n_a, PioB, 9, PioOutput);
+  pio_create_pin(&l298n_b, PioA, 4, PioOutput);
+  pio_create_pin(&l298n_c, PioA, 5, PioOutput);
+  pio_create_pin(&l298n_d, PioB, 2, PioOutput);
+
+  pio_write(&l298n_a, true);
+  pio_write(&l298n_b, false);
+  pio_write(&l298n_c, true);
+  pio_write(&l298n_d, false);
 
 
   while(true){
