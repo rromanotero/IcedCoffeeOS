@@ -39,6 +39,9 @@ void ARDUINO_KERNEL_MAIN() {
 
   while(!hal_io_serial_is_ready(&serial_usb));
 
+  hal_io_serial_puts(&serial_usb, "here we go");
+  hal_io_serial_puts(&serial_usb, "...");
+
   while(true){
     if( hal_radio_available(&radio) ){
       hal_radio_read(&radio, &message);

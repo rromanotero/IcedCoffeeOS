@@ -44,7 +44,7 @@ void ARDUINO_KERNEL_MAIN() {
   message.payload[6] = 'e';
   message.payload[7] = 'r';
   message.payload[8] = 'e';
-  message.payload[9] = '!';
+  message.payload[9] = '\0';
 
   while(true){
     hal_radio_write(&radio, &message);
