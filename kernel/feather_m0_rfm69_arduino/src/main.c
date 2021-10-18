@@ -18,44 +18,47 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 **/
+
+
 #include "hal.h"
 
-extern tPioPin led_pin;
-volatile int32_t light_intensity = 0;
+#define RECEIVER_ADDRESS  0
+#define TRANSMITTER_ADDRESS  1
 
-void motor_kthread(void){
-
-  tPioPin l298n_a;
-  tPioPin l298n_b;
-  tPioPin l298n_c;
-  tPioPin l298n_d;
-
-  pio_create_pin(&l298n_a, PioB, 9, PioOutput);
-  pio_create_pin(&l298n_b, PioA, 4, PioOutput);
-  pio_create_pin(&l298n_c, PioA, 5, PioOutput);
-  pio_create_pin(&l298n_d, PioB, 2, PioOutput);
-
-  pio_write(&l298n_a, true);
-  pio_write(&l298n_b, false);
-  pio_write(&l298n_c, true);
-  pio_write(&l298n_d, false);
-
-
-  while(true){
-      kprintf_debug("Motor thread");
-      hal_cpu_delay(1000);
-  }
-
-}
-
-
+tRadioMessage message; //Do not place in the stack
 
 void ARDUINO_KERNEL_MAIN() {
-  system_init();
 
-  scheduler_thread_create( motor_kthread, "motor_kthread", 512, ProcQueueReadyRealTime );
+  tPioPin led_pin;
+  tSerialPort serial_usb;
+  tRadioTransceiver radio;
 
-  while(true);
+  hal_io_pio_create_pin(&led_pin, PioA, 8, PioOutput);
+  hal_io_serial_create_port(&serial_usb, SerialA, IoPoll, 115200);
+  hal_radio_create_transceiver(&radio, RadioA, RECEIVER_ADDRESS, HAL_RADIO_TX_POWER_MAX/2);
+
+  while(!hal_io_serial_is_ready(&serial_usb));
+
+  hal_io_serial_puts(&serial_usb, "here we go");
+  hal_io_serial_puts(&serial_usb, "...");
+
+  while(true){
+    if( hal_radio_available(&radio) ){
+      hal_radio_read(&radio, &message);
+
+      //print message
+      for(int i=0; i<message.len; i++)
+        hal_io_serial_putc(&serial_usb, message.payload[i]);
+
+      //print RSSI too
+      char buf[20];
+      sprintf(buf, " RSSI = %d \n\r", message.rssi);
+      hal_io_serial_puts(&serial_usb, buf);
+
+      //Blink
+      hal_io_pio_write(&led_pin, !hal_io_pio_read(&led_pin));
+    }
+  }
 
   //Exit so we don't
   //loop over and over

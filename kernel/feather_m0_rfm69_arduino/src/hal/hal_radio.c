@@ -31,7 +31,7 @@ void hal_radio_init(void){
 }
 
 uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message ){
-  if (!transceiver->internal_manager->sendtoWait(message->payload, sizeof(message->payload), message->address))
+  if (!transceiver->internal_driver->send(message->payload, strlen( (const char*) message->payload)))
         return HAL_RADIO_SEND_FAILED;
 
   return HAL_SUCCESS;
@@ -39,11 +39,9 @@ uint32_t hal_radio_write(tRadioTransceiver* transceiver, tRadioMessage* message 
 
 uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message ){
   uint8_t len = sizeof(message->payload);
-  uint8_t from;
 
-  if( transceiver->internal_manager->recvfromAck( message->payload, &len, &from ) ){
+  if( transceiver->internal_driver->recv( message->payload, &len ) && len > 0){
     message->len = strlen( (const char*)message->payload );
-    message->address = from;
     message->rssi = abs( transceiver->internal_driver->lastRssi() );
     return HAL_SUCCESS;
   }else{
@@ -52,7 +50,7 @@ uint32_t hal_radio_read(tRadioTransceiver* transceiver, tRadioMessage* message )
 }
 
 uint32_t hal_radio_available(tRadioTransceiver* transceiver){
-  return transceiver->internal_manager->available();
+  return transceiver->internal_driver->available();
 }
 
 uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId id, uint32_t address, uint32_t tx_power ){
@@ -60,9 +58,8 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
   #define RFM69_INT     3
   #define RFM69_RST     4
 
-  // Make sure these two are STATIC!
+  // Make sure this is STATIC!
   static RH_RF69 rf69(RFM69_CS, RFM69_INT);
-  static RHReliableDatagram rf69_manager(rf69, address);
 
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
@@ -73,7 +70,7 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
   digitalWrite(RFM69_RST, LOW);
   delay(10);
 
-  if (!rf69_manager.init())
+  if (!rf69.init())
     return HAL_RADIO_INIT_FAILED;
 
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
@@ -86,14 +83,14 @@ uint32_t hal_radio_create_transceiver(tRadioTransceiver* transceiver, tRadioId i
   rf69.setTxPower(HAL_RADIO_TX_POWER_MIN, true);  // range from 14-20 for power, 2nd arg must be true for 69HCW
 
   // The encryption key has to be the same as the one in the server
-  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-  rf69.setEncryptionKey(key);
+  //uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+  //                  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  //rf69.setEncryptionKey(key); <--- Disabling encryption key for now, but can reenable later by uncmmenting
+  //                                 this code block
 
   transceiver->id = id;
   transceiver->io_type = IoPoll;
   transceiver->internal_driver = &rf69;
-  transceiver->internal_manager = &rf69_manager;
 
   return HAL_SUCCESS;
 }

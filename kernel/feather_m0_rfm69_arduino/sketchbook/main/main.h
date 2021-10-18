@@ -330,7 +330,6 @@ typedef struct{
 	tRadioId		id;
 	tIoType			io_type;
   RH_RF69*    internal_driver;
-  RHReliableDatagram* internal_manager;
 }tRadioTransceiver;
 
 typedef struct{
